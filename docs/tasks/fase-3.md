@@ -22,7 +22,7 @@ Specs: [00-overview](../specs/00-overview.md), [01-data-model](../specs/01-data-
 - [ ] **F3-013** · RLS-002 · Função `is_admin()`
 - [ ] **F3-014** · RLS-003 · Políticas das tabelas + testes da matriz (anon, autenticado, admin)
 - [ ] **F3-015** · RLS-004 · Políticas do Storage + teste de acesso anon ao bucket privado
-- [ ] **F3-016** · SEC-003 · `env.ts` com Zod em cada app
+- [x] **F3-016** · SEC-003 · `env.ts` com Zod em cada app
 - [ ] **F3-017** · SEC-002 · Client service role `server-only` no `apps/web`
 - [ ] **F3-018** · SEC-006 · Headers de segurança nos dois apps
 - [ ] **F3-019** · SEC-004 · Hasher HMAC (IP e e-mail) + teste

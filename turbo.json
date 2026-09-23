@@ -3,7 +3,8 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "cache": false
+      "cache": false,
+      "env": ["NEXT_PUBLIC_*"]
     },
     "typecheck": {},
     "lint": {},
