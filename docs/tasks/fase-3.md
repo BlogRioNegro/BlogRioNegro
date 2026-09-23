@@ -32,4 +32,4 @@ Specs: [00-overview](../specs/00-overview.md), [01-data-model](../specs/01-data-
 - [ ] **F3-021** · ADM-002 · Middleware + helper `requireAdmin()` usado em toda action
 - [ ] **F3-022** · OVW-005 · Vitest e Playwright configurados na raiz contra o Supabase local
 - [ ] **F3-023** · SEC-005 · Teste: Server Action do admin sem sessão retorna erro e não altera dados
-- [ ] **F3-024** · SEC-008 · Helper de erro genérico para o client + logger do server sem dados pessoais
+- [x] **F3-024** · SEC-008 · Helper de erro genérico para o client + logger do server sem dados pessoais
