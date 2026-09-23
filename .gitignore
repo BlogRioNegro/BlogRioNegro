@@ -1,0 +1,30 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build
+.next/
+out/
+dist/
+build/
+.turbo/
+
+# env (segredos nunca versionados)
+.env*
+!.env.example
+
+# supabase local
+supabase/.temp/
+supabase/.branches/
+
+# testes
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# misc
+*.log
+.DS_Store
+Thumbs.db
+*.tsbuildinfo
