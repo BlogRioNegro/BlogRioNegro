@@ -12,11 +12,21 @@ Visão, stack e mapa de specs: [docs/specs/00-overview.md](docs/specs/00-overvie
 **Durante**
 - Toda decisão nova vira ADR em `docs/adr/NNNN-titulo.md` (próximo número livre).
   Se contradiz spec ou ADR existente, atualizar a spec e marcar a ADR antiga como `superseded`.
-- Toda tarefa concluída é marcada `[x]` em `docs/tasks/fase-N.md`.
+- Na dúvida, parar: se a task exige decisão ausente das specs/ADRs, credencial ou ação
+  humana, não assumir. Registrar a pendência no memory e seguir para a próxima task independente.
 - Commits citam o ID da tarefa e do requisito: `feat(lead): F5-002 LEAD-006 rate limit`.
 
 **Fim**
 - Reescrever `docs/memory.md` inteiro (máx. ~40 linhas, sem histórico).
+
+## Definição de pronto
+
+Uma task só é marcada `[x]` em `docs/tasks/fase-N.md` quando:
+1. `typecheck`, `lint` e os testes passam, sem erros e sem warnings novos.
+2. Os critérios de aceite do requisito referenciado estão atendidos.
+3. Regra de negócio nova em `lib/domain` e toda Server Action têm teste (Vitest).
+   Fluxos críticos (lead, download, login) têm E2E (Playwright) na fase correspondente.
+4. O diff não tem código morto, `console.log`, TODO sem task, nem comentário que só repete o código.
 
 ## Regras não negociáveis
 
@@ -24,11 +34,39 @@ Visão, stack e mapa de specs: [docs/specs/00-overview.md](docs/specs/00-overvie
 - RLS habilitado em toda tabela. Políticas em [02-security-rls.md](docs/specs/02-security-rls.md).
 - `SUPABASE_SERVICE_ROLE_KEY` só em módulos com `import 'server-only'`, e só no `apps/web`.
 - Conteúdo completo de artigo (texto e PDF) nunca exposto por leitura pública. Ver [ADR 0007](docs/adr/0007-conteudo-gated-previa-publica.md).
-- TypeScript estrito; sem `any` sem justificativa em comentário.
-- Clean code / SOLID: componentes de responsabilidade única; regra de negócio em `lib/domain` e
-  acesso a dados/serviços externos em `lib/services`, nunca dentro de componentes.
 - Seções `pending-design` das specs não são inventadas: aguardar a fase 2.
 - Protótipo do Claude Design é referência visual; tokens entram via `/design-sync` em `packages/ui`.
+
+## Padrões de código
+
+**TypeScript**
+- `strict` ligado. Sem `any`, sem `as` para silenciar erro e sem `!` (non-null assertion),
+  salvo com justificativa em comentário.
+- Tipos do banco vêm de `packages/db` (gerados). Nunca redeclarar à mão.
+- Dados externos (form, env, resposta de API, webhook) sempre passam por schema Zod antes de uso.
+
+**Arquitetura**
+- Regra de negócio em `lib/domain` (funções puras, sem I/O). Acesso a banco/serviços
+  externos em `lib/services`. Componentes só compõem e apresentam.
+- Dependência aponta para dentro: componente → services → domain. `domain` não importa nada de fora.
+- Funções pequenas, com early return, e nomes que dizem a intenção. Sem abstração
+  antecipada: extrair só quando houver o segundo uso real.
+
+**Next.js**
+- Server Components por padrão. `'use client'` só no componente folha que precisa de
+  interatividade, nunca em layout ou página inteira.
+- Server Actions retornam resultado tipado (`{ ok: true, data } | { ok: false, error }`).
+  Nunca vazar mensagem de erro interna, stack ou detalhe de banco para o client.
+- Variáveis de ambiente validadas com Zod num módulo único, com falha no boot se faltar alguma.
+
+**Segurança**
+- Rich text renderizado a partir do JSON do Tiptap com um renderer controlado.
+  Nunca `dangerouslySetInnerHTML` com conteúdo vindo do banco.
+- Upload validado no server: MIME real, extensão e tamanho (limites em DATA-007).
+- Nenhum dado pessoal (nome, e-mail, telefone, IP) em log.
+
+**Acessibilidade**
+- HTML semântico, labels em todo campo, foco visível. O modal prende o foco e fecha com Esc.
 
 ## Documentação
 
@@ -39,4 +77,5 @@ Visão, stack e mapa de specs: [docs/specs/00-overview.md](docs/specs/00-overvie
 
 ## Comandos
 
-A definir na F3-001 (pnpm + Turborepo, ver [ADR 0001](docs/adr/0001-monorepo-pnpm-turborepo.md)).
+Preencher na F3-001 com os comandos reais de dev, build, typecheck, lint, test e
+supabase (pnpm + Turborepo, ver [ADR 0001](docs/adr/0001-monorepo-pnpm-turborepo.md)).
