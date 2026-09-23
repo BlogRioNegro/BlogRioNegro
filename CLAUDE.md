@@ -77,5 +77,17 @@ Uma task só é marcada `[x]` em `docs/tasks/fase-N.md` quando:
 
 ## Comandos
 
-Preencher na F3-001 com os comandos reais de dev, build, typecheck, lint, test e
-supabase (pnpm + Turborepo, ver [ADR 0001](docs/adr/0001-monorepo-pnpm-turborepo.md)).
+pnpm + Turborepo ([ADR 0001](docs/adr/0001-monorepo-pnpm-turborepo.md)). A versão do pnpm
+é a do campo `packageManager` do `package.json` (via `corepack enable`). Tudo roda na raiz:
+
+| Comando | O que faz |
+|---|---|
+| `pnpm install` | instala o workspace |
+| `pnpm dev` | sobe `apps/web` (:3000) e `apps/admin` (:3001) |
+| `pnpm build` | builda os dois apps (`output: 'standalone'`) |
+| `pnpm typecheck` | `next typegen` + `tsc --noEmit` em todos os pacotes |
+| `pnpm lint` | ESLint (config única em `eslint.config.mjs`) |
+| `pnpm test` | Vitest em cada app |
+| `pnpm format` / `pnpm format:check` | Prettier |
+
+Comandos do Supabase CLI entram na F3-003, e `pnpm db:types` na F3-011.

@@ -28,3 +28,6 @@ blob-report/
 .DS_Store
 Thumbs.db
 *.tsbuildinfo
+
+# next
+next-env.d.ts

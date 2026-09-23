@@ -3,7 +3,7 @@
 Specs: [00-overview](../specs/00-overview.md), [01-data-model](../specs/01-data-model.md), [02-security-rls](../specs/02-security-rls.md)
 
 ## Monorepo e deploy
-- [ ] **F3-001** · OVW-001 · Monorepo pnpm + Turborepo: `apps/web`, `apps/admin`, `packages/db`, `packages/ui`, tsconfig base strict, ESLint, Prettier, scripts raiz
+- [x] **F3-001** · OVW-001 · Monorepo pnpm + Turborepo: `apps/web`, `apps/admin`, `packages/db`, `packages/ui`, tsconfig base strict, ESLint, Prettier, scripts raiz
 - [ ] **F3-002** · OVW-004 · Spike StayCloud: deploy hello world dos dois apps; validar Node 20+, build pnpm em subpasta, env vars, Server Action e geração de PDF (pdf-lib + @react-pdf); registrar resultado em ADR
 - [ ] **F3-003** · OVW-003 · Supabase CLI local, `config.toml` com signup desligado (SEC-001), `.env.example` completo (SEC-003)
 

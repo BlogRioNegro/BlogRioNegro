@@ -18,10 +18,10 @@ Fase 3 (fundação) em andamento na branch `fase-3`, sessão autônoma sem Supab
     entra na F3-001 só para cumprir a definição de pronto.
 
 ## Última tarefa concluída
-F0-003 · OVW-002.
+F3-001 · OVW-001 · monorepo (pnpm 12 via corepack, Turbo, Next 16, TS 5.9, ESLint 9, Vitest 5).
 
 ## Próxima tarefa
-**F3-001** · OVW-001.
+**F3-016** · SEC-003 · env.ts com Zod em cada app + .env.example.
 
 ## Bloqueios e perguntas abertas
 - Domínios de produção (web e admin) ainda não definidos: usar env vars.
