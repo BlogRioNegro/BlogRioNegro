@@ -25,7 +25,7 @@ Specs: [00-overview](../specs/00-overview.md), [01-data-model](../specs/01-data-
 - [x] **F3-016** · SEC-003 · `env.ts` com Zod em cada app
 - [ ] **F3-017** · SEC-002 · Client service role `server-only` no `apps/web`
 - [ ] **F3-018** · SEC-006 · Headers de segurança nos dois apps
-- [ ] **F3-019** · SEC-004 · Hasher HMAC (IP e e-mail) + teste
+- [x] **F3-019** · SEC-004 · Hasher HMAC (IP e e-mail) + teste
 
 ## Auth e testes
 - [ ] **F3-020** · ADM-001 · Login do admin com `@supabase/ssr`

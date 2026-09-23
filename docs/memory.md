@@ -18,12 +18,13 @@ Fase 3 (fundação) em andamento na branch `fase-3`, sessão autônoma sem Supab
     entra na F3-001 só para cumprir a definição de pronto.
 
 ## Última tarefa concluída
-F3-016 · SEC-003 · env.ts com Zod por app; boot encerra com exit 1 via instrumentation.
+F3-019 · SEC-004 · hashIdentifier (HMAC-SHA256, Web Crypto) em apps/web/lib/domain.
 
 ## Próxima tarefa
-**F3-018** · SEC-006 · headers de segurança nos dois apps.
+**F3-024** · SEC-008 · helper de erro genérico + logger do server sem dados pessoais.
 
 ## Bloqueios e perguntas abertas
+- F3-018 pulada: CSP exige decidir nonce por request (proxy.ts) ou 'unsafe-inline' em script-src; precisa de ADR.
 - Domínios de produção (web e admin) ainda não definidos: usar env vars.
 - Contato do encarregado (DPO) da Rio Negro pendente (necessário na F7-006).
 - Suporte da StayCloud a monorepo/pnpm/Node 20+ não confirmado (spike F3-002).
