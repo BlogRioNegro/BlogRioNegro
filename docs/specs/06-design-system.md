@@ -150,7 +150,38 @@ de 4 px (`p-4` = `--space-4`). A paleta padrão do Tailwind é desativada.
 | `--breakpoint-md` | `768px` | Breakpoint |
 | `--breakpoint-lg` | `1280px` | Breakpoint |
 
-## Componentes · pending-design
+## Componentes
+
+Componentes base em `packages/ui/src/components` (shadcn/ui + Radix, só utilitários de token),
+exportados por `@rio-negro/ui`. Esta tabela e os exports do pacote concordam (teste em
+`packages/ui/src/components.test.tsx`). Ícones: `lucide-react` direto, decorativos com `aria-hidden`.
+
+| Componente | Responsabilidade | Estados |
+|---|---|---|
+| `Button` | Ação: `primary` (uma por área), `secondary`, `ghost` (ações de linha), `link` (no texto); `md` 44 px e `sm` 36 px; `asChild` para links | default, hover, foco, desabilitado, `loading` (spinner + `aria-busy`) |
+| `Label` | Rótulo sempre visível acima do campo; `optional` acrescenta "(opcional)" | default |
+| `Input` | Campo de texto de 44 px | default, hover, foco, erro (`aria-invalid`), desabilitado |
+| `FieldMessage` | Ajuda (`help`) ou erro (`error`, com ícone) abaixo de um campo | help, error |
+| `TextField` | Compõe `Label` + `Input` + `FieldMessage` e liga `aria-describedby`/`aria-invalid` | default, com ajuda, com erro, desabilitado |
+| `Checkbox` | Consentimento e opções; label longa com link; nunca pré-marcado | desmarcado, marcado, foco, erro, desabilitado |
+| `Alert` | Retorno em linha após uma ação | `success`/`warning` (`role="status"`), `error` (`role="alert"`) |
+| `Dialog` | Raiz do diálogo (Radix) | aberto, fechado |
+| `DialogTrigger` | Elemento que abre o diálogo e recebe o foco de volta ao fechar | default |
+| `DialogContent` | Caixa do diálogo: 480 px no desktop, tela cheia < 768 px, título, "Fechar", rodapé | aberto (foco preso; Esc e clique no fundo fecham) |
+| `DialogClose` | Fecha o diálogo a partir de uma ação do rodapé | default |
+| `StatusBadge` | Status do envio ao CRM: Desativado, Pendente, Enviado, Falhou (cor + ponto + texto) | `disabled`, `pending`, `sent`, `failed` |
+| `TypeBadge` | Formato do artigo: PDF ou Texto | `pdf`, `rich_text` |
+| `Table` | Tabela do admin em superfície com borda e rolagem horizontal | default |
+| `TableCaption` | Legenda acessível (oculta visualmente) | default |
+| `TableHeader` | Cabeçalho em `--color-bg` | default |
+| `TableBody` | Corpo da tabela | default |
+| `TableRow` | Linha com divisória | default, hover |
+| `TableHead` | Célula de cabeçalho (`scope="col"`) | default |
+| `TableCell` | Célula de dado | default |
+
+Componentes de tela ficam nos apps, compostos a partir destes, na fase que os usa:
+`ArticleCard`, `FeaturedArticleCard`, `LoadMoreButton`, `SiteHeader` e `SiteFooter` (fase 4),
+`PhoneInput` (fase 5), `Pagination` e a tabela de dados do admin (fase 6).
 
 ## Fora de escopo
 

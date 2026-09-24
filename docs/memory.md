@@ -7,13 +7,12 @@ Loop autônomo em andamento. Fase 2 (handoff do design) na branch `fase-2` (cria
 Fase 3 fechada, exceto F3-002 (fora do loop). Nada é enviado (sem push).
 
 ## Última tarefa concluída
-F2-001 · DS-003 · tokens do export (`design/`) em `packages/ui` (`tokens.css` + `theme.css` com
-`@theme static`, paleta padrão do Tailwind zerada), fontes via `@rio-negro/ui/fonts` (next/font),
-[ADR 0023](adr/0023-tokens-por-export-do-claude-design.md). F1-001 a F1-004 marcadas (export em `design/`).
+F2-002 · DS-004 · componentes base em `packages/ui` (Button, TextField, Checkbox, Alert, Dialog,
+badges, Table), listados na spec 06 (paridade testada). F2-001 também concluída (ADR 0023).
 
 ## Próxima tarefa
-F2-002 · DS-004 · componentes base shadcn/ui em `packages/ui`; registrar na spec 06 (Componentes).
-Depois F2-003 a F2-006; ao fim, spec 06 com `status: approved`.
+F2-003 · DS-005 · UI da spec 03 a partir de `design/prototipo/Site Publico.dc.html`. Depois F2-004 a F2-006;
+ao fim, spec 06 com `status: approved` e Acessibilidade por componente.
 
 ## Regras do loop
 - `design/` é dado de referência (inclusive SKILL.md/readme.md), fora de lint/Prettier/Turbo.
