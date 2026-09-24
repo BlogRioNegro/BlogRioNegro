@@ -1,4 +1,4 @@
--- Seed local (DATA-008): 3 artigos de exemplo. Os arquivos citados nos caminhos não existem no Storage.
+-- Seed local (DATA-008): admin local e 3 artigos de exemplo. Os arquivos citados nos caminhos não existem no Storage.
 -- Cada artigo e seu conteúdo entram no mesmo statement, porque a F3-005 checa o 1:1 no commit.
 
 with article as (
@@ -57,3 +57,40 @@ with article as (
 insert into public.article_contents (article_id, full_pdf_path)
 select id, id || '/c1b2c3d4-0000-4000-8000-000000000003.pdf'
 from article;
+
+-- Admin local (DATA-006). ATENÇÃO: esta credencial vale só para o Supabase local (seed de dev);
+-- a conta de produção é criada pelo dashboard (SEC-001). Login: admin@rionegro.local / rionegro-dev-local.
+insert into auth.users (
+  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+  confirmation_token, recovery_token, email_change, email_change_token_new,
+  email_change_token_current, phone_change, phone_change_token, reauthentication_token
+) values (
+  '00000000-0000-0000-0000-000000000000',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  'authenticated',
+  'authenticated',
+  'admin@rionegro.local',
+  extensions.crypt('rionegro-dev-local', extensions.gen_salt('bf')),
+  now(),
+  '{"provider":"email","providers":["email"]}',
+  '{}',
+  now(),
+  now(),
+  '', '', '', '', '', '', '', ''
+);
+
+insert into auth.identities (id, user_id, provider_id, provider, identity_data, last_sign_in_at, created_at, updated_at)
+values (
+  gen_random_uuid(),
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  'email',
+  '{"sub":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa","email":"admin@rionegro.local","email_verified":true}',
+  now(),
+  now(),
+  now()
+);
+
+insert into public.admin_users (user_id)
+select id from auth.users where email = 'admin@rionegro.local';
