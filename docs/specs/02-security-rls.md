@@ -77,8 +77,11 @@ Signup desativado no Supabase (local e prod). Conta fixa criada pelo dashboard.
 | `LEAD_WEBHOOK_SECRET` | web, admin | **não** (opcional) |
 | `NEXT_PUBLIC_RIO_NEGRO_URL` | web | sim |
 
+Regras dos segredos: `LEAD_HASH_SECRET` e `LEAD_WEBHOOK_SECRET` têm no mínimo 32 caracteres.
+Com `LEAD_WEBHOOK_URL` definida, `LEAD_WEBHOOK_SECRET` é obrigatório e a URL precisa ser `https`.
+
 **Aceite:** cada app valida as variáveis com Zod na inicialização (`env.ts`) e falha no boot
-se faltar uma obrigatória; `.env.example` lista todas sem valores reais.
+se faltar uma obrigatória ou uma regra acima falhar; `.env.example` lista todas sem valores reais.
 
 ### SEC-004 · Hash de identificadores
 IP e e-mail usados no rate limit, e o `ip_hash` do lead, são HMAC-SHA256 com
@@ -92,10 +95,14 @@ admin revalida a sessão e `is_admin()` antes de agir (o middleware não basta).
 autorização e não altera dados.
 
 ### SEC-006 · Headers de segurança
-CSP (permitindo Supabase, Turnstile e o próprio domínio; `frame-ancestors 'none'`),
+CSP com nonce gerado a cada request no `proxy.ts` de cada app ([ADR 0020](../adr/0020-csp-com-nonce.md)):
+`script-src 'self' 'nonce-…' 'strict-dynamic'`, sem `'unsafe-inline'` em scripts; libera a origem do
+Supabase (de `NEXT_PUBLIC_SUPABASE_URL`), o Turnstile (`challenges.cloudflare.com` em `script-src` e
+`frame-src`) e o próprio domínio; `frame-ancestors 'none'`.
 `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`,
 `Permissions-Policy` restritiva. Admin com `X-Robots-Tag: noindex`.
-**Aceite:** checagem automatizada dos headers nas rotas principais dos dois apps.
+**Aceite:** checagem automatizada dos headers nas rotas principais dos dois apps, incluindo
+nonce diferente a cada request.
 
 ### SEC-007 · Renderização segura de conteúdo
 HTML gerado a partir de JSON do Tiptap é produzido no server por serializer com allowlist
