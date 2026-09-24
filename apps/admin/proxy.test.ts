@@ -44,8 +44,8 @@ describe('proxy do apps/admin', () => {
     )
   })
 
-  it('envia a CSP com nonce, strict-dynamic, Supabase e Turnstile', () => {
-    const csp = cspOf(request('/'))
+  it('envia a CSP com nonce, strict-dynamic, Supabase e Turnstile', async () => {
+    const csp = cspOf(await request('/'))
 
     expect(csp).toMatch(
       /script-src 'self' 'nonce-[^']+' 'strict-dynamic' https:\/\/challenges\.cloudflare\.com/,
@@ -59,22 +59,41 @@ describe('proxy do apps/admin', () => {
     expect(csp).toContain("object-src 'none'")
   })
 
-  it('gera um nonce diferente a cada request', () => {
-    const nonces = MAIN_ROUTES.flatMap((path) => [request(path), request(path)]).map((response) =>
-      nonceOf(cspOf(response)),
+  it('gera um nonce diferente a cada request', async () => {
+    const responses = await Promise.all(
+      MAIN_ROUTES.flatMap((path) => [request(path), request(path)]),
     )
+    const nonces = responses.map((response) => nonceOf(cspOf(response)))
 
     expect(nonces.every(Boolean)).toBe(true)
     expect(new Set(nonces).size).toBe(nonces.length)
   })
 
-  it('repassa a mesma CSP ao render para o Next aplicar o nonce nos scripts', () => {
-    const response = request('/')
+  it('repassa a mesma CSP ao render para o Next aplicar o nonce nos scripts', async () => {
+    const response = await request('/login')
 
     expect(response.headers.get('x-middleware-request-content-security-policy')).toBe(
       cspOf(response),
     )
     expect(response.headers.get('x-middleware-request-x-nonce')).toBe(nonceOf(cspOf(response)))
+  })
+
+  it.each(['/', '/artigos', '/leads'])(
+    'redireciona %s sem sessão para /login, com CSP',
+    async (path) => {
+      const response = await request(path)
+
+      expect(response.status).toBe(307)
+      expect(new URL(response.headers.get('location') ?? '').pathname).toBe('/login')
+      expect(nonceOf(cspOf(response))).toBeTruthy()
+    },
+  )
+
+  it('deixa /login abrir sem sessão', async () => {
+    const response = await request('/login')
+
+    expect(response.headers.get('location')).toBeNull()
+    expect(response.headers.get('x-middleware-next')).toBe('1')
   })
 })
 
