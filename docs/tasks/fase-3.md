@@ -13,17 +13,17 @@ Specs: [00-overview](../specs/00-overview.md), [01-data-model](../specs/01-data-
 - [x] **F3-006** · DATA-003 · Migration `article_slug_history` + trigger de unicidade entre slugs
 - [x] **F3-007** · DATA-004 · Migration `leads` + enum `webhook_status` + índices
 - [x] **F3-008** · DATA-005 · Migration `lead_rate_limits` + função `consume_rate_limit`
-- [ ] **F3-009** · DATA-006 · Migration `admin_users` + seed do admin local
+- [x] **F3-009** · DATA-006 · Migration `admin_users` + seed do admin local
 - [x] **F3-010** · DATA-007 · Buckets com limites de tamanho e MIME
 - [x] **F3-011** · DATA-008 · Script `pnpm db:types`, types gerados em `packages/db`, seed com 3 artigos
 
 ## RLS e segurança
-- [ ] **F3-012** · RLS-001 · RLS habilitado em todas as tabelas + teste que detecta tabela sem RLS
-- [ ] **F3-013** · RLS-002 · Função `is_admin()`
-- [ ] **F3-014** · RLS-003 · Políticas das tabelas + testes da matriz (anon, autenticado, admin)
-- [ ] **F3-015** · RLS-004 · Políticas do Storage + teste de acesso anon ao bucket privado
+- [x] **F3-012** · RLS-001 · RLS habilitado em todas as tabelas + teste que detecta tabela sem RLS
+- [x] **F3-013** · RLS-002 · Função `is_admin()`
+- [x] **F3-014** · RLS-003 · Políticas das tabelas + testes da matriz (anon, autenticado, admin)
+- [x] **F3-015** · RLS-004 · Políticas do Storage + teste de acesso anon ao bucket privado
 - [x] **F3-016** · SEC-003 · `env.ts` com Zod em cada app
-- [ ] **F3-017** · SEC-002 · Client service role `server-only` no `apps/web`
+- [x] **F3-017** · SEC-002 · Client service role `server-only` no `apps/web`
 - [x] **F3-018** · SEC-006 · Headers de segurança nos dois apps
 - [x] **F3-019** · SEC-004 · Hasher HMAC (IP e e-mail) + teste
 

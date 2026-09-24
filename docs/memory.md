@@ -3,36 +3,37 @@
 _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
 
 ## Fase
-Fase 3 (fundação) na branch `fase-3` (local, sem push). Supabase local (CLI 2.117 via `pnpm exec`).
+Fase 3 (fundação) na branch `fase-3` (local, sem push). Supabase local via `pnpm exec supabase` (Docker).
 
 ## Concluídas na fase 3
-F3-001, F3-003 a F3-008, F3-010, F3-011, F3-016, F3-018, F3-019, F3-024.
-Todas as tabelas com RLS ligado e **sem políticas** (acesso negado por padrão até a F3-012+).
+F3-001, F3-003 a F3-019 (exceto F3-002), F3-024. Faltam F3-002, F3-020 a F3-023.
+- Políticas de RLS (tabelas e Storage) conforme a matriz da RLS-003/RLS-004, com testes de
+  integração (`pnpm test:integration`, 35 testes) contra o Supabase local.
+- [ADR 0022](adr/0022-convencoes-do-schema.md): convenções do schema (defaults, nulidade,
+  `consume_rate_limit`, limites em MiB com constante única na ADM-006).
 
-## Última tarefa concluída
-F3-011 · DATA-008 (`pnpm db:types`, `packages/db/src/types.gen.ts`, seed com 3 artigos).
+## Admin local
+`admin@rionegro.local`; a senha de dev está no comentário e no insert de `supabase/seed.sql`
+(também em `tests/integration/support/clients.ts`). Vale só no Supabase local.
 
 ## Próxima tarefa
-F3-009 (seed do admin, após a resposta abaixo), depois F3-012 · RLS-001 em diante.
+F3-020 · ADM-001 (login com `@supabase/ssr`), depois F3-021, F3-023 e o Playwright da F3-022.
 
 ## Bloqueios e perguntas abertas
-- F3-009 aberta: a migration `admin_users` existe, mas o seed do admin local precisa de e-mail
-  e senha para a conta em `auth.users`, e a spec não define. Precisa do Rafael.
-- Lacunas da spec resolvidas por convenção (confirmar ou virar ADR):
-  `created_at`/`updated_at` com default `now()`; `leads.id` com `gen_random_uuid()`;
-  `leads.webhook_status` e `article_slug_history.article_id` como `not null`;
-  `consume_rate_limit(key text, "limit" int, "window" interval)` com janela fixa (`date_bin`);
-  limites dos buckets em MiB (2 MiB e 20 MiB): a revalidação da ADM-006 deve usar o mesmo número.
+- F3-022 aberta: falta o Playwright (Vitest de integração já está pronto).
+- F6: o admin não consegue criar artigo por chamadas REST separadas (a checagem 1:1 da F3-005
+  roda no commit). A ADM de criação precisa de `save_article` (RPC transacional), já previsto na DATA-002.
 - `corepack enable` como admin (o Turbo precisa do `pnpm` no PATH). Push da `fase-3`.
 - Standalone não copia `.next/static` (F3-002). Domínios de produção; contato do DPO (F7-006).
 
 ## Revisar primeiro (ordem de risco)
-1. `supabase/migrations/*_article_contents.sql`: constraint triggers adiadas (1:1 e `body_json`),
-   `security definer` com EXECUTE revogado de anon/authenticated.
-2. `*_article_slug_history.sql`: triggers `security definer` que gravam e removem o histórico.
-3. `*_lead_rate_limits.sql`: semântica de `consume_rate_limit` e EXECUTE só para o service role.
-4. `*_storage_buckets.sql`: limites e MIME criados por migration (valem em produção).
+1. `supabase/migrations/*_table_policies.sql`: políticas + `revoke`/`grant` de coluna em `leads`
+   (admin só altera `webhook_*`) e `revoke all` em `lead_rate_limits`.
+2. `supabase/migrations/*_storage_policies.sql`: `article-files` só admin; escrita só admin.
+3. `tests/integration/rls-matrix.test.ts` e `storage-policies.test.ts`: cobertura da matriz.
+4. `supabase/config.toml`: `[auth.email] enable_signup` voltou a `true` (senão o login por e-mail
+   é desligado); o signup continua bloqueado por `[auth] enable_signup = false`.
 
 ## Ler na próxima sessão
-- [docs/tasks/fase-3.md](tasks/fase-3.md), [docs/specs/02-security-rls.md](specs/02-security-rls.md) (RLS-001 a RLS-004)
-- [docs/specs/01-data-model.md](specs/01-data-model.md), [ADR 0014](adr/0014-admin-allowlist.md)
+- [docs/tasks/fase-3.md](tasks/fase-3.md), [docs/specs/05-admin-panel.md](specs/05-admin-panel.md) (ADM-001, ADM-002)
+- [docs/specs/02-security-rls.md](specs/02-security-rls.md) (SEC-005), [ADR 0014](adr/0014-admin-allowlist.md)
