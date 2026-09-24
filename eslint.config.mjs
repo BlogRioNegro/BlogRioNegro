@@ -22,5 +22,11 @@ export default defineConfig([
       '@typescript-eslint/consistent-type-imports': 'error',
     },
   },
-  globalIgnores(['**/.next/**', '**/.turbo/**', '**/node_modules/**', '**/next-env.d.ts']),
+  globalIgnores([
+    'design/**',
+    '**/.next/**',
+    '**/.turbo/**',
+    '**/node_modules/**',
+    '**/next-env.d.ts',
+  ]),
 ])
