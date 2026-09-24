@@ -12,6 +12,8 @@ const statusSchema = z.object({
   SERVICE_ROLE_KEY: z.string().min(1),
 })
 
+const queryResultSchema = z.object({ rows: z.array(z.record(z.string(), z.unknown())) })
+
 function runCli(args: string[]): string {
   return execFileSync(process.execPath, [CLI, ...args], { cwd: ROOT, encoding: 'utf8' })
 }
@@ -29,3 +31,9 @@ function readStatus() {
 }
 
 export const localSupabase = readStatus()
+
+export function queryLocalDb(sql: string): Record<string, unknown>[] {
+  return queryResultSchema.parse(
+    parseJsonOutput(runCli(['db', 'query', '--local', '-o', 'json', sql])),
+  ).rows
+}
