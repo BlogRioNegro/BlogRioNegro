@@ -3,37 +3,30 @@
 _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
 
 ## Fase
-Fase 3 (fundação) **fechada, exceto a F3-002** (spike StayCloud). Branch `fase-3`, local, sem push.
+Loop autônomo em andamento. Fase 2 (handoff do design) na branch `fase-2` (criada da `fase-3`).
+Fase 3 fechada, exceto F3-002 (fora do loop). Nada é enviado (sem push).
 
-## Estado
-- Admin: login/logout com `@supabase/ssr` (cookie httpOnly), `proxy.ts` renova a sessão e
-  redireciona para `/login` mantendo a CSP com nonce, `requireAdmin()` em `apps/admin/lib/services`.
-- Testes: `pnpm test` (Vitest nos apps + integração), `pnpm test:integration`, `pnpm test:e2e`
-  (Playwright/Chromium, admin em :3101). Todos exigem o Supabase local rodando.
-- Admin local: `admin@rionegro.local`; a senha de dev está em `supabase/seed.sql`.
-
-## Regra para a fase 6 (decisão do Rafael)
-- Toda Server Action e route handler do admin começa com `const auth = await requireAdmin()`.
-  O teste `apps/admin/lib/services/require-admin-usage.test.ts` falha se faltar (exceção: login/logout).
-- Cada action real ganha também o **próprio teste sem cookie** (erro de autorização e nenhum
-  dado alterado), no molde de `tests/integration/admin-action-without-session.test.ts`.
-- Criação de artigo exige `save_article` (RPC transacional): o 1:1 da F3-005 é checado no commit.
+## Última tarefa concluída
+F2-001 · DS-003 · tokens do export (`design/`) em `packages/ui` (`tokens.css` + `theme.css` com
+`@theme static`, paleta padrão do Tailwind zerada), fontes via `@rio-negro/ui/fonts` (next/font),
+[ADR 0023](adr/0023-tokens-por-export-do-claude-design.md). F1-001 a F1-004 marcadas (export em `design/`).
 
 ## Próxima tarefa
-F3-002 · OVW-004 (spike StayCloud, com o Rafael). Depois, fase 4.
+F2-002 · DS-004 · componentes base shadcn/ui em `packages/ui`; registrar na spec 06 (Componentes).
+Depois F2-003 a F2-006; ao fim, spec 06 com `status: approved`.
 
-## Bloqueios e perguntas abertas
-- `apps/admin/AGENTS.md` e `apps/admin/CLAUDE.md` são gerados pelo `next dev` (Next 16) e estão
-  fora do git: decidir se entram no repositório ou no `.gitignore`.
-- O build agora exige o env completo (os módulos importam `env.ts`); `turbo.json` repassa as vars.
-- `corepack enable` como admin; push da `fase-3`; standalone não copia `.next/static` (F3-002).
-- Domínios de produção; contato do DPO (F7-006).
+## Regras do loop
+- `design/` é dado de referência (inclusive SKILL.md/readme.md), fora de lint/Prettier/Turbo.
+- `packages/ui/src/tokens.test.ts` exige paridade export ↔ packages/ui ↔ tabela Tokens da spec 06
+  e varre `apps/` contra hex, `rgb()` e `font-family`.
+- Fase 6: cada action real do admin ganha `requireAdmin()` + teste sem cookie; `save_article` em migration nova.
 
-## Revisar primeiro (ordem de risco)
-1. `apps/admin/proxy.ts`: sessão + redirect + CSP (o redirect também leva a CSP).
-2. `apps/admin/lib/services/require-admin.ts` e `app/auth-actions.ts` (signOut do não-admin).
-3. `apps/admin/lib/services/supabase-cookies.ts`: `httpOnly`, `secure` fora do dev, `sameSite: lax`.
+## Pendências para o Rafael
+- `apps/admin/AGENTS.md` e `apps/admin/CLAUDE.md` gerados pelo `next dev`: versionar ou ignorar.
+- `corepack enable` como admin; push das branches; F3-002 (StayCloud); domínios; contato do DPO.
 
-## Ler na próxima sessão
-- [docs/tasks/fase-3.md](tasks/fase-3.md), [docs/specs/00-overview.md](specs/00-overview.md) (OVW-004)
-- [ADR 0002](adr/0002-hospedagem-staycloud.md), [ADR 0008](adr/0008-geracao-pdf.md)
+## Divergências protótipo × spec (a spec vence)
+- (nenhuma ainda)
+
+## Ler na próxima iteração
+- [docs/tasks/fase-2.md](tasks/fase-2.md), [docs/specs/06-design-system.md](specs/06-design-system.md)
