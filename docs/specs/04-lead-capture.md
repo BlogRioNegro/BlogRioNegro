@@ -1,7 +1,7 @@
 ---
 id: 04-lead-capture
 status: approved
-ui_status: pending-design
+ui_status: approved
 fase: 5
 depends_on: [01-data-model.md, 02-security-rls.md, 03-public-site.md]
 ---
@@ -110,10 +110,32 @@ teste unitário da assinatura.
 **Aceite:** textos acima implementados como conteúdo estático; marcados em código com a
 versão; substituídos pelo texto validado na F7-006.
 
-## UI · pending-design
+## UI
 
-Layout do modal, estados (idle, enviando, erro, rate limit, sucesso) e comportamento mobile
-serão definidos na fase 2 ([06-design-system](06-design-system.md)).
+Referência: `design/prototipo/Modal de Lead.dc.html` (desktop e mobile), com `Dialog`,
+`TextField`, `Checkbox`, `Alert` e `Button` de [06-design-system](06-design-system.md).
+
+### Layout
+- `DialogContent` com título "Baixe o artigo completo" e descrição "<título do artigo> · PDF" ou
+  "· Texto". 480 px no desktop; tela cheia no mobile, com "Fechar" no topo e o botão de envio
+  fixo no rodapé enquanto o corpo rola. Foco no primeiro campo ao abrir; Esc e o fundo fecham.
+- Ordem dos campos: Nome (`autocomplete="name"`), E-mail (`type="email"`, `autocomplete="email"`),
+  Telefone (máscara `(99) 99999-9999`, `autocomplete="tel"`), aviso de coleta (LEAD-013, `text-xs`),
+  checkbox obrigatório "Li e concordo com o aviso de privacidade." (link para `/privacidade` em
+  nova aba), checkbox opcional de LEAD-004, widget do Turnstile (área de 300 × 65 px) e o `Button`
+  primário "Baixar artigo completo" (ícone de download, largura total).
+
+### Estados
+| Estado | Comportamento |
+|---|---|
+| Vazio | Campos vazios e os dois checkboxes desmarcados (LEAD-001, LEAD-003, LEAD-004). |
+| Erros de validação | Erro inline em cada campo e no checkbox obrigatório: "Informe seu nome.", "Informe um e-mail válido, como nome@exemplo.com.br.", "Informe o telefone com DDD, no formato (99) 99999-9999.", "Marque esta opção para continuar.". |
+| Enviando | Campos e checkboxes desabilitados; botão com `loading` e texto "Enviando…". |
+| Muitas tentativas | `Alert` de erro acima do botão: "Muitas tentativas, tente em alguns minutos" (LEAD-006). Campos mantêm os valores. |
+| Erro genérico | `Alert` de erro acima do botão: "Não foi possível concluir. Tente novamente." (Turnstile, artigo inexistente ou falha interna, sem detalhes, SEC-008). |
+| Sucesso | Título "Pronto!"; `Alert` de sucesso "O download começou." com "“<título>” está sendo salvo no seu dispositivo."; `Button` link "Baixar novamente"; `Button` primário "Conheça a Rio Negro" (nova aba, ícone de link externo), só neste estado (LEAD-010). |
+
+O texto do erro genérico acima é o que a Server Action devolve ao client neste fluxo.
 
 ## Fora de escopo
 

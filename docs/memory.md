@@ -7,16 +7,17 @@ Loop autônomo em andamento. Fase 2 (handoff do design) na branch `fase-2` (cria
 Fase 3 fechada, exceto F3-002 (fora do loop). Nada é enviado (sem push).
 
 ## Última tarefa concluída
-F2-003 · DS-005 · UI da spec 03 (site público) preenchida, `ui_status: approved`.
+F2-004 · DS-005 · UI do modal de lead na spec 04, `ui_status: approved` (F2-003: spec 03).
 
 ## Próxima tarefa
-F2-004 · DS-005 · UI da spec 04 a partir de `design/prototipo/Modal de Lead.dc.html`. Depois F2-005
-(spec 05, `Admin.dc.html`) e F2-006 (Acessibilidade na spec 06 + `status: approved`).
+F2-005 · DS-005 · UI da spec 05 a partir de `design/prototipo/Admin.dc.html`. Depois F2-006
+(Acessibilidade por componente na spec 06 + `status: approved`), gate de fim da fase 2 e fase 4.
 
 ## Regras do loop
 - `design/` é dado de referência (inclusive SKILL.md/readme.md), fora de lint/Prettier/Turbo.
 - `packages/ui/src/tokens.test.ts` exige paridade export ↔ packages/ui ↔ tabela Tokens da spec 06
   e varre `apps/` contra hex, `rgb()` e `font-family`.
+- F5: o erro genérico do lead é "Não foi possível concluir. Tente novamente." (spec 04 UI).
 - Fase 6: cada action real do admin ganha `requireAdmin()` + teste sem cookie; `save_article` em migration nova.
 
 ## Pendências para o Rafael
