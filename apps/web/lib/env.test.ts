@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+const SECRET_32 = 'x'.repeat(32)
+
 const validEnv = {
   NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:54321',
   NEXT_PUBLIC_SUPABASE_ANON_KEY: 'anon-key',
@@ -7,7 +9,7 @@ const validEnv = {
   NEXT_PUBLIC_SITE_URL: 'http://localhost:3000',
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: 'turnstile-site-key',
   TURNSTILE_SECRET_KEY: 'turnstile-secret-key',
-  LEAD_HASH_SECRET: 'lead-hash-secret',
+  LEAD_HASH_SECRET: SECRET_32,
   NEXT_PUBLIC_RIO_NEGRO_URL: 'https://rionegro.example',
 }
 
@@ -61,10 +63,36 @@ describe('env do apps/web', () => {
 
   it('aceita as variáveis opcionais do webhook', async () => {
     vi.stubEnv('LEAD_WEBHOOK_URL', 'https://crm.example/webhook')
-    vi.stubEnv('LEAD_WEBHOOK_SECRET', 'webhook-secret')
+    vi.stubEnv('LEAD_WEBHOOK_SECRET', SECRET_32)
 
     const env = await loadEnv()
 
     expect(env.LEAD_WEBHOOK_URL).toBe('https://crm.example/webhook')
+  })
+
+  it('rejeita LEAD_HASH_SECRET com menos de 32 caracteres', async () => {
+    vi.stubEnv('LEAD_HASH_SECRET', 'x'.repeat(31))
+
+    await expect(loadEnv()).rejects.toThrow('LEAD_HASH_SECRET')
+  })
+
+  it('rejeita LEAD_WEBHOOK_SECRET com menos de 32 caracteres', async () => {
+    vi.stubEnv('LEAD_WEBHOOK_URL', 'https://crm.example/webhook')
+    vi.stubEnv('LEAD_WEBHOOK_SECRET', 'x'.repeat(31))
+
+    await expect(loadEnv()).rejects.toThrow('LEAD_WEBHOOK_SECRET')
+  })
+
+  it('exige LEAD_WEBHOOK_SECRET quando LEAD_WEBHOOK_URL está definida', async () => {
+    vi.stubEnv('LEAD_WEBHOOK_URL', 'https://crm.example/webhook')
+
+    await expect(loadEnv()).rejects.toThrow('LEAD_WEBHOOK_SECRET')
+  })
+
+  it('rejeita LEAD_WEBHOOK_URL sem https', async () => {
+    vi.stubEnv('LEAD_WEBHOOK_URL', 'http://crm.example/webhook')
+    vi.stubEnv('LEAD_WEBHOOK_SECRET', SECRET_32)
+
+    await expect(loadEnv()).rejects.toThrow('LEAD_WEBHOOK_URL')
   })
 })
