@@ -7,9 +7,12 @@ depends_on: [00-overview.md]
 
 # 06 · Design system
 
-Placeholder até a fase 2. O protótipo do Claude Design é **referência visual**: tokens vão para
-o código via `/design-sync`; telas são reimplementadas como componentes seguindo as specs
-03, 04 e 05, não copiadas.
+O export do Claude Design em `design/` é **referência visual**: os tokens entram em `packages/ui`
+a partir dele ([ADR 0023](../adr/0023-tokens-por-export-do-claude-design.md)); telas são
+reimplementadas como componentes seguindo as specs 03, 04 e 05, não copiadas.
+
+`packages/ui` é a verdade no código e esta spec é a verdade na documentação: os dois concordam
+(teste em `packages/ui/src/tokens.test.ts`).
 
 ## Requisitos
 
@@ -24,7 +27,9 @@ Home, listagem, artigo (prévia pdf e rich_text), modal de lead (todos os estado
 **Aceite:** cada tela listada existe no protótipo, em desktop e mobile.
 
 ### DS-003 · Tokens em `packages/ui` (fase 2)
-Sincronizar tokens via `/design-sync` para `packages/ui` (CSS variables + tema Tailwind).
+Tokens do export do Claude Design em `packages/ui` (CSS variables + `@theme` do Tailwind v4, mesmos
+nomes e valores; [ADR 0023](../adr/0023-tokens-por-export-do-claude-design.md)). Fontes Inter e Source
+Serif 4 via `next/font/google`, a partir de `@rio-negro/ui/fonts`.
 **Aceite:** os dois apps consomem os tokens de `@rio-negro/ui`; nenhum valor de cor ou fonte
 hard-coded fora do pacote.
 
@@ -40,7 +45,110 @@ Preencher as seções "UI · pending-design" de 03, 04 e 05 e mudar `ui_status` 
 Contraste AA, foco visível, modal com foco preso e fechamento por Esc, labels em todos os campos.
 **Aceite:** axe sem violações críticas nas telas da fase 4–6.
 
-## Tokens · pending-design
+## Tokens
+
+Fonte: `packages/ui/src/tokens.css` e `packages/ui/src/theme.css`. Utilitários do Tailwind derivados
+dos tokens: `bg-*`/`text-*`/`border-*` (cores), `font-sans`/`font-serif`, `rounded-control`/`rounded-card`,
+`shadow-card`/`shadow-modal`, `text-xs`…`text-4xl` (com a entrelinha do nível) e espaçamento em múltiplos
+de 4 px (`p-4` = `--space-4`). A paleta padrão do Tailwind é desativada.
+
+| Token | Valor | Uso |
+|---|---|---|
+| `--rn-warm-0` | `#ffffff` | Paleta base (cinza quente). Não usar direto: usar os semânticos. |
+| `--rn-warm-50` | `#f2f0ef` | Paleta base (cinza quente). Não usar direto: usar os semânticos. |
+| `--rn-warm-100` | `#e9e6e4` | Paleta base (cinza quente). Não usar direto: usar os semânticos. |
+| `--rn-warm-200` | `#dcd8d5` | Paleta base (cinza quente). Não usar direto: usar os semânticos. |
+| `--rn-warm-400` | `#8c8782` | Paleta base (cinza quente). Não usar direto: usar os semânticos. |
+| `--rn-warm-600` | `#5c5854` | Paleta base (cinza quente). Não usar direto: usar os semânticos. |
+| `--rn-warm-800` | `#3a3735` | Paleta base (cinza quente). Não usar direto: usar os semânticos. |
+| `--rn-warm-900` | `#1d1c1b` | Paleta base (cinza quente). Não usar direto: usar os semânticos. |
+| `--rn-green-700` | `#2f6b3f` | Paleta de estado. Não usar direto: usar os semânticos. |
+| `--rn-green-50` | `#e6f0e8` | Paleta de estado. Não usar direto: usar os semânticos. |
+| `--rn-green-200` | `#b9d3bf` | Paleta de estado. Não usar direto: usar os semânticos. |
+| `--rn-red-700` | `#a8322d` | Paleta de estado. Não usar direto: usar os semânticos. |
+| `--rn-red-50` | `#f8e6e4` | Paleta de estado. Não usar direto: usar os semânticos. |
+| `--rn-red-200` | `#e6bdb9` | Paleta de estado. Não usar direto: usar os semânticos. |
+| `--rn-amber-700` | `#8a5a00` | Paleta de estado. Não usar direto: usar os semânticos. |
+| `--rn-amber-50` | `#f7edd9` | Paleta de estado. Não usar direto: usar os semânticos. |
+| `--rn-amber-200` | `#e3cb98` | Paleta de estado. Não usar direto: usar os semânticos. |
+| `--space-1` | `4px` | Espaçamento (múltiplo de 4 px) |
+| `--space-2` | `8px` | Espaçamento (múltiplo de 4 px) |
+| `--space-3` | `12px` | Espaçamento (múltiplo de 4 px) |
+| `--space-4` | `16px` | Espaçamento (múltiplo de 4 px) |
+| `--space-6` | `24px` | Espaçamento (múltiplo de 4 px) |
+| `--space-8` | `32px` | Espaçamento (múltiplo de 4 px) |
+| `--space-12` | `48px` | Espaçamento (múltiplo de 4 px) |
+| `--space-16` | `64px` | Espaçamento (múltiplo de 4 px) |
+| `--space-24` | `96px` | Espaçamento (múltiplo de 4 px) |
+| `--focus-ring-width` | `2px` | Espessura do anel de foco |
+| `--focus-ring-offset` | `2px` | Distância do anel de foco |
+| `--layout-reading` | `720px` | Largura da coluna de leitura (site) |
+| `--layout-admin` | `1200px` | Largura do painel admin |
+| `--control-height` | `44px` | Altura de botão e campo |
+| `--control-height-sm` | `36px` | Altura de controle compacto |
+| `--duration-fast` | `120ms` | Transição de cor |
+| `--easing-standard` | `ease-out` | Curva das transições |
+| `--font-size-xs` | `14px` | Legenda, data, texto regulatório |
+| `--line-height-xs` | `1.5` | Altura de linha |
+| `--font-size-sm` | `16px` | UI, botões, formulário, tabela |
+| `--line-height-sm` | `1.5` | Altura de linha |
+| `--font-size-md` | `18px` | Corpo do artigo (mobile), título de card |
+| `--line-height-md` | `1.7` | Altura de linha |
+| `--font-size-lg` | `20px` | Corpo do artigo (desktop) |
+| `--line-height-lg` | `1.7` | Altura de linha |
+| `--font-size-xl` | `24px` | H3, título do modal |
+| `--line-height-xl` | `1.35` | Altura de linha |
+| `--font-size-2xl` | `30px` | H2, título do destaque |
+| `--line-height-2xl` | `1.3` | Altura de linha |
+| `--font-size-3xl` | `36px` | H1 mobile |
+| `--line-height-3xl` | `1.2` | Altura de linha |
+| `--font-size-4xl` | `48px` | H1 desktop |
+| `--line-height-4xl` | `1.15` | Altura de linha |
+| `--line-height-tight` | `1.2` | Altura de linha |
+| `--line-height-snug` | `1.35` | Altura de linha |
+| `--line-height-normal` | `1.5` | Altura de linha |
+| `--line-height-relaxed` | `1.7` | Altura de linha |
+| `--font-size-article` | `var(--font-size-md)` | Corpo do artigo (≥768px: var(--font-size-lg)) |
+| `--line-height-article` | `var(--line-height-relaxed)` | Entrelinha do artigo |
+| `--measure-article` | `68ch` | Largura máxima do texto do artigo |
+| `--font-size-h1` | `var(--font-size-3xl)` | H1 (≥768px: var(--font-size-4xl)) |
+| `--color-bg` | `var(--rn-warm-50)` | Fundo da página |
+| `--color-surface` | `var(--rn-warm-0)` | Cards, modal, campos |
+| `--color-surface-muted` | `var(--rn-warm-100)` | Superfície secundária, linhas de tabela |
+| `--color-border` | `var(--rn-warm-200)` | Bordas e divisórias |
+| `--color-border-strong` | `var(--rn-warm-400)` | Borda de campo e hover |
+| `--color-text` | `var(--rn-warm-900)` | Texto principal |
+| `--color-text-muted` | `var(--rn-warm-600)` | Legenda, data, texto regulatório |
+| `--color-text-inverse` | `var(--rn-warm-50)` | Texto sobre ação primária |
+| `--color-action-primary` | `var(--rn-warm-900)` | Botão primário |
+| `--color-action-primary-hover` | `var(--rn-warm-800)` | Botão primário em hover |
+| `--color-action-primary-text` | `var(--rn-warm-50)` | Texto do botão primário |
+| `--color-disabled-bg` | `var(--rn-warm-100)` | Fundo de controle desabilitado |
+| `--color-disabled-text` | `var(--rn-warm-600)` | Texto de controle desabilitado |
+| `--color-success` | `var(--rn-green-700)` | Texto/ícone de sucesso |
+| `--color-success-bg` | `var(--rn-green-50)` | Fundo de alerta de sucesso |
+| `--color-success-border` | `var(--rn-green-200)` | Borda de alerta de sucesso |
+| `--color-error` | `var(--rn-red-700)` | Texto/ícone de erro, campo inválido |
+| `--color-error-bg` | `var(--rn-red-50)` | Fundo de alerta de erro |
+| `--color-error-border` | `var(--rn-red-200)` | Borda de alerta de erro |
+| `--color-warning` | `var(--rn-amber-700)` | Texto/ícone de aviso |
+| `--color-warning-bg` | `var(--rn-amber-50)` | Fundo de alerta de aviso |
+| `--color-warning-border` | `var(--rn-amber-200)` | Borda de alerta de aviso |
+| `--color-focus-ring` | `var(--rn-warm-900)` | Anel de foco |
+| `--color-overlay` | `rgba(29, 28, 27, 0.48)` | Fundo do modal |
+| `--font-sans` | `var(--font-inter), system-ui, -apple-system, 'Segoe UI', sans-serif` | Interface (Inter, via next/font) |
+| `--font-serif` | `var(--font-source-serif), 'Source Serif Pro', Georgia, 'Times New Roman', serif` | Corpo do artigo (Source Serif 4, via next/font) |
+| `--font-weight-regular` | `400` | Peso da fonte |
+| `--font-weight-medium` | `500` | Peso da fonte |
+| `--font-weight-semibold` | `600` | Peso da fonte |
+| `--font-weight-bold` | `700` | Peso da fonte |
+| `--radius-control` | `6px` | Botão, campo, badge |
+| `--radius-card` | `12px` | Card e modal |
+| `--shadow-card` | `0 1px 2px rgba(29, 28, 27, 0.06), 0 1px 3px rgba(29, 28, 27, 0.04)` | Card |
+| `--shadow-modal` | `0 12px 32px rgba(29, 28, 27, 0.14), 0 2px 6px rgba(29, 28, 27, 0.06)` | Modal |
+| `--breakpoint-sm` | `390px` | Breakpoint |
+| `--breakpoint-md` | `768px` | Breakpoint |
+| `--breakpoint-lg` | `1280px` | Breakpoint |
 
 ## Componentes · pending-design
 

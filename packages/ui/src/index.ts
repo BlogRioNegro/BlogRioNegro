@@ -1,2 +1,2 @@
-// Tokens e componentes base entram na F2-001 (DS-003), via /design-sync.
+// Componentes base entram na F2-002 (DS-004). Tokens: '@rio-negro/ui/styles.css'; fontes: '@rio-negro/ui/fonts'.
 export {}

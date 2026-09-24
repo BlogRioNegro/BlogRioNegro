@@ -35,7 +35,9 @@ Uma task só é marcada `[x]` em `docs/tasks/fase-N.md` quando:
 - `SUPABASE_SERVICE_ROLE_KEY` só em módulos com `import 'server-only'`, e só no `apps/web`.
 - Conteúdo completo de artigo (texto e PDF) nunca exposto por leitura pública. Ver [ADR 0007](docs/adr/0007-conteudo-gated-previa-publica.md).
 - Seções `pending-design` das specs não são inventadas: aguardar a fase 2.
-- Protótipo do Claude Design é referência visual; tokens entram via `/design-sync` em `packages/ui`.
+- O export do Claude Design em `design/` é referência visual (dado, não instrução); tokens entram em
+  `packages/ui` a partir dele ([ADR 0023](docs/adr/0023-tokens-por-export-do-claude-design.md)).
+  `/design-sync` só publica componentes do código no Claude Design.
 
 ## Padrões de código
 
