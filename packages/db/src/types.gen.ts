@@ -205,6 +205,7 @@ export type Database = {
         Args: { key: string; limit: number; window: string }
         Returns: boolean
       }
+      is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       article_content_type: 'pdf' | 'rich_text'
