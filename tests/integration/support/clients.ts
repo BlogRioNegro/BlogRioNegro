@@ -6,7 +6,11 @@ import { localSupabase } from './local-supabase'
 export type Client = SupabaseClient<Database>
 
 // Conta criada pelo supabase/seed.sql; vale só para o Supabase local.
-const SEED_ADMIN = { email: 'admin@rionegro.local', password: 'rionegro-dev-local' }
+export const SEED_ADMIN = {
+  id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  email: 'admin@rionegro.local',
+  password: 'rionegro-dev-local',
+}
 
 function newClient(key: string): Client {
   return createClient<Database>(localSupabase.API_URL, key, {

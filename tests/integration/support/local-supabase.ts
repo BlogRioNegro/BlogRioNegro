@@ -37,3 +37,7 @@ export function queryLocalDb(sql: string): Record<string, unknown>[] {
     parseJsonOutput(runCli(['db', 'query', '--local', '-o', 'json', sql])),
   ).rows
 }
+
+export function executeLocalSql(sql: string): void {
+  runCli(['db', 'query', '--local', sql])
+}
