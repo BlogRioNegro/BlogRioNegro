@@ -90,4 +90,12 @@ pnpm + Turborepo ([ADR 0001](docs/adr/0001-monorepo-pnpm-turborepo.md)). A vers√
 | `pnpm test` | Vitest em cada app |
 | `pnpm format` / `pnpm format:check` | Prettier |
 
-Comandos do Supabase CLI entram na F3-003, e `pnpm db:types` na F3-011.
+Supabase local (CLI como devDependency, requer Docker; [ADR 0016](docs/adr/0016-supabase-local-e-prod.md)):
+
+| Comando | O que faz |
+|---|---|
+| `pnpm exec supabase start` / `stop` | sobe/para o Supabase local |
+| `pnpm exec supabase status` | URLs e chaves locais (para o `.env.local`) |
+| `pnpm exec supabase db reset` | recria o banco local com migrations e `seed.sql` |
+
+`pnpm db:types` entra na F3-011.
