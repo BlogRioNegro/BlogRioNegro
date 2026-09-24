@@ -97,5 +97,4 @@ Supabase local (CLI como devDependency, requer Docker; [ADR 0016](docs/adr/0016-
 | `pnpm exec supabase start` / `stop` | sobe/para o Supabase local |
 | `pnpm exec supabase status` | URLs e chaves locais (para o `.env.local`) |
 | `pnpm exec supabase db reset` | recria o banco local com migrations e `seed.sql` |
-
-`pnpm db:types` entra na F3-011.
+| `pnpm db:types` | gera `packages/db/src/types.gen.ts` do banco local (commitado) |

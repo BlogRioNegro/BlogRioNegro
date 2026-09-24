@@ -1,2 +1,2 @@
-// Types gerados do Supabase e clients tipados entram na F3-011 (DATA-008).
-export {}
+export type * from './types.gen'
+export { Constants } from './types.gen'
