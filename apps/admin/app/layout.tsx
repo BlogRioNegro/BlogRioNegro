@@ -1,11 +1,14 @@
 import type { Metadata } from 'next'
+import { connection } from 'next/server'
 import type { ReactNode } from 'react'
 
 export const metadata: Metadata = {
   title: 'Rio Negro · Admin',
 }
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  await connection()
+
   return (
     <html lang="pt-BR">
       <body>{children}</body>
