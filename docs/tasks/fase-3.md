@@ -5,17 +5,17 @@ Specs: [00-overview](../specs/00-overview.md), [01-data-model](../specs/01-data-
 ## Monorepo e deploy
 - [x] **F3-001** · OVW-001 · Monorepo pnpm + Turborepo: `apps/web`, `apps/admin`, `packages/db`, `packages/ui`, tsconfig base strict, ESLint, Prettier, scripts raiz
 - [ ] **F3-002** · OVW-004 · Spike StayCloud: deploy hello world dos dois apps; validar Node 20+, build pnpm em subpasta, env vars, Server Action e geração de PDF (pdf-lib + @react-pdf); registrar resultado em ADR
-- [ ] **F3-003** · OVW-003 · Supabase CLI local, `config.toml` com signup desligado (SEC-001), `.env.example` completo (SEC-003)
+- [x] **F3-003** · OVW-003 · Supabase CLI local, `config.toml` com signup desligado (SEC-001), `.env.example` completo (SEC-003)
 
 ## Schema
-- [ ] **F3-004** · DATA-001 · Migration `articles` + enum + CHECK + índices + trigger `updated_at`
-- [ ] **F3-005** · DATA-002 · Migration `article_contents`
-- [ ] **F3-006** · DATA-003 · Migration `article_slug_history` + trigger de unicidade entre slugs
-- [ ] **F3-007** · DATA-004 · Migration `leads` + enum `webhook_status` + índices
-- [ ] **F3-008** · DATA-005 · Migration `lead_rate_limits` + função `consume_rate_limit`
+- [x] **F3-004** · DATA-001 · Migration `articles` + enum + CHECK + índices + trigger `updated_at`
+- [x] **F3-005** · DATA-002 · Migration `article_contents`
+- [x] **F3-006** · DATA-003 · Migration `article_slug_history` + trigger de unicidade entre slugs
+- [x] **F3-007** · DATA-004 · Migration `leads` + enum `webhook_status` + índices
+- [x] **F3-008** · DATA-005 · Migration `lead_rate_limits` + função `consume_rate_limit`
 - [ ] **F3-009** · DATA-006 · Migration `admin_users` + seed do admin local
-- [ ] **F3-010** · DATA-007 · Buckets com limites de tamanho e MIME
-- [ ] **F3-011** · DATA-008 · Script `pnpm db:types`, types gerados em `packages/db`, seed com 3 artigos
+- [x] **F3-010** · DATA-007 · Buckets com limites de tamanho e MIME
+- [x] **F3-011** · DATA-008 · Script `pnpm db:types`, types gerados em `packages/db`, seed com 3 artigos
 
 ## RLS e segurança
 - [ ] **F3-012** · RLS-001 · RLS habilitado em todas as tabelas + teste que detecta tabela sem RLS

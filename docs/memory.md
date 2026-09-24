@@ -3,39 +3,36 @@
 _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
 
 ## Fase
-Fase 3 (fundação) parcial na branch `fase-3` (local, sem push).
+Fase 3 (fundação) na branch `fase-3` (local, sem push). Supabase local (CLI 2.117 via `pnpm exec`).
 
 ## Concluídas na fase 3
-F3-001, F3-016, F3-018, F3-019, F3-024. Regras de segredo da SEC-003 (mínimo de 32; webhook
-https com segredo obrigatório) no `env.ts` dos dois apps.
-
-## Decisões recentes
-- [ADR 0020](adr/0020-csp-com-nonce.md): CSP com nonce por request no `proxy.ts`; os layouts
-  chamam `await connection()` para o render ser dinâmico (sem isso os scripts saem sem nonce).
-- [ADR 0021](adr/0021-codigo-de-server-duplicado-por-app.md): código de server duplicado por app,
-  sem pacote compartilhado. Logger/redact/`failAction` só entram no admin quando ele precisar.
-  A F5-007 reavalia só o envio do webhook (ADM-014).
+F3-001, F3-003 a F3-008, F3-010, F3-011, F3-016, F3-018, F3-019, F3-024.
+Todas as tabelas com RLS ligado e **sem políticas** (acesso negado por padrão até a F3-012+).
 
 ## Última tarefa concluída
-F3-018 · SEC-006.
+F3-011 · DATA-008 (`pnpm db:types`, `packages/db/src/types.gen.ts`, seed com 3 artigos).
 
 ## Próxima tarefa
-F3-002 · OVW-004 (spike StayCloud, com o Rafael) ou F3-003 · OVW-003 (precisa do Supabase CLI).
+F3-009 (seed do admin, após a resposta abaixo), depois F3-012 · RLS-001 em diante.
 
 ## Bloqueios e perguntas abertas
-- F3-003 a F3-015, F3-017, F3-020 a F3-023: dependem do Supabase (Docker + liberar `supabase`
-  em `.claude/settings.json`).
-- `corepack enable` como admin: o Turbo precisa do binário `pnpm` no PATH.
-- Standalone não copia `.next/static` (assets dão 404 no `start`): resolver na F3-002.
-- Push da branch `fase-3` (`git push` bloqueado nas settings).
-- Domínios de produção (usar env vars); contato do DPO (F7-006).
+- F3-009 aberta: a migration `admin_users` existe, mas o seed do admin local precisa de e-mail
+  e senha para a conta em `auth.users`, e a spec não define. Precisa do Rafael.
+- Lacunas da spec resolvidas por convenção (confirmar ou virar ADR):
+  `created_at`/`updated_at` com default `now()`; `leads.id` com `gen_random_uuid()`;
+  `leads.webhook_status` e `article_slug_history.article_id` como `not null`;
+  `consume_rate_limit(key text, "limit" int, "window" interval)` com janela fixa (`date_bin`);
+  limites dos buckets em MiB (2 MiB e 20 MiB): a revalidação da ADM-006 deve usar o mesmo número.
+- `corepack enable` como admin (o Turbo precisa do `pnpm` no PATH). Push da `fase-3`.
+- Standalone não copia `.next/static` (F3-002). Domínios de produção; contato do DPO (F7-006).
 
 ## Revisar primeiro (ordem de risco)
-1. `apps/*/proxy.ts`: diretivas da CSP; o admin também libera o Turnstile (igual ao web).
-2. `apps/*/app/layout.tsx`: `await connection()` deixa todas as rotas dinâmicas.
-3. `apps/web/lib/domain/redact.ts`: regex heurística; nome em texto livre não é pego.
-4. `apps/*/instrumentation*.ts`: boot com `process.exit(1)`; conferir na StayCloud.
+1. `supabase/migrations/*_article_contents.sql`: constraint triggers adiadas (1:1 e `body_json`),
+   `security definer` com EXECUTE revogado de anon/authenticated.
+2. `*_article_slug_history.sql`: triggers `security definer` que gravam e removem o histórico.
+3. `*_lead_rate_limits.sql`: semântica de `consume_rate_limit` e EXECUTE só para o service role.
+4. `*_storage_buckets.sql`: limites e MIME criados por migration (valem em produção).
 
 ## Ler na próxima sessão
-- [docs/tasks/fase-3.md](tasks/fase-3.md), [docs/specs/00-overview.md](specs/00-overview.md) (OVW-004)
-- [ADR 0002](adr/0002-hospedagem-staycloud.md), [ADR 0008](adr/0008-geracao-pdf.md)
+- [docs/tasks/fase-3.md](tasks/fase-3.md), [docs/specs/02-security-rls.md](specs/02-security-rls.md) (RLS-001 a RLS-004)
+- [docs/specs/01-data-model.md](specs/01-data-model.md), [ADR 0014](adr/0014-admin-allowlist.md)
