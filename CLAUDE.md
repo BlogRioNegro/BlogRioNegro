@@ -87,7 +87,8 @@ pnpm + Turborepo ([ADR 0001](docs/adr/0001-monorepo-pnpm-turborepo.md)). A vers�
 | `pnpm build` | builda os dois apps (`output: 'standalone'`) |
 | `pnpm typecheck` | `next typegen` + `tsc --noEmit` em todos os pacotes |
 | `pnpm lint` | ESLint (config única em `eslint.config.mjs`) |
-| `pnpm test` | Vitest em cada app |
+| `pnpm test` | Vitest em cada app + integração (requer Supabase local rodando) |
+| `pnpm test:integration` | só os testes de integração em `tests/integration` (anon, autenticado, admin) |
 | `pnpm format` / `pnpm format:check` | Prettier |
 
 Supabase local (CLI como devDependency, requer Docker; [ADR 0016](docs/adr/0016-supabase-local-e-prod.md)):

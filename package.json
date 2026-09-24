@@ -8,14 +8,17 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
-    "typecheck": "turbo run typecheck",
-    "lint": "turbo run lint",
-    "test": "turbo run test",
+    "typecheck": "turbo run typecheck && tsc -p tests/integration",
+    "lint": "turbo run lint && eslint tests",
+    "test": "turbo run test && pnpm test:integration",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "db:types": "supabase gen types typescript --local --schema public > packages/db/src/types.gen.ts && prettier --write packages/db/src/types.gen.ts"
+    "db:types": "supabase gen types typescript --local --schema public > packages/db/src/types.gen.ts && prettier --write packages/db/src/types.gen.ts",
+    "test:integration": "vitest run --config tests/integration/vitest.config.ts"
   },
   "devDependencies": {
+    "@rio-negro/db": "workspace:*",
+    "@supabase/supabase-js": "^2.117.0",
     "@types/node": "^22.20.4",
     "eslint": "^9.39.5",
     "eslint-config-next": "16.3.6",
@@ -23,6 +26,7 @@
     "supabase": "^2.117.0",
     "turbo": "2.11.3",
     "typescript": "5.9.3",
-    "vitest": "5.0.1"
+    "vitest": "5.0.1",
+    "zod": "^4.6.5"
   }
 }
