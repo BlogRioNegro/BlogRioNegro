@@ -17,6 +17,7 @@
     "test:integration": "vitest run --config tests/integration/vitest.config.ts"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@rio-negro/db": "workspace:*",
     "@supabase/supabase-js": "^2.117.0",
     "@types/node": "^22.20.4",
