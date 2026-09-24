@@ -1,6 +1,7 @@
 {
   "name": "rio-negro",
   "private": true,
+  "type": "module",
   "packageManager": "pnpm@12.6.0",
   "engines": {
     "node": ">=20.9.0"
@@ -8,13 +9,14 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
-    "typecheck": "turbo run typecheck && tsc -p tests/integration",
+    "typecheck": "turbo run typecheck && tsc -p tests/integration && tsc -p tests/e2e",
     "lint": "turbo run lint && eslint tests",
     "test": "turbo run test && pnpm test:integration",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "db:types": "supabase gen types typescript --local --schema public > packages/db/src/types.gen.ts && prettier --write packages/db/src/types.gen.ts",
-    "test:integration": "vitest run --config tests/integration/vitest.config.ts"
+    "test:integration": "vitest run --config tests/integration/vitest.config.ts",
+    "test:e2e": "playwright test -c tests/e2e/playwright.config.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",

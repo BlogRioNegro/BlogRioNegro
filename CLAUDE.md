@@ -89,6 +89,7 @@ pnpm + Turborepo ([ADR 0001](docs/adr/0001-monorepo-pnpm-turborepo.md)). A vers�
 | `pnpm lint` | ESLint (config única em `eslint.config.mjs`) |
 | `pnpm test` | Vitest em cada app + integração (requer Supabase local rodando) |
 | `pnpm test:integration` | só os testes de integração em `tests/integration` (anon, autenticado, admin) |
+| `pnpm test:e2e` | Playwright (Chromium) em `tests/e2e`: sobe o admin em :3101 contra o Supabase local |
 | `pnpm format` / `pnpm format:check` | Prettier |
 
 Supabase local (CLI como devDependency, requer Docker; [ADR 0016](docs/adr/0016-supabase-local-e-prod.md)):

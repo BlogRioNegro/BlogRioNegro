@@ -37,11 +37,10 @@ export function adminClient(): Promise<Client> {
   return signedInClient(SEED_ADMIN.email, SEED_ADMIN.password)
 }
 
-export type TestUser = { id: string; client: Client; remove: () => Promise<void> }
+export type TestUser = { id: string; email: string; client: Client; remove: () => Promise<void> }
 
-export async function createAuthenticatedUser(): Promise<TestUser> {
+export async function createAuthenticatedUser(password: string = randomUUID()): Promise<TestUser> {
   const email = `teste-${randomUUID()}@rionegro.local`
-  const password = randomUUID()
   const service = serviceClient()
 
   const { data, error } = await service.auth.admin.createUser({
@@ -57,5 +56,5 @@ export async function createAuthenticatedUser(): Promise<TestUser> {
     if (deleteError) throw deleteError
   }
 
-  return { id, client: await signedInClient(email, password), remove }
+  return { id, email, client: await signedInClient(email, password), remove }
 }
