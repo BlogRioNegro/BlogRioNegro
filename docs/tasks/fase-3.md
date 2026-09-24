@@ -28,8 +28,8 @@ Specs: [00-overview](../specs/00-overview.md), [01-data-model](../specs/01-data-
 - [x] **F3-019** · SEC-004 · Hasher HMAC (IP e e-mail) + teste
 
 ## Auth e testes
-- [ ] **F3-020** · ADM-001 · Login do admin com `@supabase/ssr`
-- [ ] **F3-021** · ADM-002 · Middleware + helper `requireAdmin()` usado em toda action
-- [ ] **F3-022** · OVW-005 · Vitest e Playwright configurados na raiz contra o Supabase local
-- [ ] **F3-023** · SEC-005 · Teste: Server Action do admin sem sessão retorna erro e não altera dados
+- [x] **F3-020** · ADM-001 · Login do admin com `@supabase/ssr`
+- [x] **F3-021** · ADM-002 · Middleware + helper `requireAdmin()` usado em toda action
+- [x] **F3-022** · OVW-005 · Vitest e Playwright configurados na raiz contra o Supabase local
+- [x] **F3-023** · SEC-005 · Teste: Server Action do admin sem sessão retorna erro e não altera dados
 - [x] **F3-024** · SEC-008 · Helper de erro genérico para o client + logger do server sem dados pessoais
