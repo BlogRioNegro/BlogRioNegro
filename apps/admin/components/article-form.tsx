@@ -1,7 +1,7 @@
 'use client'
 
 import { Alert, Button, FieldMessage, Label, TextField } from '@rio-negro/ui'
-import { ArrowLeft } from '@rio-negro/ui/icons'
+import { ArrowLeft, LoaderCircle } from '@rio-negro/ui/icons'
 import type { JSONContent } from '@tiptap/core'
 import Link from 'next/link'
 import { startTransition, useActionState, useState, type FormEvent } from 'react'
@@ -16,7 +16,7 @@ import {
   type FieldErrors,
 } from '@/lib/domain/article-form'
 import { checkRichText, parseBodyField } from '@/lib/domain/rich-text'
-import { sizeError } from '@/lib/domain/upload-rules'
+import { formatMegabytes, sizeError } from '@/lib/domain/upload-rules'
 import { RichTextEditor } from './rich-text-editor'
 
 export type ArticleFormValues = {
@@ -61,6 +61,7 @@ export function ArticleForm({ initial, isNew }: { initial: ArticleFormValues; is
   const [state, formAction, pending] = useActionState(saveArticle, null)
   const [contentType, setContentType] = useState(initial.contentType)
   const [slug, setSlug] = useState(initial.slug)
+  const [pdf, setPdf] = useState<File | null>(null)
   const [localErrors, setLocalErrors] = useState<FieldErrors | null>(null)
   const errors = localErrors ?? state?.fieldErrors ?? {}
   const summaryMessageId = `${initial.id}-resumo-mensagem`
@@ -159,14 +160,24 @@ export function ArticleForm({ initial, isNew }: { initial: ArticleFormValues; is
           className="md:max-w-60"
         />
         {contentType === 'pdf' ? (
-          <TextField
-            label="Arquivo PDF"
-            name="pdf"
-            type="file"
-            accept="application/pdf"
-            help="Máximo de 20 MB."
-            error={errors.content}
-          />
+          <div className="flex flex-col gap-2">
+            <TextField
+              label="Arquivo PDF"
+              name="pdf"
+              type="file"
+              accept="application/pdf"
+              help="Máximo de 20 MB."
+              error={errors.content}
+              disabled={pending}
+              onChange={(event) => setPdf(event.target.files?.[0] ?? null)}
+            />
+            {pending && pdf ? (
+              <p role="status" className="flex items-center gap-2 text-xs text-text">
+                <LoaderCircle aria-hidden className="size-4 animate-spin" />
+                Enviando {pdf.name} ({formatMegabytes(pdf.size)})…
+              </p>
+            ) : null}
+          </div>
         ) : (
           <div className="flex flex-col gap-2">
             <Label id={`${initial.id}-conteudo`}>Conteúdo</Label>

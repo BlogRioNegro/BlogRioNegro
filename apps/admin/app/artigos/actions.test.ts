@@ -1,3 +1,4 @@
+import { PDFDocument, PDFName } from 'pdf-lib'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ARTICLE_MESSAGES } from '../../lib/domain/article-form'
 import { GENERIC_ERROR_MESSAGE } from '../../lib/services/action-result'
@@ -54,6 +55,16 @@ function form(overrides: Record<string, string | File> = {}) {
   const formData = new FormData()
   for (const [name, value] of Object.entries(values)) formData.set(name, value)
   return formData
+}
+
+async function pdf(pages: number, encrypted = false) {
+  const doc = await PDFDocument.create()
+  for (let page = 0; page < pages; page += 1) doc.addPage()
+  if (encrypted)
+    doc.context.trailerInfo.Encrypt = doc.context.register(
+      doc.context.obj({ Filter: PDFName.of('Standard') }),
+    )
+  return new File([new Uint8Array(await doc.save())], 'relatorio.pdf', { type: 'application/pdf' })
 }
 
 const png = () => new File([new Uint8Array([1, 2, 3])], 'capa.png', { type: 'image/png' })
@@ -187,6 +198,65 @@ describe('saveArticle', () => {
     )
 
     expect(result?.fieldErrors.content).toBe('Envie as imagens pelo botão Imagem.')
+  })
+
+  it('PDF novo: original em article-files, prévia em article-previews e remove os antigos', async () => {
+    validateUpload.mockImplementation(async (_bucket: string, file: File) => ({
+      ok: true,
+      file,
+      extension: 'pdf',
+    }))
+
+    await expect(saveArticle(null, form({ pdf: await pdf(5) }))).rejects.toThrow('NEXT_REDIRECT')
+
+    expect(validateUpload).toHaveBeenCalledWith('article-files', expect.any(File))
+    const uploads = store.uploadFile.mock.calls.map(([, bucket, path]) => ({ bucket, path }))
+    expect(uploads.map((upload) => upload.bucket)).toEqual(['article-files', 'article-previews'])
+    const [original, preview] = uploads
+    expect(store.saveArticleRecord.mock.calls[0]?.[1]).toMatchObject({
+      full_pdf_path: original?.path,
+      preview_pdf_path: preview?.path,
+    })
+    const previewFile = store.uploadFile.mock.calls[1]?.[3]
+    const previewDoc = await PDFDocument.load(new Uint8Array(await previewFile.arrayBuffer()))
+    expect(previewDoc.getPageCount()).toBe(2)
+    expect(store.removeFiles).toHaveBeenCalledWith(supabase, 'article-files', [
+      `${ID}/completo.pdf`,
+    ])
+    expect(store.removeFiles).toHaveBeenCalledWith(supabase, 'article-previews', [
+      `${ID}/previa.pdf`,
+    ])
+  })
+
+  it('PDF protegido por senha é rejeitado sem enviar nada', async () => {
+    validateUpload.mockImplementation(async (_bucket: string, file: File) => ({
+      ok: true,
+      file,
+      extension: 'pdf',
+    }))
+
+    const result = await saveArticle(null, form({ pdf: await pdf(3, true) }))
+
+    expect(result?.fieldErrors.content).toBe(
+      'O PDF está protegido por senha. Envie um arquivo sem senha.',
+    )
+    expect(store.uploadFile).not.toHaveBeenCalled()
+  })
+
+  it('falha no envio da prévia remove o original já enviado', async () => {
+    validateUpload.mockImplementation(async (_bucket: string, file: File) => ({
+      ok: true,
+      file,
+      extension: 'pdf',
+    }))
+    store.uploadFile.mockResolvedValueOnce(null).mockResolvedValueOnce({ message: 'falhou' })
+
+    const result = await saveArticle(null, form({ pdf: await pdf(2) }))
+
+    expect(result?.error).toBe(GENERIC_ERROR_MESSAGE)
+    const originalPath = store.uploadFile.mock.calls[0]?.[2]
+    expect(store.removeFiles).toHaveBeenCalledWith(supabase, 'article-files', [originalPath])
+    expect(store.saveArticleRecord).not.toHaveBeenCalled()
   })
 
   it('falha ao salvar: erro genérico e remove a capa recém-enviada', async () => {

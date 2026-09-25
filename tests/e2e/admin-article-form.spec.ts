@@ -27,6 +27,11 @@ const SEED_PNG = path.join(
   '../../supabase/storage/covers/11111111-1111-4111-8111-111111111111/a1b2c3d4-0000-4000-8000-000000000001.png',
 )
 
+const SEED_PDF = path.join(
+  import.meta.dirname,
+  '../../supabase/storage/article-previews/22222222-2222-4222-8222-222222222222/b1b2c3d4-0000-4000-8000-000000000002.pdf',
+)
+
 test.describe('formulário de artigo', () => {
   test.afterAll(async () => {
     await serviceClient().from('articles').update({ title: SEED.title }).eq('id', SEED.id)
@@ -101,6 +106,54 @@ test.describe('formulário de artigo', () => {
     const storage = serviceClient().storage.from('article-images')
     const { data } = await storage.list(articleId)
     await storage.remove((data ?? []).map((file) => `${articleId}/${file.name}`))
+  })
+
+  test('criar artigo PDF: original privado, prévia pública e artigo no site', async ({ page }) => {
+    const service = serviceClient()
+    const slug = `artigo-pdf-e2e-${Date.now()}`
+    await signInAsAdmin(page)
+    await page.goto('/artigos/novo')
+    const articleId = await page.locator('input[name="id"]').inputValue()
+
+    await page.getByLabel('Título').fill('Artigo PDF criado no E2E')
+    await page.getByLabel('Slug').fill(slug)
+    await page.getByLabel('Capa').setInputFiles(SEED_PNG)
+    await page.getByLabel('Arquivo PDF').setInputFiles(SEED_PDF)
+    await page.getByRole('button', { name: 'Publicar' }).click()
+
+    try {
+      await expect(page).toHaveURL(/\/artigos$/)
+      await expect(page.getByRole('table').getByText('Artigo PDF criado no E2E')).toBeVisible()
+
+      const { data: article } = await service
+        .from('articles')
+        .select('preview_pdf_path, article_contents(full_pdf_path)')
+        .eq('id', articleId)
+        .single()
+      const fullPath = article?.article_contents?.full_pdf_path ?? ''
+      const previewPath = article?.preview_pdf_path ?? ''
+      const inArticleFolder = new RegExp(`^${articleId}/[0-9a-f-]+\\.pdf$`)
+      expect(fullPath).toMatch(inArticleFolder)
+      expect(previewPath).toMatch(inArticleFolder)
+      expect((await service.storage.from('article-files').download(fullPath)).error).toBeNull()
+      expect(
+        (await service.storage.from('article-previews').download(previewPath)).error,
+      ).toBeNull()
+      const anonOriginal = await page.request.get(
+        service.storage.from('article-files').getPublicUrl(fullPath).data.publicUrl,
+      )
+      expect(anonOriginal.ok()).toBe(false)
+
+      await page.goto(webUrl(`/artigos/${slug}`))
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText('Artigo PDF criado no E2E')
+    } finally {
+      await service.from('articles').delete().eq('id', articleId)
+      for (const bucket of ['covers', 'article-files', 'article-previews']) {
+        const { data } = await service.storage.from(bucket).list(articleId)
+        const paths = (data ?? []).map((file) => `${articleId}/${file.name}`)
+        if (paths.length > 0) await service.storage.from(bucket).remove(paths)
+      }
+    }
   })
 
   test('salvar a edição publica o novo título no site no próximo request', async ({ page }) => {

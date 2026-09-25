@@ -13,7 +13,9 @@ import {
   type ArticleFields,
   type FieldErrors,
 } from '../../lib/domain/article-form'
+import { createPdfPreview } from '../../lib/domain/pdf-preview'
 import { checkRichText, parseBodyField } from '../../lib/domain/rich-text'
+import type { Bucket } from '../../lib/domain/upload-rules'
 import { failAction, type ActionResult } from '../../lib/services/action-result'
 import {
   findArticleForEdit,
@@ -27,6 +29,8 @@ import {
 import { requireAdmin } from '../../lib/services/require-admin'
 import { validateUpload } from '../../lib/services/upload'
 
+type Supabase = Parameters<typeof publicFileUrl>[0]
+
 export type SaveArticleState = { ok: false; error: string; fieldErrors: FieldErrors } | null
 
 const INVALID_FORM_MESSAGE = 'Confira os campos destacados.'
@@ -36,13 +40,21 @@ type ContentValues = Pick<
   'preview_json' | 'preview_pdf_path' | 'body_json' | 'full_pdf_path'
 >
 
+type Upload = { bucket: Bucket; path: string; file: Blob }
+
+type Content = { ok: true; values: ContentValues; uploads: Upload[] } | { ok: false; error: string }
+
 // ADM-005 · Imagens do rich text só do bucket article-images, na pasta do próprio artigo.
-function articleImagesPrefix(supabase: Parameters<typeof publicFileUrl>[0], articleId: string) {
+function articleImagesPrefix(supabase: Supabase, articleId: string) {
   return publicFileUrl(supabase, 'article-images', `${articleId}/`)
 }
 
 function invalid(fieldErrors: FieldErrors): SaveArticleState {
   return { ok: false, error: INVALID_FORM_MESSAGE, fieldErrors }
+}
+
+function newPath(articleId: string, extension: string): string {
+  return `${articleId}/${randomUUID()}.${extension}`
 }
 
 // Conteúdo atual do artigo, reaproveitado quando o tipo não mudou e nada novo foi enviado.
@@ -60,6 +72,94 @@ function keptContent(
   }
 }
 
+// ADM-007 · PDF novo: original privado em article-files e prévia de 2 páginas em article-previews.
+async function pdfContent(articleId: string, file: File): Promise<Content> {
+  const original = await validateUpload('article-files', file)
+  if (!original.ok) return original
+
+  const preview = await createPdfPreview(new Uint8Array(await original.file.arrayBuffer()))
+  if (!preview.ok) return preview
+
+  const fullPath = newPath(articleId, 'pdf')
+  const previewPath = newPath(articleId, 'pdf')
+  return {
+    ok: true,
+    values: { full_pdf_path: fullPath, preview_pdf_path: previewPath },
+    uploads: [
+      { bucket: 'article-files', path: fullPath, file: original.file },
+      {
+        bucket: 'article-previews',
+        path: previewPath,
+        file: new Blob([new Uint8Array(preview.preview)], { type: 'application/pdf' }),
+      },
+    ],
+  }
+}
+
+async function resolveContent(
+  supabase: Supabase,
+  fields: ArticleFields,
+  existing: ArticleForEdit | null,
+  formData: FormData,
+): Promise<Content> {
+  const pdf = fileFrom(formData, 'pdf')
+  if (fields.contentType === 'pdf' && pdf) return pdfContent(fields.id, pdf)
+
+  const body = formData.get('body')
+  if (fields.contentType === 'rich_text' && body !== null) {
+    const richText = checkRichText(parseBodyField(body), articleImagesPrefix(supabase, fields.id))
+    if (!richText.ok) return richText
+    return { ok: false, error: ARTICLE_MESSAGES.richText }
+  }
+
+  const kept = keptContent(existing, fields.contentType)
+  if (kept) return { ok: true, values: kept, uploads: [] }
+  return {
+    ok: false,
+    error: fields.contentType === 'pdf' ? ARTICLE_MESSAGES.pdf : ARTICLE_MESSAGES.richText,
+  }
+}
+
+/** Envia todos os arquivos ou nenhum: se um falha, os já enviados são removidos. */
+async function uploadAll(supabase: Supabase, uploads: Upload[]): Promise<unknown> {
+  const done: Upload[] = []
+  for (const upload of uploads) {
+    const error = await uploadFile(supabase, upload.bucket, upload.path, upload.file)
+    if (error) {
+      await removeUploads(supabase, done)
+      return error
+    }
+    done.push(upload)
+  }
+  return null
+}
+
+async function removeUploads(supabase: Supabase, uploads: Pick<Upload, 'bucket' | 'path'>[]) {
+  for (const upload of uploads) await removeFiles(supabase, upload.bucket, [upload.path])
+}
+
+// Arquivos do artigo que deixaram de ser referenciados depois de salvar (ADM-007: trocar o PDF
+// remove os antigos).
+function staleFiles(existing: ArticleForEdit | null, saved: SaveArticleArgs) {
+  if (!existing) return []
+  const previous = [
+    { bucket: 'covers', path: existing.cover_path, current: saved.cover_path },
+    {
+      bucket: 'article-files',
+      path: existing.article_contents?.full_pdf_path,
+      current: saved.full_pdf_path,
+    },
+    {
+      bucket: 'article-previews',
+      path: existing.preview_pdf_path,
+      current: saved.preview_pdf_path,
+    },
+  ] as const
+  return previous.flatMap(({ bucket, path, current }) =>
+    path && path !== current ? [{ bucket, path }] : [],
+  )
+}
+
 /** ADM-004 · Salvar = publicar (ADR 0005). Valida com o mesmo schema do form. */
 export async function saveArticle(
   _previous: SaveArticleState,
@@ -75,33 +175,26 @@ export async function saveArticle(
   const existing = await findArticleForEdit(auth.supabase, fields.id)
   const coverFile = fileFrom(formData, 'cover')
   const cover = coverFile ? await validateUpload('covers', coverFile) : null
-  const body = formData.get('body')
-  const richText =
-    fields.contentType === 'rich_text' && body !== null
-      ? checkRichText(parseBodyField(body), articleImagesPrefix(auth.supabase, fields.id))
-      : null
-  const content = richText ? null : keptContent(existing, fields.contentType)
+  const content = await resolveContent(auth.supabase, fields, existing, formData)
 
   const fieldErrors: FieldErrors = {}
   if (!existing && !cover) fieldErrors.cover = ARTICLE_MESSAGES.cover
   if (cover && !cover.ok) fieldErrors.cover = cover.error
-  if (richText && !richText.ok) fieldErrors.content = richText.error
-  else if (!content)
-    fieldErrors.content =
-      fields.contentType === 'pdf' ? ARTICLE_MESSAGES.pdf : ARTICLE_MESSAGES.richText
-  if (Object.keys(fieldErrors).length > 0 || !content || (cover && !cover.ok))
+  if (!content.ok) fieldErrors.content = content.error
+  if (Object.keys(fieldErrors).length > 0 || !content.ok || (cover && !cover.ok))
     return invalid(fieldErrors)
 
-  const newCoverPath = cover ? `${fields.id}/${randomUUID()}.${cover.extension}` : null
-  if (cover && newCoverPath) {
-    const uploadError = await uploadFile(auth.supabase, 'covers', newCoverPath, cover.file)
-    if (uploadError) return { ...failAction('admin.cover_upload_failed', uploadError), fieldErrors }
-  }
-
-  const coverPath = newCoverPath ?? existing?.cover_path
+  const coverUpload: Upload | null = cover
+    ? { bucket: 'covers', path: newPath(fields.id, cover.extension), file: cover.file }
+    : null
+  const coverPath = coverUpload?.path ?? existing?.cover_path
   if (!coverPath) return invalid({ cover: ARTICLE_MESSAGES.cover })
 
-  const saveError = await saveArticleRecord(auth.supabase, {
+  const uploads = [...(coverUpload ? [coverUpload] : []), ...content.uploads]
+  const uploadError = await uploadAll(auth.supabase, uploads)
+  if (uploadError) return { ...failAction('admin.article_upload_failed', uploadError), fieldErrors }
+
+  const record: SaveArticleArgs = {
     article_id: fields.id,
     slug: fields.slug,
     title: fields.title,
@@ -113,14 +206,15 @@ export async function saveArticle(
       existing?.published_at ?? null,
       new Date(),
     ),
-    ...content,
-  })
+    ...content.values,
+  }
+  const saveError = await saveArticleRecord(auth.supabase, record)
   if (saveError) {
-    if (newCoverPath) await removeFiles(auth.supabase, 'covers', [newCoverPath])
+    await removeUploads(auth.supabase, uploads)
     return { ...failAction('admin.article_save_failed', saveError), fieldErrors }
   }
 
-  if (newCoverPath && existing) await removeFiles(auth.supabase, 'covers', [existing.cover_path])
+  await removeUploads(auth.supabase, staleFiles(existing, record))
   redirect('/artigos')
 }
 
