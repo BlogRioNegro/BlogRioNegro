@@ -3,36 +3,32 @@
 _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
 
 ## Fase
-Fase 6 concluída na branch `fase-6` (F6-001 a F6-013 `[x]`, login com o visual da spec). Gate verde:
-typecheck, lint, format:check, test (457), build e test:e2e (70 + 24 visuais com `VISUAL=1`). Sem push.
+Fase 7 na branch `fase-7` (criada da `fase-6`), em modo somente auditoria: nada de mudança em
+`apps/`, `packages/`, `supabase/` nem nos testes existentes. F7-001 `[x]`. Sem push.
 
 ## Próxima tarefa
-Fase 7 (F7-001) na branch `fase-7`, criada a partir da `fase-6`. Ler `docs/tasks/fase-7.md`.
+F7-003 · OVW-005 · QA exploratório no build de produção (web e admin, 1440 e 390 px), com
+scripts Playwright temporários fora do repo. Depois F7-004 (axe em `tests/e2e/a11y.spec.ts`,
+só com `A11Y=1`). Achados vão para `docs/revisao-final.md` (IDs QA-n e A11Y-n).
 
-## Decisões que seguem valendo
-- Server Action/route handler: `requireAdmin()` na 1ª linha + teste de integração sem cookie
-  (`tests/integration/admin-article-actions.test.ts`); `require-admin-usage.test.ts` varre `app/`.
-  `'use server'` só exporta funções async.
-- Integração com sessão de admin: mock de `require-admin` devolvendo `adminClient()`.
-- `save_article` (ADR 0033); uploads `UPLOAD_RULES`, imagens só PNG/JPEG (ADR 0034, 0037).
-- CSP: `StyleNonce` + `get-nonce` no layout raiz dos 2 apps (ADR 0020); e2e `csp-dialog.spec.ts`.
-- Webhook: cópias em web e admin com o mesmo vetor fixo (ADR 0032); reenvio no admin (ADR 0039).
-- Hospedagem: StayCloud Deploy Pro, Node 22 (`engines` + `.nvmrc`), ADR 0038.
-- Server do admin com import relativo. Hex proibido em `apps/`. Sem `service_role` no admin.
-- Deps autorizadas: `@tiptap/*`, `pdf-lib`, `@react-pdf/renderer`, `file-type`, `get-nonce`.
+## Estado da revisão (`docs/revisao-final.md`)
+- F7-001: 0 crítico, 0 alto, 1 médio (SEC-1: IP do `X-Forwarded-For` falsificável se o proxy
+  não sobrescrever), 6 baixos (SEC-2 a SEC-7). Matriz RLS-*/SEC-* toda ✅; `.env.example` não
+  verificado (regra de não ler `.env*`).
+- A skill `security-review` exige `origin/HEAD`; sem remote, a revisão do diff foi manual.
 
 ## Regras do loop
-- E2E: web :3100, web :3102 (build+start), admin :3101 com `LEAD_WEBHOOK_URL=https://crm.invalid`.
-  Parar o `pnpm dev` antes. `tests/e2e/support/admin.ts` tem `signIn`/`signInAsAdmin`.
-- Visual: `VISUAL=1 pnpm test:e2e admin-` gera app e protótipo em `tests/e2e/__visual__/`.
-- Build com "Turbopack cache corruption": apagar o `.next` do app e buildar de novo.
-- Nunca ler `.env*` (inclui `.env.example`). `pnpm test` exige Docker + `pnpm exec supabase start`.
+- Arquivos permitidos: `docs/revisao-final.md`, `docs/tasks/fase-7.md`, `docs/memory.md`,
+  `tests/e2e/a11y.spec.ts`, `package.json`/lockfile raiz (só `@axe-core/playwright`).
+- Scripts temporários no scratchpad da sessão, nunca no repo.
+- Build de produção: `pnpm build`; web `next start --port 3200`, admin `--port 3201` (usam o
+  `.env.local` sem precisar lê-lo). E2E: web :3100/:3102, admin :3101; parar servidores antes.
+- Não tocar F7-002 e F7-005 a F7-009 (produção).
+- Nunca ler `.env*`. `pnpm test` exige Docker + `pnpm exec supabase start`.
 
 ## Pendências para o Rafael
 - ADR 0039: reenvio de lead de artigo excluído manda `article.id = null`; confirmar com o CRM.
-- Deploy Pro: validar no 1º deploy se o install do pnpm roda na raiz do monorepo; se falhar, VPS.
-- F3-002: confirmar em qual header o Deploy entrega o IP real do visitante (app lê `X-Forwarded-For`).
-- ADM-014: a spec esconde "Reenviar falhas" sem `LEAD_WEBHOOK_URL`; quem explica é a action.
-- Leads desktop: paginação abaixo da tabela (no protótipo, dentro do card).
-- CSP: o `next dev` gera violações de estilo na carga (produção limpa).
-- Turnstile de teste no `.env.local`; DPO; aceites PUB-007/010/012; `corepack enable`; push; domínios.
+- Deploy Pro: validar se o install do pnpm roda na raiz do monorepo; se falhar, VPS.
+- F3-002: confirmar em qual header o Deploy entrega o IP real do visitante (ver SEC-1).
+- Comando de start no Deploy Pro: `node .next/standalone/server.js` (`next start` avisa).
+- Turnstile de teste no `.env.local`; DPO; aceites PUB-007/010/012; `corepack enable`; domínios.
