@@ -208,3 +208,88 @@ test.describe('LEAD-010 · Sucesso', () => {
     await expect(form.getByLabel('E-mail', { exact: true })).toHaveValue('')
   })
 })
+
+test.describe('LEAD-011 · Nenhum dado pessoal no navegador', () => {
+  const PERSONAL = [LEAD.name, 'Maria', LEAD.email, 'maria.e2e', LEAD.phone, '98765-4321', '98765']
+
+  async function browserState(page: Page) {
+    return page.evaluate(async () => {
+      const dump = (storage: Storage) =>
+        Array.from({ length: storage.length }, (_, index) => {
+          const key = storage.key(index) ?? ''
+          return `${key}=${storage.getItem(key)}`
+        })
+
+      const indexedDbRows: string[] = []
+      for (const info of await indexedDB.databases()) {
+        if (!info.name) continue
+        const db = await new Promise<IDBDatabase>((resolve, reject) => {
+          const request = indexedDB.open(info.name ?? '')
+          request.onsuccess = () => resolve(request.result)
+          request.onerror = () => reject(request.error)
+        })
+        for (const store of Array.from(db.objectStoreNames)) {
+          const rows = await new Promise<unknown[]>((resolve) => {
+            const request = db.transaction(store).objectStore(store).getAll()
+            request.onsuccess = () => resolve(request.result)
+          })
+          indexedDbRows.push(`${info.name}/${store}:${JSON.stringify(rows)}`)
+        }
+        db.close()
+      }
+
+      return {
+        localStorage: dump(localStorage),
+        sessionStorage: dump(sessionStorage),
+        indexedDb: indexedDbRows,
+        url: location.href,
+      }
+    })
+  }
+
+  test('após o download, nada do lead em storage, IndexedDB, cookies, URLs ou console', async ({
+    page,
+    context,
+  }) => {
+    const consoleLines: string[] = []
+    const urls: string[] = []
+    page.on('console', (message) => consoleLines.push(message.text()))
+    page.on('pageerror', (error) => consoleLines.push(error.message))
+    page.on('framenavigated', (frame) => urls.push(frame.url()))
+
+    const dialog = await openModal(page)
+    await fillValidForm(dialog)
+    const download = page.waitForEvent('download')
+    await dialog.getByRole('button', { name: 'Baixar artigo completo' }).click()
+    await download
+    await expect(page.getByRole('dialog', { name: 'Pronto!' })).toBeVisible()
+
+    const state = await browserState(page)
+    const cookies = (await context.cookies()).map((cookie) => `${cookie.name}=${cookie.value}`)
+    const everything = JSON.stringify({ state, cookies, urls, consoleLines })
+    for (const value of PERSONAL) {
+      expect(everything, `"${value}" vazou para o navegador`).not.toContain(value)
+    }
+    expect(state.url).toBe(webUrl(ARTICLE_PATH))
+  })
+
+  test('fechar o modal limpa o formulário', async ({ page }) => {
+    const dialog = await openModal(page)
+    await dialog.getByLabel('Nome', { exact: true }).fill(LEAD.name)
+    await dialog.getByLabel('E-mail', { exact: true }).fill(LEAD.email)
+    await dialog.getByLabel('Telefone', { exact: true }).fill(LEAD.phone)
+    await dialog
+      .getByRole('checkbox', { name: 'Li e concordo com o aviso de privacidade.' })
+      .click()
+
+    await dialog.getByRole('button', { name: 'Fechar' }).click()
+    await page.getByRole('button', { name: 'Baixar artigo completo' }).click()
+
+    await expect(dialog.getByLabel('Nome', { exact: true })).toHaveValue('')
+    await expect(dialog.getByLabel('E-mail', { exact: true })).toHaveValue('')
+    await expect(dialog.getByLabel('Telefone', { exact: true })).toHaveValue('')
+    await expect(
+      dialog.getByRole('checkbox', { name: 'Li e concordo com o aviso de privacidade.' }),
+    ).not.toBeChecked()
+  })
+})
