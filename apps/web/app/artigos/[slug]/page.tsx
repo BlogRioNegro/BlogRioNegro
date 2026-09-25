@@ -1,13 +1,42 @@
 import { Button, cn, TypeBadge } from '@rio-negro/ui'
 import { ArrowLeft, Download } from '@rio-negro/ui/icons'
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { CoverImage } from '@/components/cover-image'
 import { PdfPreview } from '@/components/pdf-preview'
 import { RichText } from '@/components/rich-text'
+import { articleDescription } from '@/lib/domain/article-description'
 import { formatPublishedDate } from '@/lib/domain/published-date'
 import { parseRichTextPreview } from '@/lib/domain/rich-text'
 import { coverUrl, getArticleBySlug, previewPdfUrl } from '@/lib/services/articles'
+
+// PUB-010 · Descrição com fallback (articleDescription); capa como og:image absoluta.
+export async function generateMetadata({
+  params,
+}: PageProps<'/artigos/[slug]'>): Promise<Metadata> {
+  const article = await getArticleBySlug((await params).slug)
+  if (!article) return {}
+
+  const url = `/artigos/${article.slug}`
+  const description = articleDescription(article)
+  const image = coverUrl(article.cover_path)
+
+  return {
+    title: article.title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: 'article',
+      url,
+      title: article.title,
+      description,
+      images: [image],
+      publishedTime: article.published_at,
+    },
+    twitter: { card: 'summary_large_image', title: article.title, description, images: [image] },
+  }
+}
 
 // PUB-005 · Só dados públicos e a prévia (ADR 0007); o conteúdo completo nunca é lido aqui.
 export default async function ArticlePage({ params }: PageProps<'/artigos/[slug]'>) {

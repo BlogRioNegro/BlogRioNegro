@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import { SiteHeader } from '@/components/site-header'
 
 export const metadata: Metadata = {
-  title: 'Aviso de privacidade · Rio Negro Investimentos',
+  title: 'Aviso de privacidade',
   description: 'Como o blog da Rio Negro trata os dados de quem baixa artigos.',
 }
 

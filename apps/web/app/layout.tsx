@@ -3,10 +3,16 @@ import type { Metadata } from 'next'
 import { connection } from 'next/server'
 import type { ReactNode } from 'react'
 import { SiteFooter } from '@/components/site-footer'
+import { BLOG_DESCRIPTION } from '@/lib/domain/article-description'
+import { env } from '@/lib/env'
 import './globals.css'
 
+// PUB-010 · URLs de canonical e og:image ficam absolutas a partir de NEXT_PUBLIC_SITE_URL.
 export const metadata: Metadata = {
-  title: 'Rio Negro Investimentos',
+  metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
+  title: { default: 'Rio Negro Investimentos', template: '%s · Rio Negro Investimentos' },
+  description: BLOG_DESCRIPTION,
+  openGraph: { siteName: 'Rio Negro Investimentos', locale: 'pt_BR' },
 }
 
 // O SiteHeader fica em cada segmento, porque o link ativo muda com a rota e o layout raiz

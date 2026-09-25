@@ -257,3 +257,68 @@ test.describe('PUB-014 · Privacidade', () => {
     await expect(page.getByRole('contentinfo')).toBeVisible()
   })
 })
+
+test.describe('PUB-010 · Metadata e Open Graph', () => {
+  const id = '99999999-9999-4999-8999-999999999999'
+
+  test.beforeAll(() => {
+    executeLocalSql(`with a as (
+      insert into public.articles (id, slug, title, cover_path, content_type, preview_json, published_at)
+      values ('${id}', 'sem-resumo', 'Artigo sem resumo', 'x/capa.png', 'rich_text',
+        '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Primeiro parágrafo da prévia."}]}]}',
+        now() - interval '40 days')
+      returning id
+    ) insert into public.article_contents (article_id, body_json, full_pdf_path)
+      select id, '{"type":"doc","content":[]}', 'x/completo.pdf' from a`)
+  })
+
+  test.afterAll(() => {
+    executeLocalSql(`delete from public.articles where id = '${id}'`)
+  })
+
+  const meta = (page: Page, attribute: 'name' | 'property', key: string) =>
+    page.locator(`meta[${attribute}="${key}"]`)
+
+  test('artigo pdf com resumo: título, descrição, canonical, og e twitter', async ({ page }) => {
+    await page.goto(webUrl('/artigos/carteira-recomendada-outubro'))
+
+    await expect(page).toHaveTitle('Carteira recomendada de outubro · Rio Negro Investimentos')
+    const description = 'Alocação sugerida por perfil de risco para o próximo mês.'
+    await expect(meta(page, 'name', 'description')).toHaveAttribute('content', description)
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      webUrl('/artigos/carteira-recomendada-outubro'),
+    )
+    await expect(meta(page, 'property', 'og:type')).toHaveAttribute('content', 'article')
+    await expect(meta(page, 'property', 'og:title')).toHaveAttribute(
+      'content',
+      'Carteira recomendada de outubro',
+    )
+    await expect(meta(page, 'property', 'og:description')).toHaveAttribute('content', description)
+    await expect(meta(page, 'property', 'og:image')).toHaveAttribute(
+      'content',
+      /^http:\/\/127\.0\.0\.1:54321\/storage\/v1\/object\/public\/covers\/22222222-.+\.png$/,
+    )
+    await expect(meta(page, 'property', 'article:published_time')).toHaveAttribute(
+      'content',
+      /^\d{4}-\d{2}-\d{2}T/,
+    )
+    await expect(meta(page, 'name', 'twitter:card')).toHaveAttribute(
+      'content',
+      'summary_large_image',
+    )
+  })
+
+  test('rich_text sem resumo usa o texto da prévia como descrição', async ({ page }) => {
+    await page.goto(webUrl('/artigos/sem-resumo'))
+
+    await expect(meta(page, 'name', 'description')).toHaveAttribute(
+      'content',
+      'Primeiro parágrafo da prévia.',
+    )
+    await expect(meta(page, 'property', 'og:description')).toHaveAttribute(
+      'content',
+      'Primeiro parágrafo da prévia.',
+    )
+  })
+})

@@ -7,7 +7,7 @@ import { FEATURED_RANGE, lotRange, parsePage, splitLot } from '@/lib/domain/list
 import { listArticles, toArticleCard } from '@/lib/services/articles'
 
 export const metadata: Metadata = {
-  title: 'Artigos · Rio Negro Investimentos',
+  title: 'Artigos',
 }
 
 // PUB-002 a PUB-004 · Destaque no topo e, abaixo, o lote `?page=N` em coluna única, sem repetir

@@ -1,4 +1,5 @@
 import 'server-only'
+import { cache } from 'react'
 import { formatPublishedDate } from '../domain/published-date'
 import { logger } from './logger'
 import { createPublicClient } from './supabase-public'
@@ -28,7 +29,8 @@ export async function listArticles(range: { from: number; to: number }) {
   return data
 }
 
-export async function getArticleBySlug(slug: string) {
+// cache: generateMetadata e a página leem o mesmo artigo com uma consulta por request.
+export const getArticleBySlug = cache(async (slug: string) => {
   const { data, error } = await createPublicClient()
     .from('articles')
     .select(DETAIL_COLUMNS)
@@ -40,7 +42,7 @@ export async function getArticleBySlug(slug: string) {
     throw new Error('Falha ao carregar o artigo')
   }
   return data
-}
+})
 
 /** PUB-008 · Slug atual do artigo que já usou `oldSlug`, ou null se o slug nunca foi trocado. */
 export async function findCurrentSlug(oldSlug: string): Promise<string | null> {
