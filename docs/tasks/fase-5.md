@@ -11,7 +11,7 @@ Specs: [04-lead-capture](../specs/04-lead-capture.md). UI depende da fase 2.
 - [x] **F5-007** · LEAD-012 · Webhook assinado em `after()` + status; ADR definindo onde fica o código compartilhado com o admin (ADM-014)
 - [x] **F5-008** · LEAD-001 · Modal com campos, máscara e Turnstile
 - [x] **F5-009** · LEAD-003 · Aviso e checkbox obrigatório com textos de LEAD-013 (rascunho)
-- [ ] **F5-010** · LEAD-004 · Checkbox de opt-in opcional
+- [x] **F5-010** · LEAD-004 · Checkbox de opt-in opcional
 - [ ] **F5-011** · LEAD-010 · Tela de sucesso com "Baixar novamente" e CTA "Conheça a Rio Negro"
 - [ ] **F5-012** · LEAD-011 · Verificação: nenhum dado do lead em storage, cookie, URL ou log do client
 - [ ] **F5-013** · LEAD-007 · E2E do fluxo completo (sucesso, checkbox ausente, rate limit, Turnstile inválido)

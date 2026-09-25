@@ -50,7 +50,7 @@ function startDownload(url: string) {
 
 function LeadForm({ article, turnstileSiteKey }: Props) {
   const id = useId()
-  const fieldId = (field: Field) => `${id}-${field}`
+  const fieldId = (field: keyof Values) => `${id}-${field}`
   const [values, setValues] = useState<Values>(EMPTY)
   const [errors, setErrors] = useState<Partial<Record<Field, string>>>({})
   const [formError, setFormError] = useState<string | null>(null)
@@ -161,6 +161,15 @@ function LeadForm({ article, turnstileSiteKey }: Props) {
             aviso de privacidade
           </a>
           .
+        </Checkbox>
+        {/* LEAD-004 · Opcional e desmarcado; o download não depende dele. */}
+        <Checkbox
+          id={fieldId('marketingOptIn')}
+          checked={values.marketingOptIn}
+          disabled={submitting}
+          onCheckedChange={(checked) => update('marketingOptIn', checked === true)}
+        >
+          Aceito receber novidades da Rio Negro por e-mail, telefone ou WhatsApp.
         </Checkbox>
         <Turnstile siteKey={turnstileSiteKey} resetKey={turnstileReset} onToken={setToken} />
         {formError ? <Alert variant="error" title={formError} /> : null}
