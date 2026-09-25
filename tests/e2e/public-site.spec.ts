@@ -126,3 +126,32 @@ test.describe('PUB-004 · Carregar mais', () => {
     })
   })
 })
+
+test.describe('PUB-005 · Página do artigo', () => {
+  test('mostra título, data, resumo, nota da prévia e "Baixar artigo completo"', async ({
+    page,
+  }) => {
+    await page.goto(webUrl('/artigos/carteira-recomendada-outubro'))
+
+    const main = page.getByRole('main')
+    await expect(
+      main.getByRole('heading', { level: 1, name: 'Carteira recomendada de outubro' }),
+    ).toBeVisible()
+    await expect(main.getByText('Alocação sugerida por perfil de risco')).toBeVisible()
+    await expect(main.locator('time')).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}T/)
+    await expect(
+      main.getByText('Esta é uma prévia. O artigo completo está disponível para download.'),
+    ).toBeVisible()
+    await expect(main.getByRole('button', { name: 'Baixar artigo completo' })).toBeVisible()
+    await expect(main.getByRole('link', { name: 'Todos os artigos' })).toHaveAttribute(
+      'href',
+      '/artigos',
+    )
+  })
+
+  test('slug inexistente responde 404', async ({ page }) => {
+    const response = await page.goto(webUrl('/artigos/nao-existe'))
+
+    expect(response?.status()).toBe(404)
+  })
+})

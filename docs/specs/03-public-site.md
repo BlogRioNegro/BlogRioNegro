@@ -132,7 +132,7 @@ no mobile).
 
 ### Artigo (`/artigos/[slug]`, PUB-005 a PUB-007)
 - `Button` link "Todos os artigos" (ícone seta à esquerda) → `/artigos`.
-- H1, data, capa 16:9 e resumo (Source Serif 4 no tamanho do corpo), nesta ordem.
+- H1, capa 16:9, formato (`TypeBadge`) + data e resumo (Source Serif 4, `text-lg` no mobile e `text-xl` ≥ 768 px, `--color-text-muted`), nesta ordem, como no protótipo ([ADR 0026](../adr/0026-ordem-da-pagina-do-artigo.md)).
 - **Prévia `rich_text`**: texto em `--font-serif`, `--font-size-article` (18/1.7 mobile,
   20/1.7 ≥ 768 px), largura máxima `--measure-article`; H2/H3 em Inter 600; citações com borda
   esquerda de 2 px; legendas em `text-xs`.

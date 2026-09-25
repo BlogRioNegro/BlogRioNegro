@@ -8,7 +8,7 @@ Specs: [03-public-site](../specs/03-public-site.md). UI depende da fase 2.
 - [x] **F4-004** · PUB-003 · Listagem com destaque sem repetição
 - [x] **F4-005** · PUB-004 · "Carregar mais" com fallback `?page=N`
 - [x] **F4-006** · SEC-007 · Serializer Tiptap JSON → HTML com allowlist + testes de XSS
-- [ ] **F4-007** · PUB-005 · Página do artigo com prévia e botão "Baixar artigo completo"
+- [x] **F4-007** · PUB-005 · Página do artigo com prévia e botão "Baixar artigo completo"
 - [ ] **F4-008** · PUB-006 · Prévia rich_text
 - [ ] **F4-009** · PUB-013 · Rodapé: CTA discreto, disclaimer copiado exatamente do site oficial, link Privacidade
 - [ ] **F4-010** · PUB-007 · Prévia pdf embutida com fallback de link
