@@ -93,6 +93,38 @@ describe('save_article', () => {
     expect(history).toEqual([{ old_slug: `antigo-${id}` }])
   })
 
+  // ADM-009 · Slug em uso (atual ou histórico de outro artigo) é rejeitado com 23505, que a
+  // Server Action mostra como erro no campo Slug.
+  it('rejeita o slug atual de outro artigo', async () => {
+    const first = newId()
+    const second = newId()
+    await admin.rpc('save_article', pdfArticle(first, `ocupado-${first}`))
+
+    const { error } = await admin.rpc('save_article', pdfArticle(second, `ocupado-${first}`))
+
+    expect(error?.code).toBe('23505')
+    expect(await articleExists(second)).toBe(false)
+  })
+
+  it('rejeita o slug do histórico de outro artigo e aceita voltar ao próprio', async () => {
+    const owner = newId()
+    const other = newId()
+    await admin.rpc('save_article', pdfArticle(owner, `velho-${owner}`))
+    await admin.rpc('save_article', pdfArticle(owner, `atual-${owner}`))
+    await admin.rpc('save_article', pdfArticle(other, `outro-${other}`))
+
+    const taken = await admin.rpc('save_article', pdfArticle(other, `velho-${owner}`))
+    const back = await admin.rpc('save_article', pdfArticle(owner, `velho-${owner}`))
+
+    expect(taken.error?.code).toBe('23505')
+    expect(back.error).toBeNull()
+    const { data: history } = await service
+      .from('article_slug_history')
+      .select('old_slug')
+      .eq('article_id', owner)
+    expect(history).toEqual([{ old_slug: `atual-${owner}` }])
+  })
+
   it('é atômica: conteúdo inválido desfaz também o artigo', async () => {
     const id = newId()
     const { error } = await admin.rpc('save_article', {

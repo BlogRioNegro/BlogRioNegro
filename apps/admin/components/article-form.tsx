@@ -12,6 +12,7 @@ import {
   articleFieldsSchema,
   fieldErrorsOf,
   fileFrom,
+  slugFromTitle,
   type ArticleFields,
   type FieldErrors,
 } from '@/lib/domain/article-form'
@@ -61,6 +62,8 @@ export function ArticleForm({ initial, isNew }: { initial: ArticleFormValues; is
   const [state, formAction, pending] = useActionState(saveArticle, null)
   const [contentType, setContentType] = useState(initial.contentType)
   const [slug, setSlug] = useState(initial.slug)
+  // ADM-009 · Na criação, o slug acompanha o título até ser editado; na edição, nunca.
+  const [slugEdited, setSlugEdited] = useState(!isNew)
   const [pdf, setPdf] = useState<File | null>(null)
   const [localErrors, setLocalErrors] = useState<FieldErrors | null>(null)
   const errors = localErrors ?? state?.fieldErrors ?? {}
@@ -100,14 +103,25 @@ export function ArticleForm({ initial, isNew }: { initial: ArticleFormValues; is
 
       <div className="flex flex-col gap-6 rounded-card border border-border bg-surface p-4 shadow-card md:p-6">
         <input type="hidden" name="id" value={initial.id} />
-        <TextField label="Título" name="title" defaultValue={initial.title} error={errors.title} />
+        <TextField
+          label="Título"
+          name="title"
+          defaultValue={initial.title}
+          onChange={(event) => {
+            if (!slugEdited) setSlug(slugFromTitle(event.target.value))
+          }}
+          error={errors.title}
+        />
         <TextField
           label="Slug"
           name="slug"
           value={slug}
-          onChange={(event) => setSlug(event.target.value)}
+          onChange={(event) => {
+            setSlugEdited(true)
+            setSlug(event.target.value)
+          }}
           error={errors.slug}
-          help={`Endereço do artigo: /artigos/${slug}. Gerado a partir do título; pode ser editado.`}
+          help={`Endereço do artigo: /artigos/${slug}. Gerado a partir do título; pode ser editado.${isNew ? '' : ' Se mudar, os links antigos continuarão funcionando.'}`}
         />
         <div className="flex flex-col gap-2">
           <Label htmlFor={`${initial.id}-resumo`} optional>

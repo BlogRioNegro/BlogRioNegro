@@ -310,8 +310,18 @@ describe('saveArticle', () => {
     ])
   })
 
-  it('falha ao salvar: erro genérico e remove a capa recém-enviada', async () => {
+  it('slug em uso por outro artigo: erro no campo e remove a capa recém-enviada', async () => {
     store.saveArticleRecord.mockResolvedValue({ code: '23505', message: 'duplicate key' })
+
+    const result = await saveArticle(null, form({ cover: png() }))
+
+    expect(result?.fieldErrors).toEqual({ slug: ARTICLE_MESSAGES.slugTaken })
+    const uploadedPath = store.uploadFile.mock.calls[0]?.[2]
+    expect(store.removeFiles).toHaveBeenCalledWith(supabase, 'covers', [uploadedPath])
+  })
+
+  it('falha ao salvar: erro genérico e remove a capa recém-enviada', async () => {
+    store.saveArticleRecord.mockResolvedValue({ code: 'XX000', message: 'internal' })
 
     const result = await saveArticle(null, form({ cover: png() }))
 

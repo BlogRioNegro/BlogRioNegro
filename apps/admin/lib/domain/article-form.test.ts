@@ -4,6 +4,7 @@ import {
   articleFieldsFrom,
   articleFieldsSchema,
   fieldErrorsOf,
+  slugFromTitle,
 } from './article-form'
 
 const VALID = {
@@ -59,5 +60,28 @@ describe('articleFieldsFrom', () => {
     formData.set('cover', new File(['x'], 'capa.png'))
 
     expect(articleFieldsFrom(formData)).toMatchObject({ title: 'Título', slug: '' })
+  })
+})
+
+describe('slugFromTitle', () => {
+  it('gera minúsculo, sem acento e com hífens', () => {
+    expect(slugFromTitle('  Cenário Macro: ações & câmbio em 2026!  ')).toBe(
+      'cenario-macro-acoes-cambio-em-2026',
+    )
+  })
+
+  it('passa no schema de slug', () => {
+    const slug = slugFromTitle('Previdência — o que muda?')
+    expect(slug).toBe('previdencia-o-que-muda')
+    expect(errorsFor({ ...VALID, slug })).toEqual({})
+  })
+
+  it('corta em 120 caracteres sem terminar em hífen', () => {
+    const slug = slugFromTitle(`${'a'.repeat(119)} bcd`)
+    expect(slug).toBe('a'.repeat(119))
+  })
+
+  it('título sem letras nem números gera slug vazio', () => {
+    expect(slugFromTitle('!!! ???')).toBe('')
   })
 })

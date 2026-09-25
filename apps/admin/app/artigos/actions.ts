@@ -47,6 +47,9 @@ export type SaveArticleState = { ok: false; error: string; fieldErrors: FieldErr
 
 const INVALID_FORM_MESSAGE = 'Confira os campos destacados.'
 
+// Slug atual ou do histórico de outro artigo (unique de articles.slug ou trigger de DATA-003).
+const UNIQUE_VIOLATION = '23505'
+
 type ContentValues = Pick<
   SaveArticleArgs,
   'preview_json' | 'preview_pdf_path' | 'body_json' | 'full_pdf_path'
@@ -285,6 +288,7 @@ export async function saveArticle(
   const saveError = await saveArticleRecord(auth.supabase, record)
   if (saveError) {
     await removeUploads(auth.supabase, uploads)
+    if (saveError.code === UNIQUE_VIOLATION) return invalid({ slug: ARTICLE_MESSAGES.slugTaken })
     return { ...failAction('admin.article_save_failed', saveError), fieldErrors }
   }
 
