@@ -32,7 +32,8 @@ Checkbox opcional, desmarcado: "Aceito receber novidades da Rio Negro por e-mail
 **Aceite:** gravado em `marketing_opt_in`; o download não depende dele.
 
 ### LEAD-005 · Cloudflare Turnstile
-Widget no modal; token verificado no server (`siteverify`) antes de qualquer escrita.
+Widget no modal; token verificado no server (`siteverify`, timeout de 5 s) antes de qualquer escrita.
+Sem resposta no prazo, o token conta como recusado.
 **Aceite:** token ausente, inválido ou reutilizado → erro genérico, nenhum insert, nenhuma URL.
 
 ### LEAD-006 · Rate limit

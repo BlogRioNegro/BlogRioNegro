@@ -44,6 +44,21 @@ export const getArticleBySlug = cache(async (slug: string) => {
   return data
 })
 
+/** LEAD-007 (4) · Artigo publicado pelo id, com o título para o snapshot do lead. */
+export async function findArticleForLead(articleId: string) {
+  const { data, error } = await createPublicClient()
+    .from('articles')
+    .select('id, title')
+    .eq('id', articleId)
+    .maybeSingle()
+
+  if (error) {
+    logger.error('articles.find_for_lead_failed', { error })
+    throw new Error('Falha ao consultar o artigo do lead')
+  }
+  return data
+}
+
 /** PUB-012 · Artigos mais recentes com a prévia rich_text, para a descrição do RSS. */
 export async function listFeedArticles(limit: number) {
   const { data, error } = await createPublicClient()

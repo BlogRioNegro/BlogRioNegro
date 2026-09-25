@@ -25,6 +25,13 @@ describe('failAction', () => {
     expect(JSON.stringify(result)).not.toMatch(/insert into|ana@example\.com|\.ts:\d+/)
   })
 
+  it('aceita outra mensagem genérica, sem mudar o que vai para o log', () => {
+    const result = failAction('lead.failed', new Error('detalhe interno'), 'Mensagem do fluxo.')
+
+    expect(result).toEqual({ ok: false, error: 'Mensagem do fluxo.' })
+    expect(String(stderr.mock.calls.at(-1)?.[0])).toContain('detalhe interno')
+  })
+
   it('registra o detalhe no log do server', () => {
     failAction('lead.persist_failed', new Error('insert into leads falhou'))
 

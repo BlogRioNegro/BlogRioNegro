@@ -7,7 +7,12 @@ export type ActionFailure = { ok: false; error: string }
 
 export type ActionResult<T> = { ok: true; data: T } | ActionFailure
 
-export function failAction(event: string, error: unknown): ActionFailure {
+/** Loga o detalhe no server e devolve ao client só uma mensagem genérica (SEC-008). */
+export function failAction(
+  event: string,
+  error: unknown,
+  message: string = GENERIC_ERROR_MESSAGE,
+): ActionFailure {
   logger.error(event, { error })
-  return { ok: false, error: GENERIC_ERROR_MESSAGE }
+  return { ok: false, error: message }
 }
