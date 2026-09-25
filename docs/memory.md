@@ -7,8 +7,8 @@ Fase 6 na branch `fase-6`. F6-001 a F6-013 `[x]`. Correções feitas: WebP fora 
 do Dialog (`StyleNonce` + `get-nonce`), hospedagem StayCloud Deploy Pro Node 22 (ADR 0038). Sem push.
 
 ## Próxima tarefa
-Visual do login (F6-extra): as 3 telas `Login · padrão|e-mail ou senha inválidos|acesso negado` do
-protótipo, com `packages/ui`, sem mexer em auth, action ou `proxy.ts`. Depois o gate da fase 6.
+Gate da fase 6: `pnpm typecheck`, `lint`, `test`, `format:check`, `build` e `test:e2e`. Login já com
+o visual da spec (commit 9c87812; o `Alert` mapeia a mensagem da action no client).
 
 ## Decisões da fase 6
 - Server Action/route handler: `requireAdmin()` na 1ª linha + teste de integração sem cookie
