@@ -125,3 +125,16 @@ export function parseBodyField(value: FormDataEntryValue | null): unknown {
     return null
   }
 }
+
+// ADM-008 · ADR 0007: a prévia pública são os 3 primeiros blocos de nível superior.
+export const PREVIEW_BLOCKS = 3
+
+export function richTextPreview(doc: JSONContent): JSONContent {
+  return { type: 'doc', content: (doc.content ?? []).slice(0, PREVIEW_BLOCKS) }
+}
+
+/** `src` de todas as imagens do documento, na ordem em que aparecem. */
+export function imageSources(doc: JSONContent): string[] {
+  const own = doc.type === 'image' && typeof doc.attrs?.src === 'string' ? [doc.attrs.src] : []
+  return [...own, ...(doc.content ?? []).flatMap(imageSources)]
+}

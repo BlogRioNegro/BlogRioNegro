@@ -156,6 +156,62 @@ test.describe('formulário de artigo', () => {
     }
   })
 
+  test('criar artigo Texto: prévia de 3 blocos no site e PDF completo privado', async ({
+    page,
+  }) => {
+    const service = serviceClient()
+    const slug = `artigo-texto-e2e-${Date.now()}`
+    await signInAsAdmin(page)
+    await page.goto('/artigos/novo')
+    const articleId = await page.locator('input[name="id"]').inputValue()
+
+    await page.getByLabel('Título').fill('Artigo Texto criado no E2E')
+    await page.getByLabel('Slug').fill(slug)
+    await page.getByLabel('Capa').setInputFiles(SEED_PNG)
+    await page.getByRole('group', { name: 'Tipo' }).getByRole('button', { name: 'Texto' }).click()
+    await page.getByRole('textbox', { name: 'Conteúdo' }).click()
+    for (const text of ['Bloco um.', 'Bloco dois.', 'Bloco três.', 'Bloco quatro, só no PDF.']) {
+      await page.keyboard.type(text)
+      await page.keyboard.press('Enter')
+    }
+    await page
+      .getByRole('toolbar', { name: 'Formatação' })
+      .getByRole('button', { name: 'Imagem' })
+      .click()
+    const dialog = page.getByRole('dialog', { name: 'Imagem' })
+    await dialog.getByLabel('Arquivo').setInputFiles(SEED_PNG)
+    await dialog.getByLabel('Texto alternativo').fill('Capa de exemplo')
+    await dialog.getByRole('button', { name: 'Inserir' }).click()
+    await expect(dialog).toBeHidden()
+    await page.getByRole('button', { name: 'Publicar' }).click()
+
+    try {
+      await expect(page).toHaveURL(/\/artigos$/)
+      const { data: article } = await service
+        .from('articles')
+        .select('preview_json, article_contents(full_pdf_path, body_json)')
+        .eq('id', articleId)
+        .single()
+      const fullPath = article?.article_contents?.full_pdf_path ?? ''
+      expect(fullPath).toMatch(new RegExp(`^${articleId}/[0-9a-f-]+\\.pdf$`))
+      const { data: pdfFile } = await service.storage.from('article-files').download(fullPath)
+      expect(pdfFile?.type).toBe('application/pdf')
+      expect(JSON.stringify(article?.article_contents?.body_json)).toContain('Bloco quatro')
+      expect(JSON.stringify(article?.preview_json)).not.toContain('Bloco quatro')
+
+      await page.goto(webUrl(`/artigos/${slug}`))
+      await expect(page.getByText('Bloco três.')).toBeVisible()
+      await expect(page.getByText('Bloco quatro, só no PDF.')).toHaveCount(0)
+    } finally {
+      await service.from('articles').delete().eq('id', articleId)
+      for (const bucket of ['covers', 'article-images', 'article-files']) {
+        const { data } = await service.storage.from(bucket).list(articleId)
+        const paths = (data ?? []).map((file) => `${articleId}/${file.name}`)
+        if (paths.length > 0) await service.storage.from(bucket).remove(paths)
+      }
+    }
+  })
+
   test('salvar a edição publica o novo título no site no próximo request', async ({ page }) => {
     await signInAsAdmin(page)
     await page.goto(`/artigos/${SEED.id}`)

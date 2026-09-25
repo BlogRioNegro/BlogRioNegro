@@ -6,6 +6,8 @@ import {
   parseBodyField,
   RICH_TEXT_EXTENSIONS,
   RICH_TEXT_MESSAGES,
+  imageSources,
+  richTextPreview,
 } from './rich-text'
 
 const PREFIX = 'http://127.0.0.1:54321/storage/v1/object/public/article-images/artigo-1/'
@@ -157,5 +159,53 @@ describe('parseBodyField', () => {
     expect(parseBodyField('{"type":"doc"}')).toEqual({ type: 'doc' })
     expect(parseBodyField('')).toBeNull()
     expect(parseBodyField('{')).toBeNull()
+  })
+})
+
+describe('richTextPreview', () => {
+  const blocks = ['um', 'dois', 'três', 'quatro', 'cinco'].map(paragraph)
+
+  it('mantém só os 3 primeiros blocos de nível superior', () => {
+    expect(richTextPreview({ type: 'doc', content: blocks })).toEqual({
+      type: 'doc',
+      content: blocks.slice(0, 3),
+    })
+  })
+
+  it('conta uma lista inteira como um bloco', () => {
+    const list = {
+      type: 'bulletList',
+      content: ['a', 'b', 'c', 'd'].map((item) => ({
+        type: 'listItem',
+        content: [paragraph(item)],
+      })),
+    }
+    const preview = richTextPreview({ type: 'doc', content: [list, ...blocks] })
+
+    expect(preview.content).toEqual([list, blocks[0], blocks[1]])
+  })
+
+  it('documento com menos de 3 blocos fica inteiro', () => {
+    const single = paragraph('único')
+
+    expect(richTextPreview({ type: 'doc', content: [single] })).toEqual({
+      type: 'doc',
+      content: [single],
+    })
+    expect(richTextPreview({ type: 'doc' })).toEqual({ type: 'doc', content: [] })
+  })
+})
+
+describe('imageSources', () => {
+  it('encontra imagens em qualquer nível, na ordem', () => {
+    const doc = {
+      type: 'doc',
+      content: [
+        image({ src: 'https://x/a.png', alt: 'A' }),
+        { type: 'blockquote', content: [image({ src: 'https://x/b.png', alt: 'B' })] },
+      ],
+    }
+
+    expect(imageSources(doc)).toEqual(['https://x/a.png', 'https://x/b.png'])
   })
 })

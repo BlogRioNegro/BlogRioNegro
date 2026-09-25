@@ -1,6 +1,7 @@
 'use server'
 
 import { randomUUID } from 'node:crypto'
+import type { JSONContent } from '@tiptap/core'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { publishedAtFromDate } from '../../lib/domain/admin-date'
@@ -14,10 +15,21 @@ import {
   type FieldErrors,
 } from '../../lib/domain/article-form'
 import { createPdfPreview } from '../../lib/domain/pdf-preview'
-import { checkRichText, parseBodyField } from '../../lib/domain/rich-text'
-import type { Bucket } from '../../lib/domain/upload-rules'
-import { failAction, type ActionResult } from '../../lib/services/action-result'
 import {
+  checkRichText,
+  imageSources,
+  parseBodyField,
+  richTextPreview,
+} from '../../lib/domain/rich-text'
+import { sizeError, type Bucket } from '../../lib/domain/upload-rules'
+import {
+  failAction,
+  GENERIC_ERROR_MESSAGE,
+  type ActionResult,
+} from '../../lib/services/action-result'
+import { pdfImage, renderArticlePdf, type PdfImage } from '../../lib/services/article-pdf'
+import {
+  downloadFile,
   findArticleForEdit,
   publicFileUrl,
   removeFiles,
@@ -96,11 +108,66 @@ async function pdfContent(articleId: string, file: File): Promise<Content> {
   }
 }
 
+// Capa do PDF gerado: a nova, se veio no formulário, ou a atual do artigo.
+async function coverBytes(
+  supabase: Supabase,
+  newCover: Blob | null,
+  existing: ArticleForEdit | null,
+): Promise<Uint8Array | null> {
+  if (newCover) return new Uint8Array(await newCover.arrayBuffer())
+  return existing ? downloadFile(supabase, 'covers', existing.cover_path) : null
+}
+
+// ADM-008 · Rich text: documento completo em body_json, 3 primeiros blocos em preview_json e PDF
+// completo gerado (título, capa e conteúdo) em article-files. Regenerado a cada salvamento.
+async function richTextContent(
+  supabase: Supabase,
+  fields: ArticleFields,
+  doc: JSONContent,
+  cover: Uint8Array | null,
+): Promise<Content> {
+  const prefix = articleImagesPrefix(supabase, fields.id)
+  const images = new Map<string, PdfImage>()
+  for (const src of new Set(imageSources(doc))) {
+    const bytes = await downloadFile(
+      supabase,
+      'article-images',
+      `${fields.id}/${src.slice(prefix.length)}`,
+    )
+    if (!bytes) return { ok: false, error: GENERIC_ERROR_MESSAGE }
+    const image = await pdfImage(bytes)
+    if (image) images.set(src, image)
+  }
+
+  const pdf = await renderArticlePdf({
+    title: fields.title,
+    cover: cover ? await pdfImage(cover) : null,
+    doc,
+    images,
+  })
+  const tooBig = sizeError('article-files', pdf.length)
+  if (tooBig) return { ok: false, error: tooBig }
+
+  const fullPath = newPath(fields.id, 'pdf')
+  return {
+    ok: true,
+    values: { body_json: doc, preview_json: richTextPreview(doc), full_pdf_path: fullPath },
+    uploads: [
+      {
+        bucket: 'article-files',
+        path: fullPath,
+        file: new Blob([new Uint8Array(pdf)], { type: 'application/pdf' }),
+      },
+    ],
+  }
+}
+
 async function resolveContent(
   supabase: Supabase,
   fields: ArticleFields,
   existing: ArticleForEdit | null,
   formData: FormData,
+  newCover: Blob | null,
 ): Promise<Content> {
   const pdf = fileFrom(formData, 'pdf')
   if (fields.contentType === 'pdf' && pdf) return pdfContent(fields.id, pdf)
@@ -109,7 +176,8 @@ async function resolveContent(
   if (fields.contentType === 'rich_text' && body !== null) {
     const richText = checkRichText(parseBodyField(body), articleImagesPrefix(supabase, fields.id))
     if (!richText.ok) return richText
-    return { ok: false, error: ARTICLE_MESSAGES.richText }
+    const cover = await coverBytes(supabase, newCover, existing)
+    return richTextContent(supabase, fields, richText.doc, cover)
   }
 
   const kept = keptContent(existing, fields.contentType)
@@ -175,7 +243,13 @@ export async function saveArticle(
   const existing = await findArticleForEdit(auth.supabase, fields.id)
   const coverFile = fileFrom(formData, 'cover')
   const cover = coverFile ? await validateUpload('covers', coverFile) : null
-  const content = await resolveContent(auth.supabase, fields, existing, formData)
+  const content = await resolveContent(
+    auth.supabase,
+    fields,
+    existing,
+    formData,
+    cover?.ok ? cover.file : null,
+  )
 
   const fieldErrors: FieldErrors = {}
   if (!existing && !cover) fieldErrors.cover = ARTICLE_MESSAGES.cover

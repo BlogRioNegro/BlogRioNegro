@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
 import { PDFDocument, PDFName } from 'pdf-lib'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ARTICLE_MESSAGES } from '../../lib/domain/article-form'
@@ -11,6 +13,7 @@ const store = {
   uploadFile: vi.fn(),
   removeFiles: vi.fn(),
   publicFileUrl: vi.fn(),
+  downloadFile: vi.fn(),
 }
 
 vi.mock('../../lib/services/require-admin', () => ({ requireAdmin }))
@@ -55,6 +58,20 @@ function form(overrides: Record<string, string | File> = {}) {
   const formData = new FormData()
   for (const [name, value] of Object.entries(values)) formData.set(name, value)
   return formData
+}
+
+const SEED_PNG = readFileSync(
+  path.resolve(
+    import.meta.dirname,
+    '../../../../supabase/storage/covers/11111111-1111-4111-8111-111111111111/a1b2c3d4-0000-4000-8000-000000000001.png',
+  ),
+)
+
+function paragraphs(count: number) {
+  return Array.from({ length: count }, (_, index) => ({
+    type: 'paragraph',
+    content: [{ type: 'text', text: `Parágrafo ${index + 1}` }],
+  }))
 }
 
 async function pdf(pages: number, encrypted = false) {
@@ -257,6 +274,40 @@ describe('saveArticle', () => {
     const originalPath = store.uploadFile.mock.calls[0]?.[2]
     expect(store.removeFiles).toHaveBeenCalledWith(supabase, 'article-files', [originalPath])
     expect(store.saveArticleRecord).not.toHaveBeenCalled()
+  })
+
+  it('rich text: body completo, prévia de 3 blocos e PDF gerado em article-files', async () => {
+    store.downloadFile.mockResolvedValue(new Uint8Array(SEED_PNG))
+    const image = {
+      type: 'image',
+      attrs: { src: `https://cdn.test/article-images/${ID}/grafico.png`, alt: 'Gráfico' },
+    }
+    const body = { type: 'doc', content: [...paragraphs(4), image] }
+
+    await expect(
+      saveArticle(null, form({ contentType: 'rich_text', body: JSON.stringify(body) })),
+    ).rejects.toThrow('NEXT_REDIRECT:/artigos')
+
+    expect(store.downloadFile).toHaveBeenCalledWith(supabase, 'covers', EXISTING.cover_path)
+    expect(store.downloadFile).toHaveBeenCalledWith(supabase, 'article-images', `${ID}/grafico.png`)
+    const [, bucket, fullPath, file] = store.uploadFile.mock.calls[0] ?? []
+    expect(bucket).toBe('article-files')
+    expect(file.type).toBe('application/pdf')
+    const record = store.saveArticleRecord.mock.calls[0]?.[1]
+    expect(record).toMatchObject({
+      content_type: 'rich_text',
+      full_pdf_path: fullPath,
+      body_json: { type: 'doc', content: body.content },
+    })
+    expect(record.preview_pdf_path).toBeUndefined()
+    expect(record.preview_json.content).toHaveLength(3)
+    // O artigo era pdf: o PDF e a prévia antigos saem do Storage.
+    expect(store.removeFiles).toHaveBeenCalledWith(supabase, 'article-files', [
+      `${ID}/completo.pdf`,
+    ])
+    expect(store.removeFiles).toHaveBeenCalledWith(supabase, 'article-previews', [
+      `${ID}/previa.pdf`,
+    ])
   })
 
   it('falha ao salvar: erro genérico e remove a capa recém-enviada', async () => {

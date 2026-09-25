@@ -1,10 +1,10 @@
 import 'server-only'
 import type { Database } from '@rio-negro/db'
+import type { Bucket } from '../domain/upload-rules'
 import { logger } from './logger'
 import type { AdminContext } from './require-admin'
 
 type Supabase = AdminContext['supabase']
-type Bucket = 'covers' | 'article-images' | 'article-previews' | 'article-files'
 
 export type SaveArticleArgs = Database['public']['Functions']['save_article']['Args']
 
@@ -50,4 +50,18 @@ export async function removeFiles(supabase: Supabase, bucket: Bucket, paths: str
 
 export function publicFileUrl(supabase: Supabase, bucket: 'article-images', path: string): string {
   return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl
+}
+
+/** Bytes de um arquivo do Storage, ou null se não foi possível baixar. */
+export async function downloadFile(
+  supabase: Supabase,
+  bucket: Bucket,
+  path: string,
+): Promise<Uint8Array | null> {
+  const { data, error } = await supabase.storage.from(bucket).download(path)
+  if (error) {
+    logger.warn('admin.storage_download_failed', { bucket, error })
+    return null
+  }
+  return new Uint8Array(await data.arrayBuffer())
 }
