@@ -15,7 +15,7 @@ Specs: [03-public-site](../specs/03-public-site.md). UI depende da fase 2.
 - [x] **F4-011** · PUB-008 · Redirect 301 de slug antigo
 - [x] **F4-012** · PUB-014 · Página `/privacidade` com o texto de LEAD-013
 - [x] **F4-013** · PUB-010 · Metadata e OG com fallback de descrição
-- [ ] **F4-014** · PUB-011 · sitemap.xml e robots.txt
+- [x] **F4-014** · PUB-011 · sitemap.xml e robots.txt
 - [ ] **F4-015** · PUB-012 · RSS
 - [ ] **F4-016** · PUB-015 · Páginas not-found e error
 - [ ] **F4-017** · PUB-005 · E2E: HTML/RSC do artigo não contém conteúdo completo

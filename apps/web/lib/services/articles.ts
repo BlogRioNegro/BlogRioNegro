@@ -44,6 +44,21 @@ export const getArticleBySlug = cache(async (slug: string) => {
   return data
 })
 
+/** PUB-011 · Slug atual e última alteração de todos os artigos, para o sitemap. */
+export async function listArticleSlugs() {
+  const { data, error } = await createPublicClient()
+    .from('articles')
+    .select('slug, updated_at')
+    .order('published_at', { ascending: false })
+    .order('id', { ascending: false })
+
+  if (error) {
+    logger.error('articles.slugs_failed', { error })
+    throw new Error('Falha ao listar os slugs')
+  }
+  return data
+}
+
 /** PUB-008 · Slug atual do artigo que já usou `oldSlug`, ou null se o slug nunca foi trocado. */
 export async function findCurrentSlug(oldSlug: string): Promise<string | null> {
   const { data, error } = await createPublicClient()

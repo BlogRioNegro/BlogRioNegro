@@ -322,3 +322,49 @@ test.describe('PUB-010 · Metadata e Open Graph', () => {
     )
   })
 })
+
+test.describe('PUB-011 · Sitemap e robots', () => {
+  const id = 'aaaaaaaa-0000-4000-8000-000000000011'
+
+  test.beforeAll(() => {
+    executeLocalSql(`with a as (
+      insert into public.articles (id, slug, title, cover_path, content_type, preview_pdf_path)
+      values ('${id}', 'slug-velho-sitemap', 'Artigo renomeado', 'x/capa.png', 'pdf', 'x/previa.pdf')
+      returning id
+    ) insert into public.article_contents (article_id, full_pdf_path) select id, 'x/completo.pdf' from a`)
+    executeLocalSql(`update public.articles set slug = 'slug-novo-sitemap' where id = '${id}'`)
+  })
+
+  test.afterAll(() => {
+    executeLocalSql(`delete from public.articles where id = '${id}'`)
+  })
+
+  test('sitemap lista home, listagem e slugs atuais com lastmod, sem slugs antigos', async ({
+    request,
+  }) => {
+    const response = await request.get(webUrl('/sitemap.xml'))
+    const xml = await response.text()
+
+    expect(response.headers()['content-type']).toContain('xml')
+    expect(xml).toContain('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"')
+    for (const path of [
+      '/',
+      '/artigos',
+      '/artigos/renda-fixa-em-2026',
+      '/artigos/slug-novo-sitemap',
+    ]) {
+      expect(xml).toContain(`<loc>${webUrl(path)}</loc>`)
+    }
+    expect(xml).toMatch(
+      /<loc>[^<]+\/artigos\/guia-de-previdencia-privada<\/loc>\s*<lastmod>\d{4}-\d{2}-\d{2}T/,
+    )
+    expect(xml).not.toContain('slug-velho-sitemap')
+  })
+
+  test('robots.txt aponta para o sitemap', async ({ request }) => {
+    const robots = await (await request.get(webUrl('/robots.txt'))).text()
+
+    expect(robots).toContain('Allow: /')
+    expect(robots).toContain(`Sitemap: ${webUrl('/sitemap.xml')}`)
+  })
+})

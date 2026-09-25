@@ -13,8 +13,14 @@ vi.stubEnv('TURNSTILE_SECRET_KEY', 'turnstile-secret-key')
 vi.stubEnv('LEAD_HASH_SECRET', 'x'.repeat(32))
 vi.stubEnv('NEXT_PUBLIC_RIO_NEGRO_URL', 'https://rionegro.example')
 
-const { coverUrl, findCurrentSlug, getArticleBySlug, listArticles, previewPdfUrl } =
-  await import('../../apps/web/lib/services/articles')
+const {
+  coverUrl,
+  findCurrentSlug,
+  getArticleBySlug,
+  listArticles,
+  listArticleSlugs,
+  previewPdfUrl,
+} = await import('../../apps/web/lib/services/articles')
 
 const LIST_COLUMNS = [
   'content_type',
@@ -130,5 +136,18 @@ describe('findCurrentSlug', () => {
   it('devolve null para slug atual ou inexistente', async () => {
     expect(await findCurrentSlug(`slug-novo-${id}`)).toBeNull()
     expect(await findCurrentSlug('nao-existe')).toBeNull()
+  })
+})
+
+describe('listArticleSlugs', () => {
+  it('devolve só slug e updated_at de todos os artigos', async () => {
+    const slugs = await listArticleSlugs()
+
+    expect(slugs.map((article) => article.slug)).toEqual([
+      'guia-de-previdencia-privada',
+      'carteira-recomendada-outubro',
+      'renda-fixa-em-2026',
+    ])
+    for (const article of slugs) expect(Object.keys(article).sort()).toEqual(['slug', 'updated_at'])
   })
 })
