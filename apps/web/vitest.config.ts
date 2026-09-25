@@ -8,6 +8,7 @@ export default defineConfig({
   resolve: {
     alias: [
       { find: /^server-only$/, replacement: path.join(path.dirname(serverOnlyEntry), 'empty.js') },
+      { find: /^@\//, replacement: `${import.meta.dirname}/` },
     ],
   },
 })

@@ -13,3 +13,12 @@ export function lotRange(page: number): { from: number; to: number } {
 export function splitLot<T>(rows: readonly T[]): { articles: T[]; hasMore: boolean } {
   return { articles: rows.slice(0, ARTICLES_PER_LOT), hasMore: rows.length > ARTICLES_PER_LOT }
 }
+
+export const MAX_PAGE = 10_000
+
+/** `?page=N` da listagem; ausente, inválido ou fora do intervalo cai na página 1 (PUB-004). */
+export function parsePage(raw: string | string[] | undefined): number {
+  if (typeof raw !== 'string' || !/^\d{1,5}$/.test(raw)) return 1
+  const page = Number(raw)
+  return page >= 1 && page <= MAX_PAGE ? page : 1
+}
