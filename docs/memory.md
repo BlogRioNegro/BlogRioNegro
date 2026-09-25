@@ -3,10 +3,10 @@
 _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
 
 ## Fase
-Fase 5 na branch `fase-5`: F5-001 a F5-010 `[x]`. typecheck, lint, test e format:check verdes. Sem push.
+Fase 5 na branch `fase-5`: F5-001 a F5-011 `[x]`. typecheck, lint, test e format:check verdes. Sem push.
 
 ## Próxima tarefa
-F5-011 · LEAD-010 · tela de sucesso, depois F5-012 (LEAD-011) e F5-013 (E2E + visual). Gate da fase:
+F5-012 · LEAD-011 · teste de nenhum dado pessoal no client, depois F5-013 (E2E + visual). Gate da fase:
 `pnpm build` + `pnpm test:e2e` (todos). Ler [docs/tasks/fase-5.md](tasks/fase-5.md) e a seção UI de
 [docs/specs/04-lead-capture.md](specs/04-lead-capture.md).
 
@@ -17,7 +17,8 @@ F5-011 · LEAD-010 · tela de sucesso, depois F5-012 (LEAD-011) e F5-013 (E2E + 
 - `apps/web/components/turnstile.tsx`: widget explícito; o iframe fica em shadow root fechado, então
   os E2E conferem `page.frames()` e o input `cf-turnstile-response`.
 - Máscara: `maskPhone` em `lib/domain/phone-mask.ts`. `LEAD_ERROR_MESSAGE` em `lib/domain/lead.ts`.
-- E2E em `tests/e2e/lead-capture.spec.ts` (precisa de rede para o Turnstile de teste).
+- E2E em `tests/e2e/lead-capture.spec.ts` (precisa de rede para o Turnstile de teste); o PDF completo
+  do artigo 2222… é enviado ao `article-files` no `beforeAll`. Link expirado: texto na spec 04 (UI).
 
 ## Regras do loop
 - Server: orquestração em `lib/services/article-download.ts` (ADR 0032); webhook copiado para o admin na F6-012.
