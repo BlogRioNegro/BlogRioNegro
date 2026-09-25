@@ -135,7 +135,7 @@ no mobile).
 - H1, capa 16:9, formato (`TypeBadge`) + data e resumo (Source Serif 4, `text-lg` no mobile e `text-xl` ≥ 768 px, `--color-text-muted`), nesta ordem, como no protótipo ([ADR 0026](../adr/0026-ordem-da-pagina-do-artigo.md)).
 - **Prévia `rich_text`**: texto em `--font-serif`, `--font-size-article` (18/1.7 mobile,
   20/1.7 ≥ 768 px), largura máxima `--measure-article`; H2/H3 em Inter 600; citações com borda
-  esquerda de 2 px; legendas em `text-xs`.
+  esquerda de 2 px; imagens só com `alt`, sem legenda ([ADR 0031](../adr/0031-imagem-do-rich-text-so-com-alt.md)).
 - **Prévia `pdf`**: área neutra com borda (`--radius-card`) contendo o PDF embutido e o rótulo
   "Prévia". Fallback quando o navegador não embute: "Seu navegador não exibe o PDF nesta página."
   + link "Ver prévia" para o mesmo arquivo.

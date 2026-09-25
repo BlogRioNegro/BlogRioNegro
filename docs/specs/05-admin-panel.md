@@ -37,9 +37,10 @@ upload de PDF, conforme o tipo), data de publicação. Salvar = publicar
 
 ### ADM-005 · Editor rich text
 Tiptap com: títulos (H2, H3), negrito, itálico, listas ordenada e não ordenada, link, citação
-e imagem inline (upload para `article-images`). Sem tabelas. Salva JSON
+e imagem inline (upload para `article-images`) com texto alternativo (`alt`) obrigatório e sem
+legenda ([ADR 0031](../adr/0031-imagem-do-rich-text-so-com-alt.md)). Sem tabelas. Salva JSON
 ([ADR 0009](../adr/0009-editor-tiptap.md)).
-**Aceite:** colar HTML externo mantém só nós/marcas permitidos.
+**Aceite:** colar HTML externo mantém só nós/marcas permitidos; imagem sem `alt` impede o salvamento.
 
 ### ADM-006 · Uploads
 Tipos e tamanhos conforme [DATA-007](01-data-model.md). MIME validado por magic bytes na
