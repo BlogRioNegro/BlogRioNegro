@@ -13,6 +13,10 @@ O App Router injeta scripts inline (payload do RSC). Uma CSP sem nonce só funci
 - A CSP libera o próprio domínio, a origem de `NEXT_PUBLIC_SUPABASE_URL` e o Turnstile
   (`https://challenges.cloudflare.com` em `script-src` e `frame-src`), com `frame-ancestors 'none'`.
 - `'unsafe-inline'` em scripts está descartado.
+- `apps/web` (PUB-007, 2026-09-25): `frame-src` e `object-src` liberam só o caminho do bucket público
+  de prévias (`<supabase>/storage/v1/object/public/article-previews/`), porque a prévia pdf é
+  embutida num `<object>` (o Chrome aplica `frame-src`, o Firefox `object-src`). Antes,
+  `object-src 'none'`.
 
 ## Consequências
 - Páginas com nonce precisam de render dinâmico; custa pouco porque a [ADR 0003](0003-renderizacao-dinamica.md)

@@ -42,8 +42,17 @@ export async function getArticleBySlug(slug: string) {
   return data
 }
 
+function publicUrl(bucket: 'covers' | 'article-previews', path: string): string {
+  return createPublicClient().storage.from(bucket).getPublicUrl(path).data.publicUrl
+}
+
 export function coverUrl(coverPath: string): string {
-  return createPublicClient().storage.from('covers').getPublicUrl(coverPath).data.publicUrl
+  return publicUrl('covers', coverPath)
+}
+
+/** PDF de prévia (2 páginas) do bucket público; o PDF completo nunca passa por aqui. */
+export function previewPdfUrl(previewPdfPath: string): string {
+  return publicUrl('article-previews', previewPdfPath)
 }
 
 /** Dados serializáveis de um card, usados no server e no "Carregar mais". */

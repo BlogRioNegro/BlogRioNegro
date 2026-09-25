@@ -13,7 +13,7 @@ vi.stubEnv('TURNSTILE_SECRET_KEY', 'turnstile-secret-key')
 vi.stubEnv('LEAD_HASH_SECRET', 'x'.repeat(32))
 vi.stubEnv('NEXT_PUBLIC_RIO_NEGRO_URL', 'https://rionegro.example')
 
-const { coverUrl, getArticleBySlug, listArticles } =
+const { coverUrl, getArticleBySlug, listArticles, previewPdfUrl } =
   await import('../../apps/web/lib/services/articles')
 
 const LIST_COLUMNS = [
@@ -99,6 +99,14 @@ describe('coverUrl', () => {
   it('aponta para o bucket público de capas', () => {
     expect(coverUrl('a/b.jpg')).toBe(
       `${localSupabase.API_URL}/storage/v1/object/public/covers/a/b.jpg`,
+    )
+  })
+})
+
+describe('previewPdfUrl', () => {
+  it('aponta para o bucket público de prévias, nunca para article-files', () => {
+    expect(previewPdfUrl('a/previa.pdf')).toBe(
+      `${localSupabase.API_URL}/storage/v1/object/public/article-previews/a/previa.pdf`,
     )
   })
 })

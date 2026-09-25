@@ -6,6 +6,8 @@ const TURNSTILE_ORIGIN = 'https://challenges.cloudflare.com'
 function contentSecurityPolicy(nonce: string): string {
   const supabase = new URL(env.NEXT_PUBLIC_SUPABASE_URL).origin
   const isDev = process.env.NODE_ENV === 'development'
+  // Prévia pdf embutida em <object> (PUB-007): o Chrome aplica frame-src, o Firefox object-src.
+  const pdfPreviews = `${supabase}/storage/v1/object/public/article-previews/`
 
   return [
     "default-src 'self'",
@@ -14,8 +16,8 @@ function contentSecurityPolicy(nonce: string): string {
     `img-src 'self' blob: data: ${supabase}`,
     "font-src 'self'",
     `connect-src 'self' ${supabase}`,
-    `frame-src ${TURNSTILE_ORIGIN}`,
-    "object-src 'none'",
+    `frame-src ${TURNSTILE_ORIGIN} ${pdfPreviews}`,
+    `object-src ${pdfPreviews}`,
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",

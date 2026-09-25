@@ -3,10 +3,11 @@ import { ArrowLeft, Download } from '@rio-negro/ui/icons'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { CoverImage } from '@/components/cover-image'
+import { PdfPreview } from '@/components/pdf-preview'
 import { RichText } from '@/components/rich-text'
 import { formatPublishedDate } from '@/lib/domain/published-date'
 import { parseRichTextPreview } from '@/lib/domain/rich-text'
-import { coverUrl, getArticleBySlug } from '@/lib/services/articles'
+import { coverUrl, getArticleBySlug, previewPdfUrl } from '@/lib/services/articles'
 
 // PUB-005 · Só dados públicos e a prévia (ADR 0007); o conteúdo completo nunca é lido aqui.
 export default async function ArticlePage({ params }: PageProps<'/artigos/[slug]'>) {
@@ -36,6 +37,9 @@ export default async function ArticlePage({ params }: PageProps<'/artigos/[slug]
       ) : null}
       {article.content_type === 'rich_text' ? (
         <RichText blocks={parseRichTextPreview(article.preview_json)} />
+      ) : null}
+      {article.content_type === 'pdf' && article.preview_pdf_path ? (
+        <PdfPreview src={previewPdfUrl(article.preview_pdf_path)} />
       ) : null}
       <div
         className={cn(

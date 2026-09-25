@@ -56,11 +56,15 @@ describe('proxy do apps/web', () => {
     )
     expect(csp).not.toContain("'unsafe-inline'")
     expect(csp).toContain("default-src 'self'")
-    expect(csp).toContain('frame-src https://challenges.cloudflare.com')
+    expect(csp).toContain(
+      'frame-src https://challenges.cloudflare.com https://projeto.supabase.co/storage/v1/object/public/article-previews/;',
+    )
     expect(csp).toContain("connect-src 'self' https://projeto.supabase.co")
     expect(csp).toContain("img-src 'self' blob: data: https://projeto.supabase.co")
     expect(csp).toContain("frame-ancestors 'none'")
-    expect(csp).toContain("object-src 'none'")
+    expect(csp).toContain(
+      'object-src https://projeto.supabase.co/storage/v1/object/public/article-previews/;',
+    )
   })
 
   it('gera um nonce diferente a cada request', () => {

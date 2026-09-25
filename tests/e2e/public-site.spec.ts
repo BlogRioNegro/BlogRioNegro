@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { executeLocalSql } from '../integration/support/local-supabase'
+import { executeLocalSql, localSupabase } from '../integration/support/local-supabase'
 import { webUrl } from './support/urls'
 
 // Site público (spec 03) contra o seed local: 3 artigos.
@@ -169,5 +169,41 @@ test.describe('PUB-006 · Prévia rich_text', () => {
       main.getByText('Com a nova trajetória da Selic, a renda fixa volta ao centro das carteiras.'),
     ).toBeVisible()
     expect(await page.content()).not.toContain('Texto completo de exemplo')
+  })
+})
+
+test.describe('PUB-007 · Prévia pdf', () => {
+  const PREVIEW =
+    /\/storage\/v1\/object\/public\/article-previews\/22222222-2222-4222-8222-222222222222\/b1b2c3d4-0000-4000-8000-000000000002\.pdf/
+
+  test('sem visualizador de PDF, mostra o aviso e o link "Ver prévia" para o arquivo', async ({
+    page,
+  }) => {
+    await page.goto(webUrl('/artigos/carteira-recomendada-outubro'))
+
+    const main = page.getByRole('main')
+    await expect(main.getByText('Seu navegador não exibe o PDF nesta página.')).toBeVisible()
+    await expect(main.getByRole('link', { name: /Ver prévia/ })).toHaveAttribute('href', PREVIEW)
+  })
+
+  test.describe('sem JavaScript', () => {
+    test.use({ javaScriptEnabled: false })
+
+    test('embute a prévia num <object> com o link de fallback dentro', async ({ page }) => {
+      await page.goto(webUrl('/artigos/carteira-recomendada-outubro'))
+
+      const embed = page.locator('object[type="application/pdf"]')
+      await expect(embed).toHaveAttribute('data', PREVIEW)
+      await expect(embed.getByRole('link', { name: /Ver prévia/ })).toHaveAttribute('href', PREVIEW)
+    })
+  })
+
+  test('a prévia do seed é um PDF público de 2 páginas', async ({ request }) => {
+    const response = await request.get(
+      `${localSupabase.API_URL}/storage/v1/object/public/article-previews/22222222-2222-4222-8222-222222222222/b1b2c3d4-0000-4000-8000-000000000002.pdf`,
+    )
+
+    expect(response.headers()['content-type']).toBe('application/pdf')
+    expect((await response.body()).toString('latin1')).toContain('/Count 2')
   })
 })
