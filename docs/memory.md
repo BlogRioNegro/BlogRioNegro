@@ -3,15 +3,19 @@
 _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
 
 ## Fase
-Fase 6 na branch `fase-6` (a partir da `fase-5`). F6-001 `[x]`. Sem push.
+Fase 6 na branch `fase-6` (a partir da `fase-5`). F6-001 e F6-002 `[x]`. Sem push.
 
 ## Próxima tarefa
-F6-002 · ADM-004 · formulário de artigo + Server Action de salvar + migration `save_article`.
-Ler [docs/tasks/fase-6.md](tasks/fase-6.md) e [docs/specs/05-admin-panel.md](specs/05-admin-panel.md).
+F6-003 · ADM-006 · uploads com magic bytes (`file-type`) e limites de constante única;
+ajustar `serverActions.bodySizeLimit` e `proxyClientMaxBodySize` (padrões 1 MB e 10 MB).
 
 ## Decisões da fase 6 (valem para F6-007+)
 - Toda Server Action e route handler novos: `requireAdmin()` na 1ª linha + teste de integração
   sem cookie esperando `UNAUTHORIZED_MESSAGE` (`require-admin-usage.test.ts` varre os arquivos).
+- `save_article` (migration 20260925184538): RPC transacional sob RLS; nuláveis por último com
+  default null. `saveArticle` em `app/artigos/actions.ts` reaproveita o conteúdo se o tipo não
+  mudou; PDF novo (F6-005) e rich text (F6-006) entram em `keptContent`/conteúdo novo.
+- Código de server do admin usa import relativo (vitest e integração não resolvem `@/`).
 - Páginas do painel usam `requireAdminPage()` (redireciona para /login) e o client dele.
 - Sem `service_role` no admin; se a spec exigir, parar e perguntar.
 - Dependências pré-autorizadas no admin: `@tiptap/*`, `pdf-lib`, `@react-pdf/renderer`, `file-type`.
