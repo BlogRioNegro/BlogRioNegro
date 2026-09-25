@@ -128,3 +128,10 @@ export function parseRichText(json: unknown): RichTextBlock[] {
   if (!isObject(json) || json.type !== 'doc') return []
   return toBlocks(json)
 }
+
+// PUB-006 · ADR 0007: a prévia pública mostra só os 3 primeiros blocos, mesmo que o JSON traga mais.
+export const PREVIEW_BLOCKS = 3
+
+export function parseRichTextPreview(json: unknown): RichTextBlock[] {
+  return parseRichText(json).slice(0, PREVIEW_BLOCKS)
+}

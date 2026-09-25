@@ -3,7 +3,9 @@ import { ArrowLeft, Download } from '@rio-negro/ui/icons'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { CoverImage } from '@/components/cover-image'
+import { RichText } from '@/components/rich-text'
 import { formatPublishedDate } from '@/lib/domain/published-date'
+import { parseRichTextPreview } from '@/lib/domain/rich-text'
 import { coverUrl, getArticleBySlug } from '@/lib/services/articles'
 
 // PUB-005 · Só dados públicos e a prévia (ADR 0007); o conteúdo completo nunca é lido aqui.
@@ -31,6 +33,9 @@ export default async function ArticlePage({ params }: PageProps<'/artigos/[slug]
         <p className="mb-6 font-serif text-lg leading-snug text-pretty text-text-muted md:mb-8 md:text-xl">
           {article.summary}
         </p>
+      ) : null}
+      {article.content_type === 'rich_text' ? (
+        <RichText blocks={parseRichTextPreview(article.preview_json)} />
       ) : null}
       <div
         className={cn(

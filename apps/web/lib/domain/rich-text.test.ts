@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseRichText } from './rich-text'
+import { parseRichText, parseRichTextPreview, PREVIEW_BLOCKS } from './rich-text'
 
 const doc = (...content: unknown[]) => ({ type: 'doc', content })
 const paragraph = (...content: unknown[]) => ({ type: 'paragraph', content })
@@ -137,4 +137,25 @@ describe('parseRichText', () => {
       expect(parseRichText(json)).toEqual([])
     },
   )
+})
+
+describe('parseRichTextPreview', () => {
+  const blocks = (count: number) =>
+    Array.from({ length: count }, (_, index) => paragraph(textNode(`bloco ${index + 1}`)))
+
+  it('mantém só os 3 primeiros blocos', () => {
+    const preview = parseRichTextPreview(doc(...blocks(5)))
+
+    expect(preview).toHaveLength(PREVIEW_BLOCKS)
+    expect(JSON.stringify(preview)).not.toContain('bloco 4')
+  })
+
+  it('conta os blocos depois da allowlist', () => {
+    const preview = parseRichTextPreview(
+      doc({ type: 'table' }, { type: 'codeBlock' }, ...blocks(4)),
+    )
+
+    expect(JSON.stringify(preview)).toContain('bloco 3')
+    expect(JSON.stringify(preview)).not.toContain('bloco 4')
+  })
 })

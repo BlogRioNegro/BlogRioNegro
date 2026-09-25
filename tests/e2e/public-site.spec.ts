@@ -155,3 +155,15 @@ test.describe('PUB-005 · Página do artigo', () => {
     expect(response?.status()).toBe(404)
   })
 })
+
+test.describe('PUB-006 · Prévia rich_text', () => {
+  test('renderiza a prévia do seed e não o conteúdo completo', async ({ page }) => {
+    await page.goto(webUrl('/artigos/renda-fixa-em-2026'))
+
+    const main = page.getByRole('main')
+    await expect(
+      main.getByText('Com a nova trajetória da Selic, a renda fixa volta ao centro das carteiras.'),
+    ).toBeVisible()
+    expect(await page.content()).not.toContain('Texto completo de exemplo')
+  })
+})
