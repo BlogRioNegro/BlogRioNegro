@@ -18,9 +18,9 @@ export const buttonVariants = cva(
       },
       size: {
         md: 'h-(--control-height) px-4',
-        sm: 'h-(--control-height-sm) px-3',
+        sm: 'h-(--control-height-sm) px-3 text-xs',
         icon: 'size-(--control-height) p-0',
-        'icon-sm': 'size-(--control-height-sm) p-0',
+        'icon-sm': 'size-(--control-height-sm) p-0 text-xs',
       },
       block: { true: 'w-full' },
     },

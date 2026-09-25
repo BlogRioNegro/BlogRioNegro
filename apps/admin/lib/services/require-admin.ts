@@ -1,4 +1,5 @@
 import 'server-only'
+import { redirect } from 'next/navigation'
 import { failAction, type ActionFailure } from './action-result'
 import { createSupabaseServerClient } from './supabase-server'
 
@@ -21,4 +22,11 @@ export async function requireAdmin(): Promise<AdminContext | ActionFailure> {
   if (!isAdmin) return { ok: false, error: UNAUTHORIZED_MESSAGE }
 
   return { ok: true, supabase, userId: data.user.id }
+}
+
+/** Páginas do painel: sem sessão de admin, volta para /login em vez de renderizar. */
+export async function requireAdminPage(): Promise<AdminContext> {
+  const auth = await requireAdmin()
+  if (!auth.ok) redirect('/login')
+  return auth
 }

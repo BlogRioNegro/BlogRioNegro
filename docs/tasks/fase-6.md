@@ -2,7 +2,7 @@
 
 Specs: [05-admin-panel](../specs/05-admin-panel.md). Login e proteção de rotas já feitos na fase 3 (F3-020, F3-021). UI depende da fase 2.
 
-- [ ] **F6-001** · ADM-003 · Lista de artigos com nº de leads
+- [x] **F6-001** · ADM-003 · Lista de artigos com nº de leads
 - [ ] **F6-002** · ADM-004 · Formulário de artigo + Server Action de salvar (Zod)
 - [ ] **F6-003** · ADM-006 · Upload com validação por magic bytes e limites
 - [ ] **F6-004** · ADM-005 · Editor Tiptap com extensões aprovadas e upload de imagem inline

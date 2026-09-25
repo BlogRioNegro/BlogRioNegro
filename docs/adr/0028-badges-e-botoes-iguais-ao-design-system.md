@@ -20,6 +20,8 @@ protótipo. A [ADR 0026](0026-ordem-da-pagina-do-artigo.md) tinha mantido o badg
   até o texto e estados desabilitados do `rn-check`; `Alert` com corpo `text-xs`, título `text-sm` e
   padding 12/16 (`rn-alert`); `DialogContent` com 16 px de padding no mobile, 16 px entre cabeçalho e
   corpo, título com `pt-2` e "Fechar" recuado 8 px (`rn-modal`).
+- Na F6-001 (lista do admin), pelo mesmo critério: `Button` sm com texto `text-xs` (`rn-btn--sm`) e
+  `Table` com `shadow-card` (`rn-table-wrap`).
 
 ## Consequências
 - Badges e botões com as mesmas medidas do protótipo nos dois apps.

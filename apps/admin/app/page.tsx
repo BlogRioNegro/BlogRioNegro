@@ -1,12 +1,5 @@
-import { logout } from './auth-actions'
+import { redirect } from 'next/navigation'
 
 export default function HomePage() {
-  return (
-    <main>
-      <h1>Rio Negro · Admin</h1>
-      <form action={logout}>
-        <button type="submit">Sair</button>
-      </form>
-    </main>
-  )
+  redirect('/artigos')
 }
