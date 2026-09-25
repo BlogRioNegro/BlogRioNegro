@@ -47,3 +47,7 @@ export async function removeFiles(supabase: Supabase, bucket: Bucket, paths: str
   const { error } = await supabase.storage.from(bucket).remove(paths)
   if (error) logger.warn('admin.storage_remove_failed', { bucket, error })
 }
+
+export function publicFileUrl(supabase: Supabase, bucket: 'article-images', path: string): string {
+  return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl
+}

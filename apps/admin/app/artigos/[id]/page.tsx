@@ -1,14 +1,22 @@
+import type { JSONContent } from '@tiptap/core'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { z } from 'zod'
 import { AdminHeader } from '@/components/admin-header'
 import { ArticleForm } from '@/components/article-form'
 import { dateInputValue } from '@/lib/domain/admin-date'
+import { checkRichText } from '@/lib/domain/rich-text'
 import { findArticleForEdit } from '@/lib/services/article-store'
 import { requireAdminPage } from '@/lib/services/require-admin'
 
 export const metadata: Metadata = {
   title: 'Editar artigo · Rio Negro Admin',
+}
+
+// O JSON do banco passa pelo schema do editor; o que ele não reconhece não chega ao Tiptap.
+function richTextBody(json: unknown): JSONContent | null {
+  const richText = checkRichText(json ?? null, null)
+  return richText.ok ? richText.doc : null
 }
 
 export default async function EditArticlePage({ params }: PageProps<'/artigos/[id]'>) {
@@ -32,6 +40,7 @@ export default async function EditArticlePage({ params }: PageProps<'/artigos/[i
             summary: article.summary ?? '',
             contentType: article.content_type,
             publishedDate: dateInputValue(new Date(article.published_at)),
+            body: richTextBody(article.article_contents?.body_json),
           }}
         />
       </main>

@@ -10,7 +10,7 @@ vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', localSupabase.ANON_KEY)
 vi.stubEnv('NEXT_PUBLIC_SITE_URL', 'http://localhost:3000')
 vi.stubEnv('ADMIN_SITE_URL', 'http://localhost:3001')
 
-const { saveArticle } = await import('../../apps/admin/app/artigos/actions')
+const { saveArticle, uploadArticleImage } = await import('../../apps/admin/app/artigos/actions')
 const { UNAUTHORIZED_MESSAGE } = await import('../../apps/admin/lib/services/require-admin')
 
 const ARTICLE_ID = '22222222-2222-4222-8222-222222222222'
@@ -38,5 +38,17 @@ describe('SEC-005 · actions de artigo sem sessão', () => {
       .eq('id', ARTICLE_ID)
       .single()
     expect(data?.title).toBe('Carteira recomendada de outubro')
+  })
+
+  it('uploadArticleImage nega e não envia a imagem', async () => {
+    const formData = new FormData()
+    formData.set('articleId', ARTICLE_ID)
+    formData.set('image', new File([new Uint8Array([0x89, 0x50, 0x4e, 0x47])], 'foto.png'))
+
+    const result = await uploadArticleImage(formData)
+
+    expect(result).toEqual({ ok: false, error: UNAUTHORIZED_MESSAGE })
+    const { data } = await serviceClient().storage.from('article-images').list(ARTICLE_ID)
+    expect(data).toEqual([])
   })
 })

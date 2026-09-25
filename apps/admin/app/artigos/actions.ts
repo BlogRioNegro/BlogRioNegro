@@ -2,6 +2,7 @@
 
 import { randomUUID } from 'node:crypto'
 import { redirect } from 'next/navigation'
+import { z } from 'zod'
 import { publishedAtFromDate } from '../../lib/domain/admin-date'
 import {
   ARTICLE_MESSAGES,
@@ -12,9 +13,11 @@ import {
   type ArticleFields,
   type FieldErrors,
 } from '../../lib/domain/article-form'
-import { failAction } from '../../lib/services/action-result'
+import { checkRichText, parseBodyField } from '../../lib/domain/rich-text'
+import { failAction, type ActionResult } from '../../lib/services/action-result'
 import {
   findArticleForEdit,
+  publicFileUrl,
   removeFiles,
   saveArticleRecord,
   uploadFile,
@@ -32,6 +35,11 @@ type ContentValues = Pick<
   SaveArticleArgs,
   'preview_json' | 'preview_pdf_path' | 'body_json' | 'full_pdf_path'
 >
+
+// ADM-005 · Imagens do rich text só do bucket article-images, na pasta do próprio artigo.
+function articleImagesPrefix(supabase: Parameters<typeof publicFileUrl>[0], articleId: string) {
+  return publicFileUrl(supabase, 'article-images', `${articleId}/`)
+}
 
 function invalid(fieldErrors: FieldErrors): SaveArticleState {
   return { ok: false, error: INVALID_FORM_MESSAGE, fieldErrors }
@@ -67,12 +75,18 @@ export async function saveArticle(
   const existing = await findArticleForEdit(auth.supabase, fields.id)
   const coverFile = fileFrom(formData, 'cover')
   const cover = coverFile ? await validateUpload('covers', coverFile) : null
-  const content = keptContent(existing, fields.contentType)
+  const body = formData.get('body')
+  const richText =
+    fields.contentType === 'rich_text' && body !== null
+      ? checkRichText(parseBodyField(body), articleImagesPrefix(auth.supabase, fields.id))
+      : null
+  const content = richText ? null : keptContent(existing, fields.contentType)
 
   const fieldErrors: FieldErrors = {}
   if (!existing && !cover) fieldErrors.cover = ARTICLE_MESSAGES.cover
   if (cover && !cover.ok) fieldErrors.cover = cover.error
-  if (!content)
+  if (richText && !richText.ok) fieldErrors.content = richText.error
+  else if (!content)
     fieldErrors.content =
       fields.contentType === 'pdf' ? ARTICLE_MESSAGES.pdf : ARTICLE_MESSAGES.richText
   if (Object.keys(fieldErrors).length > 0 || !content || (cover && !cover.ok))
@@ -108,4 +122,27 @@ export async function saveArticle(
 
   if (newCoverPath && existing) await removeFiles(auth.supabase, 'covers', [existing.cover_path])
   redirect('/artigos')
+}
+
+const IMAGE_MISSING_MESSAGE = 'Escolha uma imagem JPG, PNG ou WebP.'
+
+export type UploadedImage = ActionResult<{ src: string }>
+
+/** ADM-005 · ADM-006 · Imagem inline do editor: validada e enviada para article-images. */
+export async function uploadArticleImage(formData: FormData): Promise<UploadedImage> {
+  const auth = await requireAdmin()
+  if (!auth.ok) return auth
+
+  const articleId = z.uuid().safeParse(formData.get('articleId'))
+  const file = fileFrom(formData, 'image')
+  if (!articleId.success || !file) return { ok: false, error: IMAGE_MISSING_MESSAGE }
+
+  const image = await validateUpload('article-images', file)
+  if (!image.ok) return image
+
+  const path = `${articleId.data}/${randomUUID()}.${image.extension}`
+  const uploadError = await uploadFile(auth.supabase, 'article-images', path, image.file)
+  if (uploadError) return failAction('admin.image_upload_failed', uploadError)
+
+  return { ok: true, data: { src: publicFileUrl(auth.supabase, 'article-images', path) } }
 }

@@ -22,6 +22,11 @@ function bigPdf() {
   }
 }
 
+const SEED_PNG = path.join(
+  import.meta.dirname,
+  '../../supabase/storage/covers/11111111-1111-4111-8111-111111111111/a1b2c3d4-0000-4000-8000-000000000001.png',
+)
+
 test.describe('formulário de artigo', () => {
   test.afterAll(async () => {
     await serviceClient().from('articles').update({ title: SEED.title }).eq('id', SEED.id)
@@ -47,6 +52,55 @@ test.describe('formulário de artigo', () => {
 
     await expect(page.getByText('O arquivo tem 24,6 MB. Envie um PDF de até 20 MB.')).toBeVisible()
     await expect(page).toHaveURL(/\/artigos\/novo$/)
+  })
+
+  test('editor Texto: barra da ADM-005 e imagem só com texto alternativo', async ({ page }) => {
+    const cspViolations: string[] = []
+    page.on('console', (message) => {
+      if (message.text().includes('Content Security Policy')) cspViolations.push(message.text())
+    })
+    await signInAsAdmin(page)
+    await page.goto('/artigos/novo')
+    const articleId = await page.locator('input[name="id"]').inputValue()
+    // Só o editor: a carga em modo dev e o Dialog do Radix têm violações próprias (ver memory).
+    cspViolations.length = 0
+
+    await page.getByRole('group', { name: 'Tipo' }).getByRole('button', { name: 'Texto' }).click()
+    const toolbar = page.getByRole('toolbar', { name: 'Formatação' })
+    const labels = [
+      'H2',
+      'H3',
+      'Negrito',
+      'Itálico',
+      'Lista',
+      'Lista numerada',
+      'Link',
+      'Citação',
+      'Imagem',
+    ]
+    await expect(toolbar.getByRole('button')).toHaveText(labels)
+
+    const editor = page.getByRole('textbox', { name: 'Conteúdo' })
+    await editor.click()
+    await page.keyboard.type('Primeiro parágrafo')
+    expect(cspViolations).toEqual([])
+    await toolbar.getByRole('button', { name: 'Imagem' }).click()
+    const dialog = page.getByRole('dialog', { name: 'Imagem' })
+    await dialog.getByLabel('Arquivo').setInputFiles(SEED_PNG)
+    await dialog.getByRole('button', { name: 'Inserir' }).click()
+    await expect(dialog.getByText('Descreva a imagem para quem não pode vê-la.')).toBeVisible()
+
+    await dialog.getByLabel('Texto alternativo').fill('Gráfico da Selic')
+    await dialog.getByRole('button', { name: 'Inserir' }).click()
+    await expect(dialog).toBeHidden()
+    await expect(editor.locator('img[alt="Gráfico da Selic"]')).toHaveAttribute(
+      'src',
+      new RegExp(`/article-images/${articleId}/`),
+    )
+
+    const storage = serviceClient().storage.from('article-images')
+    const { data } = await storage.list(articleId)
+    await storage.remove((data ?? []).map((file) => `${articleId}/${file.name}`))
   })
 
   test('salvar a edição publica o novo título no site no próximo request', async ({ page }) => {
@@ -90,6 +144,10 @@ test.describe('Visual · Formulário', () => {
         .locator(`[data-screen-label="Formulário · tipo PDF · erro · ${device}"] > div`)
         .first()
         .screenshot({ path: path.join(OUT, `admin-form-pdf-erro-${device}-prototipo.png`) })
+      await prototype
+        .locator(`[data-screen-label="Formulário · tipo Texto · ${device}"] > div`)
+        .first()
+        .screenshot({ path: path.join(OUT, `admin-form-texto-${device}-prototipo.png`) })
       await prototype.close()
 
       const page = await browser.newPage({ viewport })
@@ -106,6 +164,25 @@ test.describe('Visual · Formulário', () => {
       await page.mouse.move(0, 0)
       await page.screenshot({
         path: path.join(OUT, `admin-form-pdf-erro-${device}-app.png`),
+        fullPage: true,
+      })
+
+      await page.goto('/artigos/novo')
+      await page.getByLabel('Título').fill('Tesouro IPCA+ ou prefixado: como comparar')
+      await page.getByLabel('Slug').fill('tesouro-ipca-ou-prefixado-como-comparar')
+      await page.getByRole('group', { name: 'Tipo' }).getByRole('button', { name: 'Texto' }).click()
+      const toolbar = page.getByRole('toolbar', { name: 'Formatação' })
+      await page.getByRole('textbox', { name: 'Conteúdo' }).click()
+      await toolbar.getByRole('button', { name: 'H2' }).click()
+      await page.keyboard.type('O que cada título paga')
+      await page.keyboard.press('Enter')
+      await page.keyboard.type('O Tesouro Prefixado garante a taxa no momento da compra.')
+      await page.keyboard.press('Enter')
+      await toolbar.getByRole('button', { name: 'Lista', exact: true }).click()
+      await page.keyboard.type('Prefixado: faz sentido quando você espera queda dos juros.')
+      await page.mouse.move(0, 0)
+      await page.screenshot({
+        path: path.join(OUT, `admin-form-texto-${device}-app.png`),
         fullPage: true,
       })
       await page.close()

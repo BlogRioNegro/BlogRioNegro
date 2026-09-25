@@ -27,6 +27,7 @@ export default async function NewArticlePage() {
             summary: '',
             contentType: 'pdf',
             publishedDate: dateInputValue(new Date()),
+            body: null,
           }}
         />
       </main>

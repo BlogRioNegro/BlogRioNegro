@@ -2,6 +2,7 @@
 
 import { Alert, Button, FieldMessage, Label, TextField } from '@rio-negro/ui'
 import { ArrowLeft } from '@rio-negro/ui/icons'
+import type { JSONContent } from '@tiptap/core'
 import Link from 'next/link'
 import { startTransition, useActionState, useState, type FormEvent } from 'react'
 import { saveArticle } from '@/app/artigos/actions'
@@ -14,7 +15,9 @@ import {
   type ArticleFields,
   type FieldErrors,
 } from '@/lib/domain/article-form'
+import { checkRichText, parseBodyField } from '@/lib/domain/rich-text'
 import { sizeError } from '@/lib/domain/upload-rules'
+import { RichTextEditor } from './rich-text-editor'
 
 export type ArticleFormValues = {
   id: string
@@ -23,6 +26,7 @@ export type ArticleFormValues = {
   summary: string
   contentType: ArticleFields['contentType']
   publishedDate: string
+  body: JSONContent | null
 }
 
 const CONTENT_TYPES = [
@@ -45,6 +49,10 @@ function clientErrors(formData: FormData, isNew: boolean): FieldErrors {
   if (coverTooBig) errors.cover = coverTooBig
   const pdfTooBig = pdf && sizeError('article-files', pdf.size)
   if (pdfTooBig) errors.content = pdfTooBig
+  if (formData.get('contentType') === 'rich_text') {
+    const richText = checkRichText(parseBodyField(formData.get('body')), null)
+    if (!richText.ok) errors.content = richText.error
+  }
   return errors
 }
 
@@ -159,9 +167,25 @@ export function ArticleForm({ initial, isNew }: { initial: ArticleFormValues; is
             help="Máximo de 20 MB."
             error={errors.content}
           />
-        ) : errors.content ? (
-          <FieldMessage variant="error">{errors.content}</FieldMessage>
-        ) : null}
+        ) : (
+          <div className="flex flex-col gap-2">
+            <Label id={`${initial.id}-conteudo`}>Conteúdo</Label>
+            <RichTextEditor
+              articleId={initial.id}
+              labelId={`${initial.id}-conteudo`}
+              describedBy={`${initial.id}-conteudo-mensagem`}
+              initialContent={initial.body}
+              invalid={Boolean(errors.content)}
+            />
+            <FieldMessage
+              id={`${initial.id}-conteudo-mensagem`}
+              variant={errors.content ? 'error' : 'help'}
+            >
+              {errors.content ??
+                'Os 3 primeiros blocos formam a prévia pública; o texto completo vai no download.'}
+            </FieldMessage>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col-reverse gap-3 md:flex-row md:justify-end">

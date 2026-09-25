@@ -9,6 +9,7 @@ const store = {
   saveArticleRecord: vi.fn(),
   uploadFile: vi.fn(),
   removeFiles: vi.fn(),
+  publicFileUrl: vi.fn(),
 }
 
 vi.mock('../../lib/services/require-admin', () => ({ requireAdmin }))
@@ -22,7 +23,7 @@ vi.mock('next/navigation', () => ({
   },
 }))
 
-const { saveArticle } = await import('./actions')
+const { saveArticle, uploadArticleImage } = await import('./actions')
 
 const ID = '4b4f7c5e-2d7a-4c1e-9d55-0a3f5c1e8b21'
 const supabase = { marker: 'supabase' }
@@ -64,6 +65,9 @@ describe('saveArticle', () => {
     store.findArticleForEdit.mockResolvedValue(EXISTING)
     store.saveArticleRecord.mockResolvedValue(null)
     store.uploadFile.mockResolvedValue(null)
+    store.publicFileUrl.mockImplementation(
+      (_supabase: unknown, bucket: string, path: string) => `https://cdn.test/${bucket}/${path}`,
+    )
     validateUpload.mockImplementation(async (_bucket: string, file: File) => ({
       ok: true,
       file,
@@ -151,6 +155,40 @@ describe('saveArticle', () => {
     expect(store.saveArticleRecord).not.toHaveBeenCalled()
   })
 
+  it('recusa rich text com imagem sem alt (ADR 0031)', async () => {
+    const body = {
+      type: 'doc',
+      content: [
+        {
+          type: 'image',
+          attrs: { src: `https://cdn.test/article-images/${ID}/foto.png`, alt: '' },
+        },
+      ],
+    }
+
+    const result = await saveArticle(
+      null,
+      form({ contentType: 'rich_text', body: JSON.stringify(body) }),
+    )
+
+    expect(result?.fieldErrors.content).toBe('Toda imagem precisa de texto alternativo.')
+    expect(store.saveArticleRecord).not.toHaveBeenCalled()
+  })
+
+  it('recusa rich text com imagem de fora do bucket do artigo', async () => {
+    const body = {
+      type: 'doc',
+      content: [{ type: 'image', attrs: { src: 'https://exemplo.com/foto.png', alt: 'Foto' } }],
+    }
+
+    const result = await saveArticle(
+      null,
+      form({ contentType: 'rich_text', body: JSON.stringify(body) }),
+    )
+
+    expect(result?.fieldErrors.content).toBe('Envie as imagens pelo botão Imagem.')
+  })
+
   it('falha ao salvar: erro genérico e remove a capa recém-enviada', async () => {
     store.saveArticleRecord.mockResolvedValue({ code: '23505', message: 'duplicate key' })
 
@@ -159,5 +197,62 @@ describe('saveArticle', () => {
     expect(result).toEqual({ ok: false, error: GENERIC_ERROR_MESSAGE, fieldErrors: {} })
     const uploadedPath = store.uploadFile.mock.calls[0]?.[2]
     expect(store.removeFiles).toHaveBeenCalledWith(supabase, 'covers', [uploadedPath])
+  })
+})
+
+describe('uploadArticleImage', () => {
+  function imageForm(file: File | null = png()) {
+    const formData = new FormData()
+    formData.set('articleId', ID)
+    if (file) formData.set('image', file)
+    return formData
+  }
+
+  beforeEach(() => {
+    vi.spyOn(process.stderr, 'write').mockReturnValue(true)
+    requireAdmin.mockResolvedValue({ ok: true, supabase, userId: 'admin' })
+    store.uploadFile.mockResolvedValue(null)
+    store.publicFileUrl.mockImplementation(
+      (_supabase: unknown, bucket: string, path: string) => `https://cdn.test/${bucket}/${path}`,
+    )
+    validateUpload.mockImplementation(async (_bucket: string, file: File) => ({
+      ok: true,
+      file,
+      extension: 'png',
+    }))
+  })
+
+  afterEach(() => {
+    vi.resetAllMocks()
+  })
+
+  it('devolve a negação do requireAdmin sem enviar nada', async () => {
+    requireAdmin.mockResolvedValue({ ok: false, error: 'Sessão expirada' })
+
+    expect(await uploadArticleImage(imageForm())).toEqual({ ok: false, error: 'Sessão expirada' })
+    expect(store.uploadFile).not.toHaveBeenCalled()
+  })
+
+  it('envia para article-images na pasta do artigo e devolve a URL pública', async () => {
+    const result = await uploadArticleImage(imageForm())
+
+    expect(validateUpload).toHaveBeenCalledWith('article-images', expect.any(File))
+    const path = store.uploadFile.mock.calls[0]?.[2]
+    expect(path).toMatch(new RegExp(`^${ID}/[0-9a-f-]{36}\.png$`))
+    expect(result).toEqual({ ok: true, data: { src: `https://cdn.test/article-images/${path}` } })
+  })
+
+  it('devolve o erro de validação do arquivo', async () => {
+    validateUpload.mockResolvedValue({ ok: false, error: 'Envie uma imagem JPG, PNG ou WebP.' })
+
+    expect(await uploadArticleImage(imageForm())).toEqual({
+      ok: false,
+      error: 'Envie uma imagem JPG, PNG ou WebP.',
+    })
+    expect(store.uploadFile).not.toHaveBeenCalled()
+  })
+
+  it('exige o arquivo', async () => {
+    expect(await uploadArticleImage(imageForm(null))).toMatchObject({ ok: false })
   })
 })
