@@ -3,12 +3,13 @@
 _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
 
 ## Fase
-Fase 6 na branch `fase-6`. F6-001 a F6-006 `[x]` (WebP removido, ADR 0037). CSP do Dialog
-corrigida (`StyleNonce` + `get-nonce`, ADR 0020, e2e `csp-dialog.spec.ts`). Sem push.
+Fase 6 na branch `fase-6`. F6-001 a F6-006 `[x]`. Correções feitas: WebP fora (ADR 0037), CSP
+do Dialog (`StyleNonce` + `get-nonce`), deploy em VPS StayCloud Node 22 (ADR 0038). Sem push.
 
 ## Próxima tarefa
-Correção 3 (ADR VPS StayCloud + .nvmrc), depois F6-007 a F6-013, visual do login (F6-extra)
-e o gate da fase 6.
+F6-007 · ADM-009 · slug: gerar do título, editar com histórico, rejeitar slug em uso (23505 do
+`save_article`/trigger hoje vira erro genérico), aviso de links antigos na edição. Depois F6-008
+a F6-013, visual do login (F6-extra) e o gate.
 
 ## Decisões da fase 6 (valem para F6-007+)
 - Server Action/route handler: `requireAdmin()` na 1ª linha + teste de integração sem cookie
@@ -34,5 +35,6 @@ e o gate da fase 6.
 
 ## Pendências para o Rafael
 - CSP: o modo dev do Next (`next dev`) gera violações de estilo na carga (produção limpa).
+- F3-002: o Nginx do VPS deve sobrescrever `X-Forwarded-For` com `$remote_addr` (o app lê o 1º valor).
 - Login do admin sem o visual da spec (F6-extra, antes do gate). Turnstile de teste no
   `.env.local`; header de IP (F3-002); DPO; aceites PUB-007/010/012; `corepack enable`; push; domínios.
