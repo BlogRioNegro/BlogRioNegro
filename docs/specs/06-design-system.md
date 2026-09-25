@@ -1,6 +1,6 @@
 ---
 id: 06-design-system
-status: pending-design
+status: approved
 fase: 2
 depends_on: [00-overview.md]
 ---
@@ -182,6 +182,32 @@ exportados por `@rio-negro/ui`. Esta tabela e os exports do pacote concordam (te
 Componentes de tela ficam nos apps, compostos a partir destes, na fase que os usa:
 `ArticleCard`, `FeaturedArticleCard`, `LoadMoreButton`, `SiteHeader` e `SiteFooter` (fase 4),
 `PhoneInput` (fase 5), `Pagination` e a tabela de dados do admin (fase 6).
+
+## Acessibilidade por componente (DS-006)
+
+Contraste pela fórmula WCAG 2.1 com os valores da tabela Tokens: texto ≥ 4,5:1 (AA) e borda que
+identifica o controle ≥ 3:1 (1.4.11). Superfícies de referência: `--color-surface` (`#ffffff`) e
+`--color-bg` (`#f2f0ef`). Controle desabilitado é isento (1.4.3).
+
+**Foco visível (todos):** `:focus-visible` global em `packages/ui/src/styles.css`, contorno de 2 px
+em `--color-focus-ring` (`#1d1c1b`) afastado 2 px: 17,02:1 sobre surface e 14,98:1 sobre bg. Nenhum
+componente remove o `outline`.
+
+| Componente | Contraste (valores reais) | Foco e teclado | Label e nome acessível |
+|---|---|---|---|
+| `Button` | primary: texto `#f2f0ef` sobre `#1d1c1b` 14,98:1 (hover `#3a3735` 10,40:1); secondary/ghost/link: `#1d1c1b` sobre surface 17,02:1 e sobre `surface-muted` (hover) 13,70:1; borda do secondary `#8c8782` 3,56:1 | `<button>` nativo (Enter/Espaço); `type="button"` por padrão; desabilitado e `loading` saem da ordem de clique | texto visível; ícone com `aria-hidden`; botões só de ícone (`icon`, `icon-sm`) exigem `aria-label` ou texto `sr-only`; `loading` marca `aria-busy` |
+| `Label` | `#1d1c1b` sobre surface 17,02:1; "(opcional)" `#5c5854` 7,05:1 (6,21:1 sobre bg) | — | sempre visível, ligado por `htmlFor`; placeholder nunca substitui o label |
+| `Input` | texto `#1d1c1b` 17,02:1; placeholder `#5c5854` 7,05:1; borda `#8c8782` 3,56:1 (3,13:1 contra bg); borda de erro `#a8322d` 6,65:1 | nativo | só é usado com `Label` (via `TextField` ou `htmlFor`); erro com `aria-invalid` |
+| `FieldMessage` | ajuda `#5c5854` 7,05:1; erro `#a8322d` 6,65:1 sobre surface e 5,85:1 sobre bg | — | ligado ao campo por `aria-describedby`; erro tem ícone, não só cor (1.4.1) |
+| `TextField` | herda `Label`, `Input` e `FieldMessage` | nativo | liga `id`, `htmlFor`, `aria-describedby` e `aria-invalid` sozinho |
+| `Checkbox` | borda `#8c8782` 3,56:1; marcado: ícone `#f2f0ef` sobre `#1d1c1b` 14,98:1; label `#1d1c1b` 17,02:1 | Radix (`role="checkbox"`, Espaço alterna) | `<label htmlFor>` clicável; erro com `aria-invalid` + `aria-describedby`; nunca pré-marcado |
+| `Alert` | título: sucesso `#2f6b3f` sobre `#e6f0e8` 5,46:1, erro `#a8322d` sobre `#f8e6e4` 5,52:1, aviso `#8a5a00` sobre `#f7edd9` 5,10:1; corpo `#1d1c1b` ≥ 14,12:1 | não recebe foco | `role="alert"` (erro) ou `role="status"`; ícone decorativo, o título carrega o sentido |
+| `Dialog`, `DialogTrigger`, `DialogContent`, `DialogClose` | título `#1d1c1b` 17,02:1; descrição `#5c5854` 7,05:1 | foco preso no conteúdo; **Esc** e clique no fundo fecham; o foco volta ao `DialogTrigger` (Radix) | `title` obrigatório → `aria-labelledby`; `description` → `aria-describedby`; "Fechar" de 44 px com texto `sr-only` |
+| `StatusBadge` | Pendente `#8a5a00`/`#f7edd9` 5,10:1; Enviado `#2f6b3f`/`#e6f0e8` 5,46:1; Falhou `#a8322d`/`#f8e6e4` 5,52:1; Desativado `#5c5854`/`#e9e6e4` 5,67:1 | não recebe foco | o texto do status sempre visível; ponto de cor com `aria-hidden` |
+| `TypeBadge` | `#1d1c1b` sobre surface 17,02:1 | não recebe foco | texto "PDF"/"Texto"; ícone com `aria-hidden` |
+| `Table` e partes | célula `#1d1c1b` 17,02:1 (hover 13,70:1); cabeçalho `#5c5854` sobre bg 6,21:1 | contêiner rola na horizontal sem prender o foco; ações da linha são `Button` | `TableCaption` obrigatória (oculta visualmente); `TableHead` com `scope="col"` |
+
+Divisórias em `--color-border` (`#dcd8d5`, 1,42:1) são decorativas e não identificam controle.
 
 ## Fora de escopo
 
