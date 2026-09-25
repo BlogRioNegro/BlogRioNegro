@@ -13,8 +13,8 @@ Tarefas: [F7-001](tasks/fase-7.md) (security review), F7-003 (QA exploratório) 
 |---|---|
 | Crítico | 0 |
 | Alto | 0 |
-| Médio | 1 |
-| Baixo | 6 |
+| Médio | 2 |
+| Baixo | 9 |
 
 **Pronto para deploy: _em andamento_** (veredito final ao fim da F7-004).
 
@@ -25,12 +25,16 @@ Ordenados do mais grave para o menos grave. Esforço: P (< 1 h), M (meio dia), G
 | ID | Sev. | Onde | Evidência | Correção sugerida | Esf. | Bloqueia? |
 |---|---|---|---|---|---|---|
 | SEC-1 | Médio | `apps/web/lib/domain/client-ip.ts:10` | O rate limit por IP (LEAD-006) usa o 1º valor de `X-Forwarded-For`, que o cliente controla se o proxy da hospedagem não o sobrescrever. Trocando o header a cada envio, o limite de 20/10 min por IP deixa de valer; restam o Turnstile e o limite por e-mail. Não verificado em produção: depende do header que o Deploy Pro entrega (pendência F3-002). | Ler o IP do header que o Deploy Pro garante (ou do último salto confiável) e testar isso no 1º deploy. | P | não (confirmar no deploy) |
+| QA-1 | Médio | `apps/admin/components/style-nonce.tsx:9` (a cópia do web é igual) | Build de produção: depois do login (redirect da Server Action para `/artigos`), abrir o 1º `Dialog` ("Ações" a 390 px ou "Excluir" a 1440 px) gera `style-src-elem` bloqueado no `<style>` do `react-remove-scroll`. Após reload da página, 0 violações. A navegação por Server Action re-renderiza o layout com o nonce do request novo, e `setNonce` troca para ele, mas a CSP do documento continua a da 1ª carga. Efeito: o fundo não trava a rolagem e o console acusa violação. O e2e `csp-dialog.spec.ts` não pega o caso, porque navega com `page.goto`. | Fixar o nonce da 1ª carga (`setNonce` só na primeira chamada, ou ler o nonce de um `<script nonce>` do documento) e cobrir no e2e a abertura após o login. | P | não |
 | SEC-2 | Baixo | `apps/web/lib/domain/redact.ts:14` e `apps/web/lib/domain/lead.ts:45` | O redact mascara e-mail, telefone e IP, mas não o nome dentro do `details` do Postgres ("Failing row contains (…)"): script temporário com um erro 23514 no formato do Postgres manteve o nome em claro. O caminho é alcançável: `'😀'.length === 2` no JS (passa no `min(2)` do Zod) e `char_length = 1` no Postgres (viola o CHECK), então o insert falha e `lead.request_failed` loga o `details`. | Não logar `details` de erro do banco (só `code` e `message`) e validar o nome por code points (`[...name].length`). | P | não |
 | SEC-3 | Baixo | `apps/web/next.config.ts`, `apps/admin/next.config.ts` | `X-Powered-By: Next.js` nas páginas dos dois apps (`next start`, script de headers). | `poweredByHeader: false` nos dois `next.config.ts`. | P | não |
 | SEC-4 | Baixo | build de produção dos dois apps | Sem `Strict-Transport-Security` em nenhuma rota (script de headers). A CSP já tem `upgrade-insecure-requests`. | Adicionar HSTS no `next.config.ts` ou confirmar que o Deploy Pro envia. | P | não |
 | SEC-5 | Baixo | `supabase/config.toml:228` | SEC-001 cumprido localmente (`POST /auth/v1/signup` → 422 `signup_disabled`), mas não há teste automatizado de `signUp`, e `[auth.email] enable_signup = true` contradiz o `[auth] enable_signup = false` que prevalece. | Pôr `false` também em `[auth.email]` e criar teste de integração do `signUp`. | P | não |
 | SEC-6 | Baixo | `apps/web/lib/services/turnstile.ts:31` | O `siteverify` confere só `success`; `hostname` e `action` da resposta não são checados. | Recusar token cujo `hostname` não seja o de `NEXT_PUBLIC_SITE_URL`. | P | não |
 | SEC-7 | Baixo | `apps/admin/app/auth-actions.ts:16` | O login do admin não tem limite próprio. O limite do Supabase Auth (`sign_in_sign_ups = 30`, por IP) vê o IP do servidor Next, compartilhado por todos: um atacante pode esgotar o limite e travar o login do admin. Não verificado empiricamente. | Limite por IP do cliente na action de login (mesma tabela `lead_rate_limits`, chave própria). | M | não |
+| QA-2 | Baixo | chunk do Zod 4 no client (web e admin) | Ao carregar a página do artigo, o evento `securitypolicyviolation` registra `script-src` / `eval` bloqueado, sem mensagem no console. A origem é a sonda `allowsEval` do Zod (`Function("")` em try/catch), presente em 1 chunk de cada app. Inofensivo, mas polui relatórios de CSP (se um `report-to` for ligado). | `z.config({ jitless: true })` no client dos dois apps. | P | não |
+| QA-3 | Baixo | `apps/admin/app/artigos/actions.ts:333` | `uploadArticleImage` envia a imagem do editor na hora para `article-images/<id>/`. Se o artigo nunca for salvo, ou a imagem sair do documento antes de salvar, nada a remove: o Storage local tinha 1 imagem numa pasta de artigo inexistente (`storage.objects`). O bucket é público. | Remover, ao salvar, as imagens da pasta que não estão no `body_json`, e limpar pastas sem artigo (rotina ou botão no admin). | M | não |
+| QA-4 | Baixo | `supabase/seed.sql:18`, `:39`, `:57` | Os 3 artigos do seed apontam `full_pdf_path` para arquivos que não existem em `supabase/storage`. No ambiente local, todo download de artigo do seed grava o lead e responde "Não foi possível concluir." (log `lead.signed_url_failed`, "Object not found"). Só afeta dev/QA; em produção não há seed. | Adicionar os PDFs completos em `supabase/storage/article-files` (e o bucket no `config.toml`). | P | não |
 
 ## 3. Matriz RLS-* / SEC-*
 
@@ -61,7 +65,29 @@ Ordenados do mais grave para o menos grave. Esforço: P (< 1 h), M (meio dia), G
 - **PII em log:** todas as chamadas de `logger`/`failAction` revisadas; o logger passa tudo por
   `redactPersonalData`. Único vazamento encontrado: SEC-2.
 
-## 4. Fora do escopo
+## 4. QA exploratório (F7-003)
+
+Builds de produção (`pnpm build` + `next start`: web :3200, admin :3201), Chromium a 1440 × 900 e
+390 × 844, com scripts Playwright temporários (sem Playwright MCP nesta sessão). Console, eventos
+`securitypolicyviolation`, respostas HTTP ≥ 400 e `scrollWidth > clientWidth` monitorados em cada
+passo. Conteúdo e leads de QA foram criados e removidos no fim (e-mails fictícios `qa-*`).
+
+| Fluxo | 1440 | 390 | Observação |
+|---|---|---|---|
+| Home, listagem, /privacidade | ✅ | ✅ | 200, sem overflow, sem CSP |
+| Artigo pdf e rich_text (criados no QA) | ✅ | ✅ | 200; prévia de 3 blocos no texto |
+| 404 (`/artigos/nao-existe-qa`) | ✅ | ✅ | 404 com a página própria; o "Failed to load resource" do console é o próprio documento |
+| Erro (`revoke select` temporário em `articles`) | ✅ | ✅ | 500 com "Algo deu errado"; grant restaurado no `finally` |
+| 301 do slug antigo | ✅ | ✅ | 301 → slug novo, depois de editar o slug no admin |
+| Modal de lead: aberto, erros (4 campos), enviando, sucesso ("Pronto!") | ✅ | ✅ | Turnstile gerou token; download iniciado |
+| Modal: rate limit por e-mail (4º envio em 10 min) | não rodado | ✅ | "Muitas tentativas, tente em alguns minutos" |
+| Modal: "O link de download expirou" | não verificado | não verificado | Exige esperar a URL de 60 s expirar e clicar em "Baixar novamente"; não automatizado |
+| Teclado nos dialogs (Tab preso, Shift+Tab, Esc, foco volta ao gatilho) | ✅ | ✅ | Modal do web, "Excluir artigo?" e "Ações do artigo", por clique e por teclado. Numa rodada a 390 px o Tab saiu uma vez do modal; não se repetiu em 12 execuções (provável foco no iframe do Turnstile durante a carga) |
+| Admin: login (erro e sucesso), lista, criar pdf, criar texto, editar slug, excluir | ✅ | ✅ (lista, form, dialogs) | Ver QA-1 (CSP após o login) |
+| Admin: leads (geral e por artigo), CSV | ✅ | ✅ | CSV baixado; leads de artigo excluído seguem na lista geral com o título original |
+| Admin: "Reenviar falhas" | não verificado no build | não verificado no build | O botão não apareceu, então o ambiente local não define o webhook (`.env.local` não foi lido); é o comportamento da spec. Coberto pelo e2e `admin-leads.spec.ts` e pela integração `admin-lead-webhook.test.ts` |
+
+## 5. Fora do escopo
 
 - **Header de IP no Deploy Pro** (SEC-1) e HSTS (SEC-4): dependem da infraestrutura da StayCloud
   (F3-002, F7-007).
