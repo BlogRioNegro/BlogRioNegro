@@ -204,7 +204,7 @@ componente remove o `outline`.
 | `Alert` | título: sucesso `#2f6b3f` sobre `#e6f0e8` 5,46:1, erro `#a8322d` sobre `#f8e6e4` 5,52:1, aviso `#8a5a00` sobre `#f7edd9` 5,10:1; corpo `#1d1c1b` ≥ 14,12:1 | não recebe foco | `role="alert"` (erro) ou `role="status"`; ícone decorativo, o título carrega o sentido |
 | `Dialog`, `DialogTrigger`, `DialogContent`, `DialogClose` | título `#1d1c1b` 17,02:1; descrição `#5c5854` 7,05:1 | foco preso no conteúdo; **Esc** e clique no fundo fecham; o foco volta ao `DialogTrigger` (Radix) | `title` obrigatório → `aria-labelledby`; `description` → `aria-describedby`; "Fechar" de 44 px com texto `sr-only` |
 | `StatusBadge` | Pendente `#8a5a00`/`#f7edd9` 5,10:1; Enviado `#2f6b3f`/`#e6f0e8` 5,46:1; Falhou `#a8322d`/`#f8e6e4` 5,52:1; Desativado `#5c5854`/`#e9e6e4` 5,67:1 | não recebe foco | o texto do status sempre visível; ponto de cor com `aria-hidden` |
-| `TypeBadge` | `#1d1c1b` sobre surface 17,02:1 | não recebe foco | texto "PDF"/"Texto"; ícone com `aria-hidden` |
+| `TypeBadge` | PDF: `#1d1c1b` sobre `surface-muted` 13,70:1 (sem borda); Texto: `#1d1c1b` sobre surface 17,02:1 | não recebe foco | texto "PDF"/"Texto"; ícone com `aria-hidden` |
 | `Table` e partes | célula `#1d1c1b` 17,02:1 (hover 13,70:1); cabeçalho `#5c5854` sobre bg 6,21:1 | contêiner rola na horizontal sem prender o foco; ações da linha são `Button` | `TableCaption` obrigatória (oculta visualmente); `TableHead` com `scope="col"` |
 
 Divisórias em `--color-border` (`#dcd8d5`, 1,42:1) são decorativas e não identificam controle.

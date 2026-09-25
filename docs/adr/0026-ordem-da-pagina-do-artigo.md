@@ -15,4 +15,4 @@ A página do artigo segue o protótipo: H1, capa 16:9, `TypeBadge` + data, resum
 
 ## Consequências
 - Telas do artigo iguais ao protótipo em desktop e mobile.
-- O `TypeBadge` usa o estilo de `packages/ui` (spec 06), não o fundo cinza do protótipo.
+- O `TypeBadge` segue o `rn-badge` do export do design system (PDF em fundo cinza), ver [ADR 0028](0028-badges-e-botoes-iguais-ao-design-system.md).

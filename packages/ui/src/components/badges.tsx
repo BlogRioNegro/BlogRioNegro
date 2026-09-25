@@ -3,12 +3,12 @@ import type { ReactNode } from 'react'
 import { cn } from '../cn'
 
 const badgeBase =
-  'inline-flex items-center gap-1.5 rounded-control border px-2 py-0.5 text-xs font-medium'
+  'inline-flex h-6 items-center gap-1 rounded-control border border-transparent px-2 text-xs leading-none font-medium whitespace-nowrap'
 
 const STATUS = {
   disabled: {
     label: 'Desativado',
-    classes: 'border-border bg-surface-muted text-text-muted',
+    classes: 'bg-surface-muted text-text-muted',
     dot: 'bg-text-muted',
   },
   pending: {
@@ -42,17 +42,17 @@ export function StatusBadge({ status, children }: { status: WebhookStatus; child
 }
 
 const TYPE = {
-  pdf: { label: 'PDF', Icon: FileText },
-  rich_text: { label: 'Texto', Icon: AlignLeft },
+  pdf: { label: 'PDF', Icon: FileText, classes: 'bg-surface-muted text-text' },
+  rich_text: { label: 'Texto', Icon: AlignLeft, classes: 'border-border bg-surface text-text' },
 } as const
 
 export type ArticleContentType = keyof typeof TYPE
 
 /** Formato do artigo, nos cards e na tabela do admin. */
 export function TypeBadge({ type }: { type: ArticleContentType }) {
-  const { label, Icon } = TYPE[type]
+  const { label, Icon, classes } = TYPE[type]
   return (
-    <span className={cn(badgeBase, 'border-border bg-surface text-text')}>
+    <span className={cn(badgeBase, classes)}>
       <Icon aria-hidden className="size-3.5" />
       {label}
     </span>
