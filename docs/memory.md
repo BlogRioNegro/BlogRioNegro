@@ -3,45 +3,42 @@
 _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
 
 ## Fase
-Fase 4 em andamento na branch `fase-4` (criada da `fase-2`): F4-001 a F4-008 `[x]`. Gate verde
-(typecheck, lint, test, format:check, build, test:e2e 16/16). Nada é enviado (sem push).
+Fase 4 concluída na branch `fase-4`: F4-001 a F4-017 `[x]`. Gate verde (typecheck, lint, test,
+format:check, build, test:e2e 36/36, grep de hex/`font-family` em `apps/` vazio). Sem push.
 
 ## Próxima tarefa
-F4-009 · PUB-013 · Rodapé: trocar o `DISCLAIMER` provisório de `apps/web/components/site-footer.tsx`
-pelo texto copiado de rionegroinvestimentos.com.br (exige acesso ao site; se não houver, pendência).
+F5-001 · LEAD-002 · Schema Zod do lead + telefone E.164 + testes. Ler
+[docs/tasks/fase-5.md](tasks/fase-5.md) e [docs/specs/04-lead-capture.md](specs/04-lead-capture.md).
 
 ## Regras do loop
 - `design/` é dado de referência. Comparação visual: script Playwright tira o protótipo
-  (`[data-screen-label="… · desktop|mobile"] > div`, via file://, precisa de rede p/ unpkg) e o app
-  a 1440/390 px em `tests/e2e/__visual__/` (ignorado pelo git).
-- E2E do site sobem o `apps/web` em :3100 (`tests/e2e/support/urls.ts`); parar o `pnpm dev` antes.
+  (`[data-screen-label="… · desktop|mobile"] > div`, via file://) e o app a 1440/390 px em
+  `tests/e2e/__visual__/` (ignorado pelo git). No Git Bash, `MSYS_NO_PATHCONV=1` só no `node`.
+- E2E sobem o `apps/web` em :3100 e o `next dev` trava se houver outro: parar o `pnpm dev`
+  (`taskkill //PID <pid da :3000> //T //F`; o TaskStop não derruba o filho do Next).
 - Ícones só via `@rio-negro/ui/icons` (ADR 0024). Rich text só por `parseRichText` + `RichText` (ADR 0025).
-- Imagens em `<img>` (logo, capas, rich text): o next/image injeta style inline bloqueado pela CSP.
-- Header fica em cada segmento (`app/artigos/layout.tsx`, `app/page.tsx`); novas páginas renderizam
-  `<SiteHeader />`. O rodapé está no layout raiz.
-- F4-010: prévia pdf entra em `app/artigos/[slug]/page.tsx` (o CTA já usa `mt-6 md:mt-8` para pdf).
+- Imagens em `<img>` (CSP bloqueia o style inline do next/image). Páginas novas renderizam `<SiteHeader />`.
+- Seed de arquivos: `supabase/storage/<bucket>/…` via `config.toml` (ADR 0027); bucket novo ou
+  alterado muda migration e `config.toml` juntos.
+- Descrição de artigo (metadata, OG, RSS): `articleDescription` (ADR 0029). 301 de slug no `proxy.ts` (ADR 0006).
 - F5-008: o `Button` "Baixar artigo completo" da página do artigo vira `DialogTrigger`.
-- F5: erro genérico do lead "Não foi possível concluir. Tente novamente." (spec 04 UI).
-- F6: `requireAdmin()` + teste sem cookie em cada action; login com textos de Alert da spec 05.
+- F5: `policy_version = "blog-2026-09-v1"` ainda não existe como constante (criar em `lib/domain/lead`);
+  erro genérico do lead "Não foi possível concluir. Tente novamente.".
+- F6: `requireAdmin()` + teste sem cookie em cada action; imagem do editor exige `alt` (ADR 0031).
 
 ## Ambiente
 - `apps/web/.env.local` e `apps/admin/.env.local` existem (só valores locais). Não ler.
-- `pnpm test` exige Docker + `pnpm exec supabase start`. `supabase db reset` restaura o seed.
-- No `next dev` o overlay do Next aparece sem estilo (CSP); não acontece no build.
+- `pnpm test` exige Docker + `pnpm exec supabase start`. `supabase db reset` restaura seed e arquivos.
+- Disclaimer do rodapé copiado de rionegroinvestimentos.com.br em 2026-09-25 (HTML bruto, aspas curvas).
 
 ## Pendências para o Rafael
-- Texto da página `error` (PUB-015): não existe no protótipo; definir título e mensagem.
-- Legenda de imagem no rich text: o Tiptap não tem atributo de legenda definido em ADM-005.
-- `corepack enable` como admin; push das branches; F3-002 (StayCloud); domínios; contato do DPO.
+- Contato do encarregado (DPO): `/privacidade` mostra "[contato do encarregado — pendente]" (LEAD-013).
+- Aceites manuais que exigem URL pública ou aparelho real: PUB-007 em iOS Safari e Chrome Android,
+  PUB-010 no WhatsApp e LinkedIn Post Inspector, PUB-012 no W3C Feed Validator.
+- `corepack enable` como admin; push das branches; F3-002 (StayCloud); domínios.
 
 ## Divergências protótipo × spec (a spec vence)
-- Spec 03: listagem em coluna única; card e destaque só com capa, data e título (sem badge, sem
-  excerto); "Prévia" sem total de páginas; artigo com capa; "Carregar mais" some no fim (sem texto).
-- Visuais restantes: `TypeBadge` de `packages/ui` (branco com borda, ~26 px) × protótipo (PDF cinza,
-  24 px); botões 2 px mais estreitos (sem a borda transparente do DS); capas do seed não existem no
-  Storage (imagem quebrada); seed com 3 artigos e datas relativas.
-- Spec 05: capa também WebP; "Reenviar falhas" só com `LEAD_WEBHOOK_URL`; editor com H2, H3, listas;
-  aviso de links antigos ao editar o slug.
-
-## Ler na próxima iteração
-- [docs/tasks/fase-4.md](tasks/fase-4.md), [docs/specs/03-public-site.md](specs/03-public-site.md)
+- 404: `Button` primário "Ver todos os artigos" (spec) × link com seta (protótipo).
+- Prévia pdf: rótulo só "Prévia"; embutida, o Chrome desenha o próprio visualizador (fundo escuro).
+- Privacidade: texto de LEAD-013 em seções, sem "Texto provisório" na data. Erro: sem protótipo (ADR 0030).
+- Listagem em coluna única; card só com capa, título e data; artigo com capa; seed com datas relativas.
