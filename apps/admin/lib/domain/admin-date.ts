@@ -1,4 +1,5 @@
-// Datas do painel no fuso de Brasília (spec 05, UI · Estrutura): publicação em dd/mm/aaaa.
+// Datas do painel no fuso de Brasília (spec 05, UI · Estrutura): publicação em dd/mm/aaaa; leads
+// em dd/mm/aaaa hh:mm.
 const TIME_ZONE = 'America/Sao_Paulo'
 // Brasília não tem horário de verão desde 2019: o offset é fixo.
 const OFFSET = '-03:00'
@@ -23,6 +24,23 @@ const timeFormat = new Intl.DateTimeFormat('en-GB', {
 
 export function formatDate(iso: string): string {
   return dateFormat.format(new Date(iso))
+}
+
+const shortTimeFormat = new Intl.DateTimeFormat('pt-BR', {
+  timeZone: TIME_ZONE,
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23',
+})
+
+/** Hora hh:mm em Brasília. */
+export function formatTime(iso: string): string {
+  return shortTimeFormat.format(new Date(iso))
+}
+
+/** Data e hora do lead: dd/mm/aaaa hh:mm. */
+export function formatDateTime(iso: string): string {
+  return `${formatDate(iso)} ${formatTime(iso)}`
 }
 
 /** Valor aaaa-mm-dd do campo de data, no dia de Brasília. */

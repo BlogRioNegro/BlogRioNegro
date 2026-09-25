@@ -18,7 +18,7 @@ function sourceFiles(dir: string): string[] {
 }
 
 function isServerEntry(file: string, source: string): boolean {
-  return /^['"]use server['"]/.test(source.trimStart()) || /(^|[\/])route\.ts$/.test(file)
+  return /^['"]use server['"]/.test(source.trimStart()) || /(^|[\\/])route\.ts$/.test(file)
 }
 
 function exportedFunctionsWithoutGuard(source: string): string[] {
@@ -39,6 +39,7 @@ describe('requireAdmin() em toda Server Action e route handler', () => {
   it('encontra os arquivos de server do admin', () => {
     expect(serverEntries).toContain(path.join('app', 'auth-actions.ts'))
     expect(serverEntries).toContain(path.join('app', 'artigos', 'actions.ts'))
+    expect(serverEntries).toContain(path.join('app', 'leads', 'exportar', 'route.ts'))
   })
 
   it.each(serverEntries.filter((file) => !EXEMPT.has(file)))(

@@ -1,5 +1,22 @@
 import { describe, expect, it } from 'vitest'
-import { dateInputValue, formatDate, publishedAtFromDate } from './admin-date'
+import {
+  dateInputValue,
+  formatDate,
+  formatDateTime,
+  formatTime,
+  publishedAtFromDate,
+} from './admin-date'
+
+describe('formatDateTime', () => {
+  it('formata em dd/mm/aaaa hh:mm no fuso de Brasília', () => {
+    expect(formatDateTime('2026-09-24T17:32:10Z')).toBe('24/09/2026 14:32')
+    expect(formatDateTime('2026-09-24T02:05:00Z')).toBe('23/09/2026 23:05')
+  })
+
+  it('hora sem segundos, com zero à esquerda', () => {
+    expect(formatTime('2026-09-24T11:08:59Z')).toBe('08:08')
+  })
+})
 
 describe('formatDate', () => {
   it('formata em dd/mm/aaaa', () => {

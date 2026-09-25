@@ -2,6 +2,8 @@
 export {
   ArrowLeft,
   ArrowRight,
+  ChevronLeft,
+  ChevronRight,
   Download,
   ExternalLink,
   Eye,
