@@ -3,28 +3,30 @@
 _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
 
 ## Fase
-Fase 5 na branch `fase-5`: F5-001 a F5-012 `[x]`. typecheck, lint, test e format:check verdes. Sem push.
+Fase 5 concluída na branch `fase-5`: F5-001 a F5-013 `[x]`. Gate verde (typecheck, lint, test,
+format:check, build, test:e2e 50 passaram + 2 visuais pulados). Sem push.
 
 ## Próxima tarefa
-F5-013 · LEAD-007 · E2E (sucesso, checkbox, rate limit, Turnstile inválido em :3102) + visual. Gate da fase:
-`pnpm build` + `pnpm test:e2e` (todos). Ler [docs/tasks/fase-5.md](tasks/fase-5.md) e a seção UI de
-[docs/specs/04-lead-capture.md](specs/04-lead-capture.md).
+Fase 6 (F6-001) na branch `fase-6` (criar a partir da `fase-5`). Ler [docs/tasks/fase-6.md](tasks/fase-6.md)
+e [docs/specs/05-admin-panel.md](specs/05-admin-panel.md).
 
-## Onde está a UI do lead
-- `apps/web/components/lead-dialog.tsx`: `LeadDialog` (gatilho + modal) e `LeadForm`, renderizado
-  só com o modal aberto (fechar desmonta e limpa o estado). Validação com `leadSchema`, foco no
-  primeiro campo inválido, erro do envio em `Alert` acima do botão e reset do Turnstile.
-- `apps/web/components/turnstile.tsx`: widget explícito; o iframe fica em shadow root fechado, então
-  os E2E conferem `page.frames()` e o input `cf-turnstile-response`.
-- Máscara: `maskPhone` em `lib/domain/phone-mask.ts`. `LEAD_ERROR_MESSAGE` em `lib/domain/lead.ts`.
-- E2E em `tests/e2e/lead-capture.spec.ts` (precisa de rede para o Turnstile de teste); o PDF completo
-  do artigo 2222… é enviado ao `article-files` no `beforeAll`. Link expirado: texto na spec 04 (UI).
+## Para a fase 6
+- F6-012: copiar `apps/web/lib/services/lead-webhook.ts` para o admin e testar com o vetor
+  `tests/fixtures/lead-webhook-signature.json` (ADR 0032).
+- `requireAdmin()` + teste sem cookie em cada action; imagem do editor exige `alt` (ADR 0031).
+- `packages/ui` segue o export do DS (ADR 0028): `Button` com `aria-busy`, `Checkbox`, `Alert`,
+  `DialogContent` já alinhados na F5-013.
 
 ## Regras do loop
-- Server: orquestração em `lib/services/article-download.ts` (ADR 0032); webhook copiado para o admin na F6-012.
-- E2E sobem o `apps/web` em :3100; parar o `pnpm dev` antes (`taskkill //PID <pid da :3000> //T //F`).
-- Visual: script Playwright do scratchpad compara `[data-screen-label="Modal de lead · <estado> · desktop|mobile"]`.
-- F6: `requireAdmin()` + teste sem cookie em cada action; imagem do editor exige `alt` (ADR 0031).
+- Lead: UI em `apps/web/components/lead-dialog.tsx` + `turnstile.tsx`; server em
+  `lib/services/article-download.ts`. O iframe do Turnstile fica em shadow root fechado: E2E usam
+  `page.frames()` e o input `cf-turnstile-response`.
+- E2E: web em :3100 (dev), web em :3102 (`next build` + `next start`, secret do Turnstile que
+  reprova) e admin em :3101. Parar o `pnpm dev` antes (`taskkill //PID <pid da :3000> //T //F`).
+  Os E2E do lead precisam de rede (Turnstile de teste da Cloudflare).
+- Visual: `VISUAL=1 pnpm test:e2e -g Visual` gera app e protótipo do modal em `tests/e2e/__visual__/`;
+  a fase 4 usou o script do scratchpad (`[data-screen-label="… · desktop|mobile"] > div`).
+- Env do web nos testes de integração: `stubWebEnv()` (`tests/integration/support/web-env.ts`).
 
 ## Ambiente
 - Nunca ler `.env*`. `pnpm test` exige Docker Desktop aberto + `pnpm exec supabase start`.
@@ -35,3 +37,7 @@ F5-013 · LEAD-007 · E2E (sucesso, checkbox, rate limit, Turnstile inválido em
 - Contato do encarregado (DPO) para `/privacidade`.
 - Aceites manuais com URL pública: PUB-007 (iOS/Android), PUB-010 (WhatsApp/LinkedIn), PUB-012 (W3C).
 - `corepack enable` como admin; push das branches; F3-002 (StayCloud); domínios.
+
+## Divergências visuais restantes (modal)
+- Widget real do Turnstile (as chaves de teste mostram "Somente para teste") no lugar do placeholder.
+- Estado "Link expirado" não tem protótipo; texto registrado na spec 04 (UI · Estados).
