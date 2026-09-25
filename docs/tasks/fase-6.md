@@ -14,4 +14,4 @@ Specs: [05-admin-panel](../specs/05-admin-panel.md). Login e proteção de rotas
 - [x] **F6-010** · ADM-012 · Exclusão de artigo preservando leads
 - [x] **F6-011** · ADM-013 · Leads: lista por artigo e geral, CSV (BOM, `;`, anti-injection), exclusão
 - [x] **F6-012** · ADM-014 · Botão "Reenviar falhas" do webhook
-- [ ] **F6-013** · ADM-001 · E2E: login, criar artigo pdf e rich_text, editar slug, excluir
+- [x] **F6-013** · ADM-001 · E2E: login, criar artigo pdf e rich_text, editar slug, excluir
