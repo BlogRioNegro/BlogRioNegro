@@ -4,17 +4,19 @@ _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
 
 ## Fase
 Fase 7 na branch `fase-7` (criada da `fase-6`), em modo somente auditoria: nada de mudança em
-`apps/`, `packages/`, `supabase/` nem nos testes existentes. F7-001 `[x]`. Sem push.
+`apps/`, `packages/`, `supabase/` nem nos testes existentes. F7-001 e F7-003 `[x]`. Sem push.
 
 ## Próxima tarefa
-F7-003 · OVW-005 · QA exploratório no build de produção (web e admin, 1440 e 390 px), com
-scripts Playwright temporários fora do repo. Depois F7-004 (axe em `tests/e2e/a11y.spec.ts`,
-só com `A11Y=1`). Achados vão para `docs/revisao-final.md` (IDs QA-n e A11Y-n).
+F7-004 · DS-006 · `@axe-core/playwright` (devDependency raiz) e `tests/e2e/a11y.spec.ts`: axe com
+`wcag2a/2aa/21a/21aa` nas telas públicas e em cada estado do modal, 1440 e 390 px, só com
+`A11Y=1`. Resultados em `docs/revisao-final.md` (A11Y-n) e veredito final.
 
 ## Estado da revisão (`docs/revisao-final.md`)
 - F7-001: 0 crítico, 0 alto, 1 médio (SEC-1: IP do `X-Forwarded-For` falsificável se o proxy
   não sobrescrever), 6 baixos (SEC-2 a SEC-7). Matriz RLS-*/SEC-* toda ✅; `.env.example` não
   verificado (regra de não ler `.env*`).
+- F7-003: 1 médio (QA-1: `StyleNonce` troca o nonce após navegação por Server Action; o 1º
+  Dialog depois do login viola a CSP) e 3 baixos (QA-2 a QA-4). Scripts em scratchpad `qa*.mjs`.
 - A skill `security-review` exige `origin/HEAD`; sem remote, a revisão do diff foi manual.
 
 ## Regras do loop
