@@ -11,7 +11,8 @@ acoplamento entre os apps para pouco código.
 ## Decisão
 - Não existe pacote de server compartilhado. Cada app mantém sua cópia em `lib/`.
 - Logger, redact e `failAction` só entram no `apps/admin` quando ele precisar deles de verdade.
-- A exceção possível é o envio do webhook (ADM-014): a F5-007 reavalia só esse código.
+- A exceção possível era o envio do webhook (ADM-014): a F5-007 manteve a duplicação
+  ([ADR 0032](0032-webhook-copiado-e-agendado-apos-insert.md)).
 
 ## Consequências
 - Correção num utilitário duplicado precisa ser aplicada nos dois apps.

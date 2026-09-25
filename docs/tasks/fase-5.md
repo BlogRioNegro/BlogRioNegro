@@ -8,7 +8,7 @@ Specs: [04-lead-capture](../specs/04-lead-capture.md). UI depende da fase 2.
 - [x] **F5-004** · LEAD-007 · Server Action `requestArticleDownload` na ordem definida
 - [x] **F5-005** · LEAD-008 · Persistência com snapshot, consentimento, versão e `ip_hash`
 - [x] **F5-006** · LEAD-009 · URL assinada de 60 s após insert
-- [ ] **F5-007** · LEAD-012 · Webhook assinado em `after()` + status; ADR definindo onde fica o código compartilhado com o admin (ADM-014)
+- [x] **F5-007** · LEAD-012 · Webhook assinado em `after()` + status; ADR definindo onde fica o código compartilhado com o admin (ADM-014)
 - [ ] **F5-008** · LEAD-001 · Modal com campos, máscara e Turnstile
 - [ ] **F5-009** · LEAD-003 · Aviso e checkbox obrigatório com textos de LEAD-013 (rascunho)
 - [ ] **F5-010** · LEAD-004 · Checkbox de opt-in opcional

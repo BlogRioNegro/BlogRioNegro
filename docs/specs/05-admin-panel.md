@@ -97,9 +97,9 @@ revalida admin; valores iniciados por `= + - @` são escapados (CSV injection).
 
 ### ADM-014 · Reenviar falhas do webhook
 Botão "Reenviar falhas" visível só com `LEAD_WEBHOOK_URL` definida; reenvia leads `failed`
-usando o mesmo payload e assinatura de [LEAD-012](04-lead-capture.md). O código de envio é
-compartilhado entre web e admin (local definido em ADR na F5-007). O padrão para código de
-server é duplicar por app ([ADR 0021](../adr/0021-codigo-de-server-duplicado-por-app.md)); a F5-007 reavalia só o webhook.
+usando o mesmo payload e assinatura de [LEAD-012](04-lead-capture.md). O código de envio de
+`apps/web/lib/services/lead-webhook.ts` é copiado para o admin, e os testes dos dois apps usam o
+vetor fixo `tests/fixtures/lead-webhook-signature.json` ([ADR 0032](../adr/0032-webhook-copiado-e-agendado-apos-insert.md)).
 **Aceite:** mostra quantos foram enviados e quantos falharam; atualiza status e tentativas.
 
 ## UI

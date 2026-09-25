@@ -1,8 +1,9 @@
 import 'server-only'
-import { leadSchema } from '../domain/lead'
+import { leadSchema, type Lead } from '../domain/lead'
 import { failAction, type ActionResult } from './action-result'
 import { findArticleForLead } from './articles'
-import { createDownloadUrl, insertLead } from './leads'
+import { webhookConfigFromEnv, sendLeadWebhook, type LeadWebhookPayload } from './lead-webhook'
+import { createDownloadUrl, insertLead, type CreatedLead } from './leads'
 import { logger } from './logger'
 import { consumeLeadRateLimits, RATE_LIMIT_MESSAGE } from './rate-limit'
 import { verifyTurnstile } from './turnstile'
@@ -23,6 +24,25 @@ export type DownloadContext = {
 }
 
 export type DownloadResult = ActionResult<{ url: string }>
+
+function webhookPayload(
+  lead: Lead,
+  created: CreatedLead,
+  article: { id: string; title: string },
+): LeadWebhookPayload {
+  return {
+    event: 'lead.created',
+    lead: {
+      id: created.id,
+      name: lead.name,
+      email: lead.email,
+      phone: lead.phone,
+      marketing_opt_in: lead.marketingOptIn,
+      created_at: created.created_at,
+    },
+    article: { id: article.id, title: article.title },
+  }
+}
 
 function fail(event: string, error: unknown): DownloadResult {
   return failAction(event, error, LEAD_ERROR_MESSAGE)
@@ -52,14 +72,30 @@ export async function handleDownloadRequest(
     const article = await findArticleForLead(lead.articleId)
     if (!article) return fail('lead.article_not_found', { articleId: lead.articleId })
 
-    // F5-007 liga o webhook: `pending` + envio agendado quando LEAD_WEBHOOK_URL existir.
-    const created = await insertLead({ lead, article, ip: context.ip, webhookStatus: 'disabled' })
+    const webhook = webhookConfigFromEnv()
+    const created = await insertLead({
+      lead,
+      article,
+      ip: context.ip,
+      webhookStatus: webhook ? 'pending' : 'disabled',
+    })
 
-    try {
-      return { ok: true, data: { url: await createDownloadUrl(article.id) } }
-    } catch (error) {
-      return fail('lead.signed_url_failed', { leadId: created.id, error })
+    const download = await createDownloadUrl(article.id).then(
+      (url) => ({ ok: true as const, url }),
+      (error: unknown) => ({ ok: false as const, error }),
+    )
+
+    // ADR 0032: com o lead gravado, o webhook é agendado mesmo se a URL falhou; assim nenhum
+    // lead fica `pending` para sempre. O `after()` roda depois da resposta: o download não espera.
+    if (webhook) {
+      const payload = webhookPayload(lead, created, article)
+      context.schedule(() => sendLeadWebhook(payload, 0, webhook))
     }
+
+    if (!download.ok) {
+      return fail('lead.signed_url_failed', { leadId: created.id, error: download.error })
+    }
+    return { ok: true, data: { url: download.url } }
   } catch (error) {
     return fail('lead.request_failed', error)
   }

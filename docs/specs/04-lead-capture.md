@@ -49,8 +49,10 @@ tentativas, tente em alguns minutos"; a janela seguinte volta a aceitar.
 Ordem obrigatória: (1) Zod → (2) Turnstile → (3) rate limit IP e e-mail → (4) artigo existe
 → (5) insert do lead → (6) URL assinada → (7) agendar webhook. Usa o client service role de
 [SEC-002](02-security-rls.md). Orquestração em `lib/services`, não no componente.
+O webhook (7) é agendado sempre que o insert (5) tiver sucesso, mesmo se a URL (6) falhar, para
+nenhum lead ficar `pending` para sempre ([ADR 0032](../adr/0032-webhook-copiado-e-agendado-apos-insert.md)).
 **Aceite:** falha em qualquer etapa até (5) não gera URL; falha em (6) após insert retorna
-erro e o lead permanece (o usuário pode tentar de novo).
+erro, o lead permanece (o usuário pode tentar de novo) e o webhook ainda é agendado.
 
 ### LEAD-008 · Persistência
 Um registro por download, com `article_title_snapshot`, `consent_at = now()`,

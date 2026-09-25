@@ -93,7 +93,11 @@ describe('LEAD-008 · persistência', () => {
       policy_version: POLICY_VERSION,
       marketing_opt_in: true,
       ip_hash: await hashIdentifier(ip, LEAD_HASH_SECRET),
+      webhook_status: 'disabled',
+      webhook_attempts: 0,
     })
+    // Sem LEAD_WEBHOOK_URL nada é agendado, logo nada é enviado.
+    expect(schedule).not.toHaveBeenCalled()
     expect(new Date(String(lead?.consent_at)).getTime()).toBeGreaterThanOrEqual(before - 1000)
     expect(JSON.stringify(lead)).not.toContain(ip)
   })

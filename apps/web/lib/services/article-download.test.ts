@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { LeadInput } from '../domain/lead'
-import { handleDownloadRequest, LEAD_ERROR_MESSAGE } from './article-download'
+import { handleDownloadRequest, LEAD_ERROR_MESSAGE, type DownloadContext } from './article-download'
 import { findArticleForLead } from './articles'
+import { sendLeadWebhook, webhookConfigFromEnv } from './lead-webhook'
 import { createDownloadUrl, insertLead } from './leads'
 import { consumeLeadRateLimits, RATE_LIMIT_MESSAGE } from './rate-limit'
 import { verifyTurnstile } from './turnstile'
@@ -13,6 +14,9 @@ vi.mock('./rate-limit', () => ({
 }))
 vi.mock('./articles', () => ({ findArticleForLead: vi.fn() }))
 vi.mock('./leads', () => ({ insertLead: vi.fn(), createDownloadUrl: vi.fn() }))
+vi.mock('./lead-webhook', () => ({ webhookConfigFromEnv: vi.fn(), sendLeadWebhook: vi.fn() }))
+
+const WEBHOOK = { url: 'https://crm.example/webhook', secret: 's'.repeat(32) }
 
 const ARTICLE = { id: '11111111-1111-4111-8111-111111111111', title: 'Renda fixa em 2026' }
 const SIGNED_URL = 'https://storage.example/article-files/assinada?token=x'
@@ -29,7 +33,9 @@ const input: LeadInput = {
 }
 
 const calls: string[] = []
-const schedule = vi.fn()
+const schedule = vi.fn<DownloadContext['schedule']>(() => {
+  calls.push('schedule')
+})
 let logs: string[] = []
 
 function track<T>(step: string, value: T) {
@@ -47,6 +53,7 @@ function allStepsSucceed() {
     track('insert', { id: 'lead-1', created_at: '2026-09-25T12:00:00Z' }),
   )
   vi.mocked(createDownloadUrl).mockImplementation(track('signed_url', SIGNED_URL))
+  vi.mocked(webhookConfigFromEnv).mockReturnValue(null)
 }
 
 const request = () => handleDownloadRequest(input, { ip: IP, schedule })
@@ -150,5 +157,83 @@ describe('handleDownloadRequest', () => {
     for (const personal of ['Maria', 'maria@exemplo.com.br', '98765', IP, '555-1234']) {
       expect(written).not.toContain(personal)
     }
+  })
+})
+
+describe('handleDownloadRequest · webhook (LEAD-012)', () => {
+  beforeEach(() => {
+    calls.length = 0
+    vi.spyOn(process.stdout, 'write').mockReturnValue(true)
+    vi.spyOn(process.stderr, 'write').mockReturnValue(true)
+    allStepsSucceed()
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+    vi.clearAllMocks()
+  })
+
+  it('sem LEAD_WEBHOOK_URL: lead `disabled` e nada é agendado', async () => {
+    await request()
+
+    expect(insertLead).toHaveBeenCalledWith(expect.objectContaining({ webhookStatus: 'disabled' }))
+    expect(schedule).not.toHaveBeenCalled()
+  })
+
+  it('com o webhook ligado: lead `pending` e envio agendado depois da URL (etapa 7)', async () => {
+    vi.mocked(webhookConfigFromEnv).mockReturnValue(WEBHOOK)
+
+    expect(await request()).toEqual({ ok: true, data: { url: SIGNED_URL } })
+    expect(insertLead).toHaveBeenCalledWith(expect.objectContaining({ webhookStatus: 'pending' }))
+    expect(calls).toEqual([
+      'turnstile',
+      'rate_limit',
+      'article',
+      'insert',
+      'signed_url',
+      'schedule',
+    ])
+  })
+
+  it('o download não espera o webhook: o envio só roda quando a tarefa agendada é executada', async () => {
+    vi.mocked(webhookConfigFromEnv).mockReturnValue(WEBHOOK)
+
+    await request()
+    expect(sendLeadWebhook).not.toHaveBeenCalled()
+
+    await schedule.mock.calls[0]?.[0]()
+    expect(sendLeadWebhook).toHaveBeenCalledWith(
+      {
+        event: 'lead.created',
+        lead: {
+          id: 'lead-1',
+          name: 'Maria Silva',
+          email: 'maria@exemplo.com.br',
+          phone: '+5511987654321',
+          marketing_opt_in: true,
+          created_at: '2026-09-25T12:00:00Z',
+        },
+        article: ARTICLE,
+      },
+      0,
+      WEBHOOK,
+    )
+  })
+
+  it('agenda o webhook mesmo se a URL falhar depois do insert (ADR 0032)', async () => {
+    vi.mocked(webhookConfigFromEnv).mockReturnValue(WEBHOOK)
+    vi.mocked(createDownloadUrl).mockRejectedValue(new Error('URL assinada: falhou'))
+
+    expect(await request()).toEqual({ ok: false, error: LEAD_ERROR_MESSAGE })
+    expect(schedule).toHaveBeenCalledTimes(1)
+  })
+
+  it('não agenda nada se o insert falhar', async () => {
+    vi.mocked(webhookConfigFromEnv).mockReturnValue(WEBHOOK)
+    vi.mocked(insertLead).mockRejectedValue(new Error('insert do lead: falhou'))
+
+    await request()
+
+    expect(schedule).not.toHaveBeenCalled()
   })
 })
