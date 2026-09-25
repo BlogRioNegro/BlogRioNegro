@@ -3,10 +3,10 @@
 _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
 
 ## Fase
-Fase 5 na branch `fase-5`: F5-001 a F5-009 `[x]`. typecheck, lint, test e format:check verdes. Sem push.
+Fase 5 na branch `fase-5`: F5-001 a F5-010 `[x]`. typecheck, lint, test e format:check verdes. Sem push.
 
 ## Próxima tarefa
-F5-010 · LEAD-004 · checkbox de opt-in opcional, depois F5-011 (sucesso), F5-012 (LEAD-011) e F5-013 (E2E + visual). Gate da fase:
+F5-011 · LEAD-010 · tela de sucesso, depois F5-012 (LEAD-011) e F5-013 (E2E + visual). Gate da fase:
 `pnpm build` + `pnpm test:e2e` (todos). Ler [docs/tasks/fase-5.md](tasks/fase-5.md) e a seção UI de
 [docs/specs/04-lead-capture.md](specs/04-lead-capture.md).
 
