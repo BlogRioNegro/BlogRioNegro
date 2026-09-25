@@ -3,13 +3,12 @@
 _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
 
 ## Fase
-Fase 6 na branch `fase-6`. F6-001 a F6-006 `[x]`. Correções feitas: WebP fora (ADR 0037), CSP
+Fase 6 na branch `fase-6`. F6-001 a F6-007 `[x]`. Correções feitas: WebP fora (ADR 0037), CSP
 do Dialog (`StyleNonce` + `get-nonce`), deploy em VPS StayCloud Node 22 (ADR 0038). Sem push.
 
 ## Próxima tarefa
-F6-007 · ADM-009 · slug: gerar do título, editar com histórico, rejeitar slug em uso (23505 do
-`save_article`/trigger hoje vira erro genérico), aviso de links antigos na edição. Depois F6-008
-a F6-013, visual do login (F6-extra) e o gate.
+F6-008 · ADM-010 · data de publicação editável (a data editada muda a ordem e o destaque).
+Depois F6-009 a F6-013, visual do login (F6-extra) e o gate.
 
 ## Decisões da fase 6 (valem para F6-007+)
 - Server Action/route handler: `requireAdmin()` na 1ª linha + teste de integração sem cookie
@@ -18,6 +17,7 @@ a F6-013, visual do login (F6-extra) e o gate.
 - `save_article` (ADR 0033): RPC transacional sob RLS. `saveArticle` (`app/artigos/actions.ts`):
   `resolveContent` → `uploadAll` (rollback) → RPC → `staleFiles` removidos.
 - Uploads (ADR 0034, 0037): `UPLOAD_RULES` + `validateUpload`; imagens só PNG/JPEG (`IMAGE_ACCEPT`).
+- Slug (ADM-009): `slugFromTitle`; 23505 do `save_article` = slug em uso (`ARTICLE_MESSAGES.slugTaken`).
 - Editor (ADR 0035): `checkRichText`, imagens só de `article-images/<article_id>/`, `alt` obrigatório.
 - Rich text (ADR 0036): `richTextPreview` + `renderArticlePdf`, PDF regenerado a cada save.
 - Server do admin com import relativo (vitest/integração não resolvem `@/`). Hex proibido em `apps/`.
