@@ -10,7 +10,8 @@ vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', localSupabase.ANON_KEY)
 vi.stubEnv('NEXT_PUBLIC_SITE_URL', 'http://localhost:3000')
 vi.stubEnv('ADMIN_SITE_URL', 'http://localhost:3001')
 
-const { saveArticle, uploadArticleImage } = await import('../../apps/admin/app/artigos/actions')
+const { deleteArticle, saveArticle, uploadArticleImage } =
+  await import('../../apps/admin/app/artigos/actions')
 const { UNAUTHORIZED_MESSAGE } = await import('../../apps/admin/lib/services/require-admin')
 
 const ARTICLE_ID = '22222222-2222-4222-8222-222222222222'
@@ -38,6 +39,18 @@ describe('SEC-005 · actions de artigo sem sessão', () => {
       .eq('id', ARTICLE_ID)
       .single()
     expect(data?.title).toBe('Carteira recomendada de outubro')
+  })
+
+  it('deleteArticle nega e não exclui o artigo', async () => {
+    const result = await deleteArticle(ARTICLE_ID)
+
+    expect(result).toEqual({ ok: false, error: UNAUTHORIZED_MESSAGE })
+    const { data } = await serviceClient()
+      .from('articles')
+      .select('id')
+      .eq('id', ARTICLE_ID)
+      .maybeSingle()
+    expect(data?.id).toBe(ARTICLE_ID)
   })
 
   it('uploadArticleImage nega e não envia a imagem', async () => {

@@ -10,4 +10,5 @@ export {
   Pencil,
   Plus,
   RotateCcw,
+  Trash2,
 } from 'lucide-react'

@@ -30,6 +30,7 @@ import {
 import { pdfImage, renderArticlePdf, type PdfImage } from '../../lib/services/article-pdf'
 import {
   downloadFile,
+  deleteArticleRecord,
   findArticleForEdit,
   listArticleFiles,
   publicFileUrl,
@@ -300,6 +301,28 @@ export async function saveArticle(
     await removeFiles(auth.supabase, 'article-images', images)
   }
   redirect('/artigos')
+}
+
+const ARTICLE_BUCKETS: Bucket[] = ['covers', 'article-images', 'article-files', 'article-previews']
+
+export type DeleteArticleResult = ActionResult<null>
+
+/** ADM-012 · Exclui o artigo e todos os arquivos dele; os leads permanecem (ADR 0013). */
+export async function deleteArticle(articleId: string): Promise<DeleteArticleResult> {
+  const auth = await requireAdmin()
+  if (!auth.ok) return auth
+
+  const id = z.uuid().safeParse(articleId)
+  if (!id.success) return { ok: false, error: GENERIC_ERROR_MESSAGE }
+
+  const deleteError = await deleteArticleRecord(auth.supabase, id.data)
+  if (deleteError) return failAction('admin.article_delete_failed', deleteError)
+
+  for (const bucket of ARTICLE_BUCKETS) {
+    const paths = await listArticleFiles(auth.supabase, bucket, id.data)
+    await removeFiles(auth.supabase, bucket, paths)
+  }
+  return { ok: true, data: null }
 }
 
 const IMAGE_MISSING_MESSAGE = 'Escolha uma imagem JPG ou PNG.'

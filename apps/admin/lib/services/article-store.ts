@@ -34,6 +34,12 @@ export async function saveArticleRecord(supabase: Supabase, args: SaveArticleArg
   return error
 }
 
+/** ADM-012 · Conteúdo e histórico de slug saem em cascata; os leads ficam com article_id null. */
+export async function deleteArticleRecord(supabase: Supabase, id: string) {
+  const { error } = await supabase.from('articles').delete().eq('id', id)
+  return error
+}
+
 export async function uploadFile(supabase: Supabase, bucket: Bucket, path: string, file: Blob) {
   const { error } = await supabase.storage
     .from(bucket)

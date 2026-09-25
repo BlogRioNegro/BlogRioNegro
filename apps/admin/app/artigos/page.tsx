@@ -12,10 +12,13 @@ import {
   TableRow,
   TypeBadge,
 } from '@rio-negro/ui'
-import { Eye, Pencil, Plus } from '@rio-negro/ui/icons'
+import { Eye, Pencil, Plus, Trash2 } from '@rio-negro/ui/icons'
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import type { ReactNode } from 'react'
+import { deleteArticle } from '@/app/artigos/actions'
 import { AdminHeader } from '@/components/admin-header'
+import { ConfirmDeleteDialog } from '@/components/confirm-delete-dialog'
 import { formatDate } from '@/lib/domain/admin-date'
 import { listArticlesWithLeadCount, type ArticleRow } from '@/lib/services/articles'
 import { requireAdminPage } from '@/lib/services/require-admin'
@@ -40,6 +43,19 @@ function editHref(article: ArticleRow) {
 
 function leadsHref(article: ArticleRow) {
   return `/artigos/${article.id}/leads`
+}
+
+// ADM-012 · Confirmação da exclusão; os leads do artigo permanecem (ADR 0013).
+function DeleteArticle({ article, trigger }: { article: ArticleRow; trigger: ReactNode }) {
+  return (
+    <ConfirmDeleteDialog
+      trigger={trigger}
+      title="Excluir artigo?"
+      message={`“${article.title}” será removido do site. Esta ação não pode ser desfeita.`}
+      confirmLabel="Excluir artigo"
+      action={deleteArticle.bind(null, article.id)}
+    />
+  )
 }
 
 function ArticlesTable({ articles }: { articles: ArticleRow[] }) {
@@ -87,6 +103,15 @@ function ArticlesTable({ articles }: { articles: ArticleRow[] }) {
                     Ver leads
                   </Link>
                 </Button>
+                <DeleteArticle
+                  article={article}
+                  trigger={
+                    <Button variant="ghost" size="sm">
+                      <Trash2 aria-hidden className="size-4" />
+                      Excluir
+                    </Button>
+                  }
+                />
               </div>
             </TableCell>
           </TableRow>
@@ -135,6 +160,15 @@ function ArticleCards({ articles }: { articles: ArticleRow[] }) {
                       Ver leads
                     </Link>
                   </Button>
+                  <DeleteArticle
+                    article={article}
+                    trigger={
+                      <Button variant="secondary" block>
+                        <Trash2 aria-hidden className="size-4" />
+                        Excluir
+                      </Button>
+                    }
+                  />
                 </div>
               </DialogContent>
             </Dialog>

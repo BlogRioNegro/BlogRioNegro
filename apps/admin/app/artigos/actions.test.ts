@@ -13,6 +13,7 @@ const store = {
   uploadFile: vi.fn(),
   removeFiles: vi.fn(),
   listArticleFiles: vi.fn(),
+  deleteArticleRecord: vi.fn(),
   publicFileUrl: vi.fn(),
   downloadFile: vi.fn(),
 }
@@ -28,7 +29,7 @@ vi.mock('next/navigation', () => ({
   },
 }))
 
-const { saveArticle, uploadArticleImage } = await import('./actions')
+const { deleteArticle, saveArticle, uploadArticleImage } = await import('./actions')
 
 const ID = '4b4f7c5e-2d7a-4c1e-9d55-0a3f5c1e8b21'
 const supabase = { marker: 'supabase' }
@@ -362,6 +363,48 @@ describe('saveArticle', () => {
     expect(result).toEqual({ ok: false, error: GENERIC_ERROR_MESSAGE, fieldErrors: {} })
     const uploadedPath = store.uploadFile.mock.calls[0]?.[2]
     expect(store.removeFiles).toHaveBeenCalledWith(supabase, 'covers', [uploadedPath])
+  })
+})
+
+describe('deleteArticle', () => {
+  beforeEach(() => {
+    vi.spyOn(process.stderr, 'write').mockReturnValue(true)
+    requireAdmin.mockResolvedValue({ ok: true, supabase, userId: 'admin' })
+    store.deleteArticleRecord.mockResolvedValue(null)
+    store.listArticleFiles.mockImplementation(
+      async (_supabase: unknown, bucket: string, id: string) => [`${id}/${bucket}.bin`],
+    )
+  })
+
+  afterEach(() => {
+    vi.resetAllMocks()
+  })
+
+  it('devolve a negação do requireAdmin sem excluir', async () => {
+    requireAdmin.mockResolvedValue({ ok: false, error: 'Sessão expirada' })
+
+    expect(await deleteArticle(ID)).toEqual({ ok: false, error: 'Sessão expirada' })
+    expect(store.deleteArticleRecord).not.toHaveBeenCalled()
+  })
+
+  it('recusa id inválido', async () => {
+    expect(await deleteArticle('nao-e-uuid')).toEqual({ ok: false, error: GENERIC_ERROR_MESSAGE })
+    expect(store.deleteArticleRecord).not.toHaveBeenCalled()
+  })
+
+  it('exclui o artigo e depois os arquivos dos 4 buckets', async () => {
+    expect(await deleteArticle(ID)).toEqual({ ok: true, data: null })
+
+    expect(store.deleteArticleRecord).toHaveBeenCalledWith(supabase, ID)
+    for (const bucket of ['covers', 'article-images', 'article-files', 'article-previews'])
+      expect(store.removeFiles).toHaveBeenCalledWith(supabase, bucket, [`${ID}/${bucket}.bin`])
+  })
+
+  it('falha no banco: erro genérico e nenhum arquivo removido', async () => {
+    store.deleteArticleRecord.mockResolvedValue({ code: 'XX000', message: 'internal' })
+
+    expect(await deleteArticle(ID)).toEqual({ ok: false, error: GENERIC_ERROR_MESSAGE })
+    expect(store.removeFiles).not.toHaveBeenCalled()
   })
 })
 
