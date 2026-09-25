@@ -4,7 +4,7 @@ Specs: [05-admin-panel](../specs/05-admin-panel.md). Login e proteção de rotas
 
 - [x] **F6-001** · ADM-003 · Lista de artigos com nº de leads
 - [x] **F6-002** · ADM-004 · Formulário de artigo + Server Action de salvar (Zod)
-- [ ] **F6-003** · ADM-006 · Upload com validação por magic bytes e limites
+- [x] **F6-003** · ADM-006 · Upload com validação por magic bytes e limites
 - [ ] **F6-004** · ADM-005 · Editor Tiptap com extensões aprovadas e upload de imagem inline
 - [ ] **F6-005** · ADM-007 · Processamento pdf: original privado + prévia de 2 páginas (pdf-lib)
 - [ ] **F6-006** · ADM-008 · Processamento rich_text: corte de 3 blocos (função pura + testes) e PDF com @react-pdf

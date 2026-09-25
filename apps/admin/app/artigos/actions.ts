@@ -8,6 +8,7 @@ import {
   articleFieldsFrom,
   articleFieldsSchema,
   fieldErrorsOf,
+  fileFrom,
   type ArticleFields,
   type FieldErrors,
 } from '../../lib/domain/article-form'
@@ -21,26 +22,16 @@ import {
   type SaveArticleArgs,
 } from '../../lib/services/article-store'
 import { requireAdmin } from '../../lib/services/require-admin'
+import { validateUpload } from '../../lib/services/upload'
 
 export type SaveArticleState = { ok: false; error: string; fieldErrors: FieldErrors } | null
 
 const INVALID_FORM_MESSAGE = 'Confira os campos destacados.'
 
-const COVER_EXTENSIONS: Record<string, string> = {
-  'image/jpeg': 'jpg',
-  'image/png': 'png',
-  'image/webp': 'webp',
-}
-
 type ContentValues = Pick<
   SaveArticleArgs,
   'preview_json' | 'preview_pdf_path' | 'body_json' | 'full_pdf_path'
 >
-
-function fileFrom(formData: FormData, name: string): File | null {
-  const value = formData.get(name)
-  return value instanceof File && value.size > 0 ? value : null
-}
 
 function invalid(fieldErrors: FieldErrors): SaveArticleState {
   return { ok: false, error: INVALID_FORM_MESSAGE, fieldErrors }
@@ -74,21 +65,22 @@ export async function saveArticle(
   const fields = parsed.data
 
   const existing = await findArticleForEdit(auth.supabase, fields.id)
-  const cover = fileFrom(formData, 'cover')
-  const coverExtension = cover ? COVER_EXTENSIONS[cover.type] : undefined
+  const coverFile = fileFrom(formData, 'cover')
+  const cover = coverFile ? await validateUpload('covers', coverFile) : null
   const content = keptContent(existing, fields.contentType)
 
   const fieldErrors: FieldErrors = {}
   if (!existing && !cover) fieldErrors.cover = ARTICLE_MESSAGES.cover
-  if (cover && !coverExtension) fieldErrors.cover = ARTICLE_MESSAGES.cover
+  if (cover && !cover.ok) fieldErrors.cover = cover.error
   if (!content)
     fieldErrors.content =
       fields.contentType === 'pdf' ? ARTICLE_MESSAGES.pdf : ARTICLE_MESSAGES.richText
-  if (Object.keys(fieldErrors).length > 0 || !content) return invalid(fieldErrors)
+  if (Object.keys(fieldErrors).length > 0 || !content || (cover && !cover.ok))
+    return invalid(fieldErrors)
 
-  const newCoverPath = cover ? `${fields.id}/${randomUUID()}.${coverExtension}` : null
+  const newCoverPath = cover ? `${fields.id}/${randomUUID()}.${cover.extension}` : null
   if (cover && newCoverPath) {
-    const uploadError = await uploadFile(auth.supabase, 'covers', newCoverPath, cover)
+    const uploadError = await uploadFile(auth.supabase, 'covers', newCoverPath, cover.file)
     if (uploadError) return { ...failAction('admin.cover_upload_failed', uploadError), fieldErrors }
   }
 

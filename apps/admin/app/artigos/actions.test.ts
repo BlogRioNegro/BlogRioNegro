@@ -12,7 +12,10 @@ const store = {
 }
 
 vi.mock('../../lib/services/require-admin', () => ({ requireAdmin }))
+const validateUpload = vi.fn()
+
 vi.mock('../../lib/services/article-store', () => store)
+vi.mock('../../lib/services/upload', () => ({ validateUpload }))
 vi.mock('next/navigation', () => ({
   redirect: (url: string) => {
     throw new Error(`NEXT_REDIRECT:${url}`)
@@ -61,6 +64,11 @@ describe('saveArticle', () => {
     store.findArticleForEdit.mockResolvedValue(EXISTING)
     store.saveArticleRecord.mockResolvedValue(null)
     store.uploadFile.mockResolvedValue(null)
+    validateUpload.mockImplementation(async (_bucket: string, file: File) => ({
+      ok: true,
+      file,
+      extension: 'png',
+    }))
   })
 
   afterEach(() => {
@@ -115,6 +123,16 @@ describe('saveArticle', () => {
     expect(path).toMatch(new RegExp(`^${ID}/[0-9a-f-]{36}\\.png$`))
     expect(store.saveArticleRecord.mock.calls[0]?.[1]).toMatchObject({ cover_path: path })
     expect(store.removeFiles).toHaveBeenCalledWith(supabase, 'covers', [EXISTING.cover_path])
+  })
+
+  it('recusa a capa que não passa na validação de upload', async () => {
+    validateUpload.mockResolvedValue({ ok: false, error: 'Envie uma imagem JPG, PNG ou WebP.' })
+
+    const result = await saveArticle(null, form({ cover: png() }))
+
+    expect(validateUpload).toHaveBeenCalledWith('covers', expect.any(File))
+    expect(result?.fieldErrors.cover).toBe('Envie uma imagem JPG, PNG ou WebP.')
+    expect(store.uploadFile).not.toHaveBeenCalled()
   })
 
   it('exige a capa na criação', async () => {

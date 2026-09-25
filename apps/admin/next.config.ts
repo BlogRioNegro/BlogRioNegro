@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next'
+import { ARTICLE_FORM_MAX_BYTES } from './lib/domain/upload-rules'
 
 const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
@@ -13,6 +14,12 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   output: 'standalone',
   transpilePackages: ['@rio-negro/db', '@rio-negro/ui'],
+  // ADM-006 · O formulário de artigo leva capa + PDF numa Server Action; os padrões (1 MB na
+  // action, 10 MB no proxy) são menores que os limites dos buckets.
+  experimental: {
+    serverActions: { bodySizeLimit: ARTICLE_FORM_MAX_BYTES },
+    proxyClientMaxBodySize: ARTICLE_FORM_MAX_BYTES,
+  },
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }]
   },

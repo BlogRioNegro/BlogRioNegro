@@ -13,6 +13,15 @@ const SEED = {
   title: 'Carteira recomendada de outubro',
 }
 
+// PDF de 24,6 MB (base 1024) para o erro de tamanho da spec 05.
+function bigPdf() {
+  return {
+    name: 'cenario-macro-4t26.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.alloc(Math.floor(24.6 * 1024 * 1024)),
+  }
+}
+
 test.describe('formulário de artigo', () => {
   test.afterAll(async () => {
     await serviceClient().from('articles').update({ title: SEED.title }).eq('id', SEED.id)
@@ -27,6 +36,17 @@ test.describe('formulário de artigo', () => {
     await expect(page.getByLabel('Título')).toHaveAttribute('aria-invalid', 'true')
     await expect(page.getByText('Informe um título de 3 a 160 caracteres.')).toBeVisible()
     await expect(page.getByText('Envie a capa do artigo.')).toBeVisible()
+  })
+
+  test('PDF acima do limite mostra o erro no campo sem enviar', async ({ page }) => {
+    await signInAsAdmin(page)
+    await page.goto('/artigos/novo')
+
+    await page.getByLabel('Arquivo PDF').setInputFiles(bigPdf())
+    await page.getByRole('button', { name: 'Publicar' }).click()
+
+    await expect(page.getByText('O arquivo tem 24,6 MB. Envie um PDF de até 20 MB.')).toBeVisible()
+    await expect(page).toHaveURL(/\/artigos\/novo$/)
   })
 
   test('salvar a edição publica o novo título no site no próximo request', async ({ page }) => {
@@ -66,6 +86,10 @@ test.describe('Visual · Formulário', () => {
         .locator(`[data-screen-label="Formulário · tipo PDF · vazio · ${device}"] > div`)
         .first()
         .screenshot({ path: path.join(OUT, `admin-form-pdf-${device}-prototipo.png`) })
+      await prototype
+        .locator(`[data-screen-label="Formulário · tipo PDF · erro · ${device}"] > div`)
+        .first()
+        .screenshot({ path: path.join(OUT, `admin-form-pdf-erro-${device}-prototipo.png`) })
       await prototype.close()
 
       const page = await browser.newPage({ viewport })
@@ -74,6 +98,14 @@ test.describe('Visual · Formulário', () => {
       await page.mouse.move(0, 0)
       await page.screenshot({
         path: path.join(OUT, `admin-form-pdf-${device}-app.png`),
+        fullPage: true,
+      })
+      await page.getByLabel('Arquivo PDF').setInputFiles(bigPdf())
+      await page.getByRole('button', { name: 'Publicar' }).click()
+      await page.getByText('O arquivo tem 24,6 MB').waitFor()
+      await page.mouse.move(0, 0)
+      await page.screenshot({
+        path: path.join(OUT, `admin-form-pdf-erro-${device}-app.png`),
         fullPage: true,
       })
       await page.close()

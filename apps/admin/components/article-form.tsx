@@ -10,9 +10,11 @@ import {
   articleFieldsFrom,
   articleFieldsSchema,
   fieldErrorsOf,
+  fileFrom,
   type ArticleFields,
   type FieldErrors,
 } from '@/lib/domain/article-form'
+import { sizeError } from '@/lib/domain/upload-rules'
 
 export type ArticleFormValues = {
   id: string
@@ -32,15 +34,17 @@ const CONTENT_TYPES = [
 const TEXTAREA_CLASSES =
   'w-full rounded-control border border-border-strong bg-surface p-3 font-serif text-md leading-normal text-text transition-colors duration-(--duration-fast) hover:border-text-muted aria-invalid:border-error'
 
-function hasFile(formData: FormData, name: string): boolean {
-  const value = formData.get(name)
-  return value instanceof File && value.size > 0
-}
-
+// O tamanho é conferido antes do envio: acima do limite, o arquivo nem sai do browser (ADM-006).
 function clientErrors(formData: FormData, isNew: boolean): FieldErrors {
   const parsed = articleFieldsSchema.safeParse(articleFieldsFrom(formData))
   const errors = parsed.success ? {} : fieldErrorsOf(parsed.error)
-  if (isNew && !hasFile(formData, 'cover')) errors.cover = ARTICLE_MESSAGES.cover
+  const cover = fileFrom(formData, 'cover')
+  const pdf = fileFrom(formData, 'pdf')
+  if (isNew && !cover) errors.cover = ARTICLE_MESSAGES.cover
+  const coverTooBig = cover && sizeError('covers', cover.size)
+  if (coverTooBig) errors.cover = coverTooBig
+  const pdfTooBig = pdf && sizeError('article-files', pdf.size)
+  if (pdfTooBig) errors.content = pdfTooBig
   return errors
 }
 

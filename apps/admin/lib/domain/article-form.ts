@@ -50,6 +50,12 @@ export function articleFieldsFrom(formData: FormData): Record<string, string> {
   )
 }
 
+/** Arquivo enviado no campo, ou null se o campo veio vazio. */
+export function fileFrom(formData: FormData, name: string): File | null {
+  const value = formData.get(name)
+  return value instanceof File && value.size > 0 ? value : null
+}
+
 /** Primeira mensagem de cada campo que falhou. */
 export function fieldErrorsOf(error: z.ZodError): FieldErrors {
   const errors: FieldErrors = {}
