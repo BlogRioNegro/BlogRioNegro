@@ -3,7 +3,7 @@
 Specs: [03-public-site](../specs/03-public-site.md). UI depende da fase 2.
 
 - [x] **F4-001** · PUB-009 · Serviço de leitura de artigos em `lib/services` (rotas dinâmicas, só colunas públicas)
-- [ ] **F4-002** · PUB-002 · `getFeaturedArticle` + testes (vazio, 1 artigo, empate de data)
+- [x] **F4-002** · PUB-002 · `getFeaturedArticle` + testes (vazio, 1 artigo, empate de data)
 - [ ] **F4-003** · PUB-001 · Home com hero e CTA
 - [ ] **F4-004** · PUB-003 · Listagem com destaque sem repetição
 - [ ] **F4-005** · PUB-004 · "Carregar mais" com fallback `?page=N`
