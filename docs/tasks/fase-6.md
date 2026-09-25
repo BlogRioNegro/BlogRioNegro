@@ -10,7 +10,7 @@ Specs: [05-admin-panel](../specs/05-admin-panel.md). Login e proteção de rotas
 - [x] **F6-006** · ADM-008 · Processamento rich_text: corte de 3 blocos (função pura + testes) e PDF com @react-pdf
 - [x] **F6-007** · ADM-009 · Slug: geração, edição com histórico, validação de unicidade
 - [x] **F6-008** · ADM-010 · Data de publicação editável
-- [ ] **F6-009** · ADM-011 · Troca de `content_type` sem arquivos órfãos
+- [x] **F6-009** · ADM-011 · Troca de `content_type` sem arquivos órfãos
 - [ ] **F6-010** · ADM-012 · Exclusão de artigo preservando leads
 - [ ] **F6-011** · ADM-013 · Leads: lista por artigo e geral, CSV (BOM, `;`, anti-injection), exclusão
 - [ ] **F6-012** · ADM-014 · Botão "Reenviar falhas" do webhook

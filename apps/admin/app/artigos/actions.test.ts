@@ -12,6 +12,7 @@ const store = {
   saveArticleRecord: vi.fn(),
   uploadFile: vi.fn(),
   removeFiles: vi.fn(),
+  listArticleFiles: vi.fn(),
   publicFileUrl: vi.fn(),
   downloadFile: vi.fn(),
 }
@@ -308,6 +309,39 @@ describe('saveArticle', () => {
     expect(store.removeFiles).toHaveBeenCalledWith(supabase, 'article-previews', [
       `${ID}/previa.pdf`,
     ])
+  })
+
+  it('ADM-011 · rich text trocado por PDF: remove PDF gerado e imagens do editor', async () => {
+    store.findArticleForEdit.mockResolvedValue({
+      ...EXISTING,
+      content_type: 'rich_text',
+      preview_json: { type: 'doc', content: paragraphs(1) },
+      preview_pdf_path: null,
+      article_contents: { body_json: { type: 'doc' }, full_pdf_path: `${ID}/gerado.pdf` },
+    })
+    store.listArticleFiles.mockResolvedValue([`${ID}/grafico.png`])
+    validateUpload.mockImplementation(async (_bucket: string, file: File) => ({
+      ok: true,
+      file,
+      extension: 'pdf',
+    }))
+
+    await expect(saveArticle(null, form({ pdf: await pdf(3) }))).rejects.toThrow('NEXT_REDIRECT')
+
+    const record = store.saveArticleRecord.mock.calls[0]?.[1]
+    expect(record.body_json).toBeUndefined()
+    expect(record.preview_json).toBeUndefined()
+    expect(store.removeFiles).toHaveBeenCalledWith(supabase, 'article-files', [`${ID}/gerado.pdf`])
+    expect(store.listArticleFiles).toHaveBeenCalledWith(supabase, 'article-images', ID)
+    expect(store.removeFiles).toHaveBeenCalledWith(supabase, 'article-images', [
+      `${ID}/grafico.png`,
+    ])
+  })
+
+  it('PDF continua PDF: não mexe nas imagens do editor', async () => {
+    await expect(saveArticle(null, form())).rejects.toThrow('NEXT_REDIRECT')
+
+    expect(store.listArticleFiles).not.toHaveBeenCalled()
   })
 
   it('slug em uso por outro artigo: erro no campo e remove a capa recém-enviada', async () => {

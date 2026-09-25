@@ -48,6 +48,20 @@ export async function removeFiles(supabase: Supabase, bucket: Bucket, paths: str
   if (error) logger.warn('admin.storage_remove_failed', { bucket, error })
 }
 
+/** Caminhos dos arquivos na pasta do artigo (`<article_id>/`); falha na listagem vai para o log. */
+export async function listArticleFiles(
+  supabase: Supabase,
+  bucket: Bucket,
+  articleId: string,
+): Promise<string[]> {
+  const { data, error } = await supabase.storage.from(bucket).list(articleId)
+  if (error) {
+    logger.warn('admin.storage_list_failed', { bucket, error })
+    return []
+  }
+  return data.map((file) => `${articleId}/${file.name}`)
+}
+
 export function publicFileUrl(supabase: Supabase, bucket: 'article-images', path: string): string {
   return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl
 }

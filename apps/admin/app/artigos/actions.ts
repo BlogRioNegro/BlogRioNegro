@@ -31,6 +31,7 @@ import { pdfImage, renderArticlePdf, type PdfImage } from '../../lib/services/ar
 import {
   downloadFile,
   findArticleForEdit,
+  listArticleFiles,
   publicFileUrl,
   removeFiles,
   saveArticleRecord,
@@ -210,7 +211,7 @@ async function removeUploads(supabase: Supabase, uploads: Pick<Upload, 'bucket' 
 }
 
 // Arquivos do artigo que deixaram de ser referenciados depois de salvar (ADM-007: trocar o PDF
-// remove os antigos).
+// remove os antigos; ADM-011: trocar o tipo remove a prévia e o PDF do tipo anterior).
 function staleFiles(existing: ArticleForEdit | null, saved: SaveArticleArgs) {
   if (!existing) return []
   const previous = [
@@ -293,6 +294,11 @@ export async function saveArticle(
   }
 
   await removeUploads(auth.supabase, staleFiles(existing, record))
+  // ADM-011 · Rich text trocado por PDF: as imagens do editor ficariam órfãs em article-images.
+  if (existing?.content_type === 'rich_text' && record.content_type === 'pdf') {
+    const images = await listArticleFiles(auth.supabase, 'article-images', fields.id)
+    await removeFiles(auth.supabase, 'article-images', images)
+  }
   redirect('/artigos')
 }
 
