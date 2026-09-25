@@ -108,6 +108,41 @@ test.describe('formulário de artigo', () => {
     await storage.remove((data ?? []).map((file) => `${articleId}/${file.name}`))
   })
 
+  test('ADM-010 · data editada muda a ordem da lista e o destaque do site', async ({ page }) => {
+    const service = serviceClient()
+    const { data: before } = await service
+      .from('articles')
+      .select('published_at')
+      .eq('id', SEED.id)
+      .single()
+    await signInAsAdmin(page)
+    await page.goto(`/artigos/${SEED.id}`)
+
+    await page.getByLabel('Data de publicação').fill('2030-01-15')
+    await page.getByRole('button', { name: 'Publicar' }).click()
+
+    try {
+      await expect(page).toHaveURL(/\/artigos$/)
+      const firstRow = page
+        .getByRole('table', { name: 'Artigos publicados' })
+        .getByRole('row')
+        .nth(1)
+      await expect(firstRow).toContainText(SEED.title)
+      await expect(firstRow).toContainText('Em destaque')
+      await expect(firstRow).toContainText('15/01/2030')
+
+      await page.goto(webUrl('/artigos'))
+      await expect(page.getByRole('main').getByRole('heading', { level: 2 }).first()).toHaveText(
+        SEED.title,
+      )
+    } finally {
+      await service
+        .from('articles')
+        .update({ published_at: before?.published_at })
+        .eq('id', SEED.id)
+    }
+  })
+
   test('criar artigo PDF: original privado, prévia pública e artigo no site', async ({ page }) => {
     const service = serviceClient()
     const slug = `artigo-pdf-e2e-${Date.now()}`
