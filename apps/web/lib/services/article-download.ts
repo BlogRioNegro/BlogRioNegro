@@ -1,5 +1,5 @@
 import 'server-only'
-import { leadSchema, type Lead } from '../domain/lead'
+import { LEAD_ERROR_MESSAGE, leadSchema, type Lead } from '../domain/lead'
 import { failAction, type ActionResult } from './action-result'
 import { findArticleForLead } from './articles'
 import { webhookConfigFromEnv, sendLeadWebhook, type LeadWebhookPayload } from './lead-webhook'
@@ -12,9 +12,6 @@ import { verifyTurnstile } from './turnstile'
 // (1) Zod → (2) Turnstile → (3) rate limit IP e e-mail → (4) artigo existe → (5) insert do lead
 // → (6) URL assinada → (7) agendar webhook. Nenhuma URL é gerada se algo falhar até (5).
 // Nada de dado pessoal nos logs: só eventos, campos inválidos e erros sem a linha do banco.
-
-/** Mensagem genérica do fluxo de lead (spec 04, UI · Estados). */
-export const LEAD_ERROR_MESSAGE = 'Não foi possível concluir. Tente novamente.'
 
 export type DownloadContext = {
   /** IP do cliente (`clientIp`); só entra em hash. */

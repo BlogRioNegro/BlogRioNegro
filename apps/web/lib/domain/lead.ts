@@ -6,6 +6,9 @@ import { z } from 'zod'
 /** LEAD-013 · Versão do aviso de privacidade aceito. Mudar o texto do aviso exige nova versão. */
 export const POLICY_VERSION = 'blog-2026-09-v1'
 
+/** Erro genérico do fluxo de lead (spec 04, UI · Estados); nunca traz detalhe da falha (SEC-008). */
+export const LEAD_ERROR_MESSAGE = 'Não foi possível concluir. Tente novamente.'
+
 export const LEAD_MESSAGES = {
   name: 'Informe seu nome.',
   email: 'Informe um e-mail válido, como nome@exemplo.com.br.',

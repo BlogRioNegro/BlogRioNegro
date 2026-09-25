@@ -1,14 +1,16 @@
 import { Button, cn, TypeBadge } from '@rio-negro/ui'
-import { ArrowLeft, Download } from '@rio-negro/ui/icons'
+import { ArrowLeft } from '@rio-negro/ui/icons'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { CoverImage } from '@/components/cover-image'
+import { LeadDialog } from '@/components/lead-dialog'
 import { PdfPreview } from '@/components/pdf-preview'
 import { RichText } from '@/components/rich-text'
 import { articleDescription } from '@/lib/domain/article-description'
 import { formatPublishedDate } from '@/lib/domain/published-date'
 import { parseRichTextPreview } from '@/lib/domain/rich-text'
+import { env } from '@/lib/env'
 import { coverUrl, getArticleBySlug, previewPdfUrl } from '@/lib/services/articles'
 
 // PUB-010 · Descrição com fallback (articleDescription); capa como og:image absoluta.
@@ -79,11 +81,14 @@ export default async function ArticlePage({ params }: PageProps<'/artigos/[slug]
         <p className="text-text-muted">
           Esta é uma prévia. O artigo completo está disponível para download.
         </p>
-        {/* F5-008 transforma este botão no gatilho do modal de lead (spec 04). */}
-        <Button className="w-full md:w-auto">
-          Baixar artigo completo
-          <Download aria-hidden className="size-5" />
-        </Button>
+        <LeadDialog
+          article={{
+            id: article.id,
+            title: article.title,
+            format: article.content_type === 'pdf' ? 'PDF' : 'Texto',
+          }}
+          turnstileSiteKey={env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+        />
       </div>
     </main>
   )

@@ -10,8 +10,8 @@ import { stubWebEnv } from './support/web-env'
 const LEAD_HASH_SECRET = 'segredo-de-teste-do-hash-com-32-caracteres'
 stubWebEnv({ LEAD_HASH_SECRET })
 
-const { handleDownloadRequest, LEAD_ERROR_MESSAGE } =
-  await import('../../apps/web/lib/services/article-download')
+const { handleDownloadRequest } = await import('../../apps/web/lib/services/article-download')
+const { LEAD_ERROR_MESSAGE } = await import('../../apps/web/lib/domain/lead')
 const { hashIdentifier } = await import('../../apps/web/lib/domain/identifier-hash')
 const { POLICY_VERSION } = await import('../../apps/web/lib/domain/lead')
 

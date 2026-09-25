@@ -10,8 +10,8 @@ const SECRET = 'segredo-do-webhook-de-teste-com-32-chars'
 stubWebEnv({ LEAD_WEBHOOK_URL: 'https://crm.example/webhook', LEAD_WEBHOOK_SECRET: SECRET })
 
 const { sendLeadWebhook } = await import('../../apps/web/lib/services/lead-webhook')
-const { handleDownloadRequest, LEAD_ERROR_MESSAGE } =
-  await import('../../apps/web/lib/services/article-download')
+const { handleDownloadRequest } = await import('../../apps/web/lib/services/article-download')
+const { LEAD_ERROR_MESSAGE } = await import('../../apps/web/lib/domain/lead')
 
 const SEED_ARTICLE = { id: '11111111-1111-4111-8111-111111111111', title: 'Artigo do webhook' }
 const SITEVERIFY = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'

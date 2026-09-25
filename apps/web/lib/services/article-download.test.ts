@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { LeadInput } from '../domain/lead'
-import { handleDownloadRequest, LEAD_ERROR_MESSAGE, type DownloadContext } from './article-download'
+import { LEAD_ERROR_MESSAGE, type LeadInput } from '../domain/lead'
+import { handleDownloadRequest, type DownloadContext } from './article-download'
 import { findArticleForLead } from './articles'
 import { sendLeadWebhook, webhookConfigFromEnv } from './lead-webhook'
 import { createDownloadUrl, insertLead } from './leads'
