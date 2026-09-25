@@ -4,7 +4,7 @@ Specs: [04-lead-capture](../specs/04-lead-capture.md). UI depende da fase 2.
 
 - [x] **F5-001** · LEAD-002 · Schema Zod do lead + normalização de telefone E.164 + testes (LEAD-001)
 - [x] **F5-002** · LEAD-006 · Serviço de rate limit por IP e por e-mail com os limites da spec + testes
-- [ ] **F5-003** · LEAD-005 · Verificação Turnstile no server
+- [x] **F5-003** · LEAD-005 · Verificação Turnstile no server
 - [ ] **F5-004** · LEAD-007 · Server Action `requestArticleDownload` na ordem definida
 - [ ] **F5-005** · LEAD-008 · Persistência com snapshot, consentimento, versão e `ip_hash`
 - [ ] **F5-006** · LEAD-009 · URL assinada de 60 s após insert
