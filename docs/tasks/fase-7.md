@@ -2,7 +2,7 @@
 
 Specs: [02-security-rls](../specs/02-security-rls.md), [00-overview](../specs/00-overview.md)
 
-- [ ] **F7-001** · SEC-002 · Security review completa (skill `security-review`) cobrindo RLS-* e SEC-*
+- [x] **F7-001** · SEC-002 · Security review completa (skill `security-review`) cobrindo RLS-* e SEC-*
 - [ ] **F7-002** · RLS-003 · Rodar testes da matriz de acesso contra produção após as migrations
 - [ ] **F7-003** · OVW-005 · QA exploratório com Playwright MCP (desktop e mobile)
 - [ ] **F7-004** · DS-006 · Auditoria de acessibilidade (axe) nas telas públicas e no modal
