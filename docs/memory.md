@@ -3,19 +3,20 @@
 _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
 
 ## Fase
-Fase 6 na branch `fase-6` (a partir da `fase-5`). F6-001 a F6-004 `[x]`. Sem push.
+Fase 6 na branch `fase-6` (a partir da `fase-5`). F6-001 a F6-005 `[x]`. Sem push.
 
 ## Próxima tarefa
-F6-005 · ADM-007 · PDF: original em `article-files` + prévia de 2 páginas (`pdf-lib`) em
-`article-previews`; protegido/corrompido rejeitado; trocar o PDF remove os antigos.
+F6-006 · ADM-008 · rich text: corte de 3 blocos (função pura) → `preview_json`, body → `body_json`,
+PDF completo com `@react-pdf/renderer` → `article-files`. Entra em `resolveContent` (hoje erro).
 
 ## Decisões da fase 6 (valem para F6-007+)
 - Toda Server Action/route handler: `requireAdmin()` na 1ª linha + teste de integração sem cookie
   (`tests/integration/admin-article-actions.test.ts`); `require-admin-usage.test.ts` varre `app/`.
   Tipo de retorno com `{` inline quebra a varredura: usar alias de tipo.
 - `save_article` (ADR 0033): RPC transacional sob RLS. `saveArticle` (`app/artigos/actions.ts`)
-  reaproveita o conteúdo se o tipo não mudou e nada novo veio; PDF novo (F6-005) e rich text novo
-  (F6-006, hoje devolve erro de conteúdo) entram ali.
+  resolve o conteúdo em `resolveContent` (PDF novo, rich text novo ou o atual), envia tudo por
+  `uploadAll` (rollback) e remove os arquivos que deixaram de ser usados (`staleFiles`).
+- pdf-lib: `instanceof EncryptedPDFError` não funciona (ES5); usar `isEncrypted` (`pdf-preview.ts`).
 - Uploads (ADR 0034): `UPLOAD_RULES` + `validateUpload` (magic bytes, extensão, tamanho).
 - Editor (ADR 0035): `checkRichText` em `lib/domain/rich-text.ts`; imagens só de
   `article-images/<article_id>/`, `alt` obrigatório; `uploadArticleImage`.
