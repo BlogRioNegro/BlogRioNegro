@@ -34,3 +34,28 @@ test.describe('PUB-001 · Home', () => {
     )
   })
 })
+
+test.describe('PUB-002 · PUB-003 · Listagem', () => {
+  test('mostra o destaque no topo e os demais em ordem, sem repeti-lo', async ({ page }) => {
+    await page.goto(webUrl('/artigos'))
+
+    const titles = page.getByRole('main').getByRole('heading', { level: 2 })
+    await expect(titles).toHaveText([
+      'Guia de previdência privada: PGBL ou VGBL?',
+      'Carteira recomendada de outubro',
+      'Renda fixa em 2026: o que muda para o investidor',
+    ])
+    await expect(page.getByRole('link', { name: 'Artigos' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
+  })
+
+  test('o card leva à página do artigo', async ({ page }) => {
+    await page.goto(webUrl('/artigos'))
+
+    await expect(
+      page.getByRole('link', { name: /Carteira recomendada de outubro/ }),
+    ).toHaveAttribute('href', '/artigos/carteira-recomendada-outubro')
+  })
+})

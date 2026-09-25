@@ -1,4 +1,5 @@
 import 'server-only'
+import { formatPublishedDate } from '../domain/published-date'
 import { logger } from './logger'
 import { createPublicClient } from './supabase-public'
 
@@ -43,4 +44,23 @@ export async function getArticleBySlug(slug: string) {
 
 export function coverUrl(coverPath: string): string {
   return createPublicClient().storage.from('covers').getPublicUrl(coverPath).data.publicUrl
+}
+
+/** Dados serializáveis de um card, usados no server e no "Carregar mais". */
+export type ArticleCardData = {
+  slug: string
+  title: string
+  coverUrl: string
+  publishedAt: string
+  dateLabel: string
+}
+
+export function toArticleCard(article: ArticleListItem): ArticleCardData {
+  return {
+    slug: article.slug,
+    title: article.title,
+    coverUrl: coverUrl(article.cover_path),
+    publishedAt: article.published_at,
+    dateLabel: formatPublishedDate(article.published_at),
+  }
 }
