@@ -3,13 +3,12 @@
 _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
 
 ## Fase
-Fase 6 na branch `fase-6`. F6-001 a F6-012 `[x]`. Correções feitas: WebP fora (ADR 0037), CSP
+Fase 6 na branch `fase-6`. F6-001 a F6-013 `[x]`. Correções feitas: WebP fora (ADR 0037), CSP
 do Dialog (`StyleNonce` + `get-nonce`), hospedagem StayCloud Deploy Pro Node 22 (ADR 0038). Sem push.
 
 ## Próxima tarefa
-F6-013 · ADM-001 · e2e em `tests/e2e/`: login, criar artigo pdf e rich_text, editar slug (o antigo
-redireciona 301 no web) e excluir. Depois o visual do login (F6-extra, sem mexer em auth, action
-ou `proxy.ts`) e o gate da fase 6 (typecheck, lint, test, format:check, build, test:e2e).
+Visual do login (F6-extra): as 3 telas `Login · padrão|e-mail ou senha inválidos|acesso negado` do
+protótipo, com `packages/ui`, sem mexer em auth, action ou `proxy.ts`. Depois o gate da fase 6.
 
 ## Decisões da fase 6
 - Server Action/route handler: `requireAdmin()` na 1ª linha + teste de integração sem cookie
@@ -35,5 +34,5 @@ ou `proxy.ts`) e o gate da fase 6 (typecheck, lint, test, format:check, build, t
 - F3-002: confirmar em qual header o Deploy entrega o IP real do visitante (app lê `X-Forwarded-For`).
 - CSP: o `next dev` gera violações de estilo na carga (produção limpa).
 - Leads desktop: paginação abaixo da tabela (no protótipo, dentro do card).
-- Login sem o visual da spec (F6-extra). Turnstile de teste no `.env.local`; DPO; aceites
+- Turnstile de teste no `.env.local`; DPO; aceites
   PUB-007/010/012; `corepack enable`; push; domínios.
