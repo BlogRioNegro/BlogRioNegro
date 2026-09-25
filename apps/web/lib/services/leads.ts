@@ -1,15 +1,13 @@
 import 'server-only'
 import type { Database } from '@rio-negro/db'
 import { hashIdentifier } from '../domain/identifier-hash'
-import { POLICY_VERSION, type Lead } from '../domain/lead'
+import { POLICY_VERSION, SIGNED_URL_SECONDS, type Lead } from '../domain/lead'
 import { env } from '../env'
 import { createServiceRoleClient } from './supabase-service-role'
 
 // LEAD-008 · LEAD-009 · Escrita do lead e entrega do PDF completo, só com a service role (SEC-002).
 // Erros do PostgREST trazem em `details` a linha recusada, com dados pessoais: daqui só saem
 // `code` e `message`.
-
-export const SIGNED_URL_SECONDS = 60
 
 type WebhookStatus = Database['public']['Enums']['webhook_status']
 

@@ -88,6 +88,7 @@ export default async function ArticlePage({ params }: PageProps<'/artigos/[slug]
             format: article.content_type === 'pdf' ? 'PDF' : 'Texto',
           }}
           turnstileSiteKey={env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+          rioNegroUrl={env.NEXT_PUBLIC_RIO_NEGRO_URL}
         />
       </div>
     </main>

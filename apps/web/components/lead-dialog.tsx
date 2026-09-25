@@ -9,10 +9,10 @@ import {
   DialogTrigger,
   TextField,
 } from '@rio-negro/ui'
-import { Download } from '@rio-negro/ui/icons'
-import { useId, useState, type FormEvent } from 'react'
+import { Download, ExternalLink } from '@rio-negro/ui/icons'
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { requestArticleDownload } from '@/app/artigos/[slug]/actions'
-import { LEAD_ERROR_MESSAGE, leadSchema } from '@/lib/domain/lead'
+import { LEAD_ERROR_MESSAGE, leadSchema, SIGNED_URL_SECONDS } from '@/lib/domain/lead'
 import { maskPhone } from '@/lib/domain/phone-mask'
 import { Turnstile } from './turnstile'
 
@@ -33,7 +33,12 @@ const EMPTY: Values = { name: '', email: '', phone: '', consent: false, marketin
 
 export type LeadArticle = { id: string; title: string; format: 'PDF' | 'Texto' }
 
-type Props = { article: LeadArticle; turnstileSiteKey: string }
+type Props = { article: LeadArticle; turnstileSiteKey: string; rioNegroUrl: string }
+
+// Margem para o clique não chegar ao Storage com a URL já vencida.
+const URL_REUSE_MS = (SIGNED_URL_SECONDS - 5) * 1000
+
+type SignedDownload = { url: string; expiresAt: number }
 
 function isField(key: PropertyKey | undefined): key is Field {
   return FIELD_ORDER.some((field) => field === key)
@@ -48,7 +53,47 @@ function startDownload(url: string) {
   link.remove()
 }
 
-function LeadForm({ article, turnstileSiteKey }: Props) {
+/** LEAD-010 · Sucesso: o download já começou; o CTA "Conheça a Rio Negro" só aparece aqui. */
+function SuccessView({
+  articleTitle,
+  rioNegroUrl,
+  onDownloadAgain,
+}: {
+  articleTitle: string
+  rioNegroUrl: string
+  onDownloadAgain: () => void
+}) {
+  const again = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    again.current?.focus()
+  }, [])
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Alert variant="success" title="O download começou.">
+        “{articleTitle}” está sendo salvo no seu dispositivo.
+      </Alert>
+      <div>
+        <Button ref={again} variant="link" onClick={onDownloadAgain}>
+          <Download aria-hidden className="size-5" />
+          Baixar novamente
+        </Button>
+      </div>
+      <div className="mt-2 flex flex-col gap-3 border-t border-border pt-6">
+        <Button asChild block>
+          <a href={rioNegroUrl} target="_blank" rel="noopener noreferrer">
+            Conheça a Rio Negro
+            <ExternalLink aria-hidden className="size-5" />
+            <span className="sr-only">(abre em nova aba)</span>
+          </a>
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+function LeadForm({ article, turnstileSiteKey, rioNegroUrl }: Props) {
   const id = useId()
   const fieldId = (field: keyof Values) => `${id}-${field}`
   const [values, setValues] = useState<Values>(EMPTY)
@@ -57,6 +102,8 @@ function LeadForm({ article, turnstileSiteKey }: Props) {
   const [submitting, setSubmitting] = useState(false)
   const [token, setToken] = useState('')
   const [turnstileReset, setTurnstileReset] = useState(0)
+  const [download, setDownload] = useState<SignedDownload | null>(null)
+  const [expired, setExpired] = useState(false)
 
   function update<K extends keyof Values>(key: K, value: Values[K]) {
     setValues((current) => ({ ...current, [key]: value }))
@@ -94,7 +141,29 @@ function LeadForm({ article, turnstileSiteKey }: Props) {
     setSubmitting(false)
 
     if (!result?.ok) return failSubmit(result?.error ?? LEAD_ERROR_MESSAGE)
+    // Com o lead gravado, os dados do formulário não ficam mais em memória.
+    setValues(EMPTY)
+    setExpired(false)
+    setDownload({ url: result.data.url, expiresAt: Date.now() + URL_REUSE_MS })
     startDownload(result.data.url)
+  }
+
+  function downloadAgain() {
+    if (download && Date.now() < download.expiresAt) return startDownload(download.url)
+    setDownload(null)
+    setExpired(true)
+  }
+
+  if (download) {
+    return (
+      <DialogContent title="Pronto!">
+        <SuccessView
+          articleTitle={article.title}
+          rioNegroUrl={rioNegroUrl}
+          onDownloadAgain={downloadAgain}
+        />
+      </DialogContent>
+    )
   }
 
   return (
@@ -107,6 +176,11 @@ function LeadForm({ article, turnstileSiteKey }: Props) {
       }}
     >
       <form noValidate onSubmit={submit} className="flex flex-col gap-4">
+        {expired ? (
+          <Alert variant="warning" title="O link de download expirou.">
+            Envie o formulário de novo para baixar o artigo.
+          </Alert>
+        ) : null}
         <TextField
           id={fieldId('name')}
           label="Nome"

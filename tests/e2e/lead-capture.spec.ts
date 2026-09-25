@@ -1,9 +1,45 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
+import { serviceClient } from '../integration/support/clients'
 import { webUrl } from './support/urls'
 
 // Captura de lead (spec 04) na página do artigo do seed, com as chaves de teste do Turnstile.
 
 const ARTICLE_PATH = '/artigos/carteira-recomendada-outubro'
+const ARTICLE_ID = '22222222-2222-4222-8222-222222222222'
+// PDF completo do artigo do seed (article_contents.full_pdf_path), que o seed não envia ao Storage.
+const FULL_PDF_PATH = `${ARTICLE_ID}/b1b2c3d4-0000-4000-8000-000000000003.pdf`
+
+const LEAD = { name: 'Maria Silva', email: 'maria.e2e@exemplo.com.br', phone: '11987654321' }
+
+test.beforeAll(async () => {
+  const { error } = await serviceClient()
+    .storage.from('article-files')
+    .upload(FULL_PDF_PATH, new Blob(['%PDF-1.4 completo e2e'], { type: 'application/pdf' }), {
+      upsert: true,
+    })
+  if (error) throw error
+})
+
+test.afterAll(async () => {
+  await serviceClient().storage.from('article-files').remove([FULL_PDF_PATH])
+})
+
+// Leads e contadores de rate limit zerados antes de cada teste (service role).
+test.beforeEach(async () => {
+  const service = serviceClient()
+  const leads = await service.from('leads').delete().eq('article_id', ARTICLE_ID)
+  if (leads.error) throw leads.error
+  const limits = await service.from('lead_rate_limits').delete().neq('key', '')
+  if (limits.error) throw limits.error
+})
+
+async function fillValidForm(dialog: Locator) {
+  await dialog.getByLabel('Nome', { exact: true }).fill(LEAD.name)
+  await dialog.getByLabel('E-mail', { exact: true }).fill(LEAD.email)
+  await dialog.getByLabel('Telefone', { exact: true }).fill(LEAD.phone)
+  await dialog.getByRole('checkbox', { name: 'Li e concordo com o aviso de privacidade.' }).click()
+  await expect(dialog.locator('input[name="cf-turnstile-response"]')).not.toHaveValue('')
+}
 
 async function openModal(page: Page) {
   await page.goto(webUrl(ARTICLE_PATH))
@@ -128,5 +164,47 @@ test.describe('LEAD-004 · Opt-in', () => {
     await dialog.getByRole('button', { name: 'Baixar artigo completo' }).click()
     await expect(dialog.getByText('Informe seu nome.')).toBeVisible()
     await expect(optIn).not.toHaveAttribute('aria-invalid')
+  })
+})
+
+test.describe('LEAD-010 · Sucesso', () => {
+  test('o download começa sozinho e a tela mostra "Baixar novamente" e o CTA', async ({ page }) => {
+    const dialog = await openModal(page)
+    await expect(dialog.getByRole('link', { name: /Conheça a Rio Negro/ })).toHaveCount(0)
+    await fillValidForm(dialog)
+
+    const download = page.waitForEvent('download')
+    await dialog.getByRole('button', { name: 'Baixar artigo completo' }).click()
+    expect((await download).url()).toContain('/storage/v1/object/sign/article-files/')
+
+    const success = page.getByRole('dialog', { name: 'Pronto!' })
+    await expect(success.getByText('O download começou.')).toBeVisible()
+    await expect(
+      success.getByText('“Carteira recomendada de outubro” está sendo salvo no seu dispositivo.'),
+    ).toBeVisible()
+    const cta = success.getByRole('link', { name: /Conheça a Rio Negro/ })
+    await expect(cta).toHaveAttribute('href', 'https://rionegroinvestimentos.com.br')
+    await expect(cta).toHaveAttribute('target', '_blank')
+
+    const again = page.waitForEvent('download')
+    await success.getByRole('button', { name: 'Baixar novamente' }).click()
+    expect((await again).url()).toBe((await download).url())
+  })
+
+  test('"Baixar novamente" com a URL vencida volta ao formulário vazio', async ({ page }) => {
+    await page.clock.install()
+    const dialog = await openModal(page)
+    await fillValidForm(dialog)
+    const download = page.waitForEvent('download')
+    await dialog.getByRole('button', { name: 'Baixar artigo completo' }).click()
+    await download
+
+    await page.clock.fastForward(61_000)
+    await page.getByRole('button', { name: 'Baixar novamente' }).click()
+
+    const form = page.getByRole('dialog', { name: 'Baixe o artigo completo' })
+    await expect(form.getByText('O link de download expirou.')).toBeVisible()
+    await expect(form.getByLabel('Nome', { exact: true })).toHaveValue('')
+    await expect(form.getByLabel('E-mail', { exact: true })).toHaveValue('')
   })
 })

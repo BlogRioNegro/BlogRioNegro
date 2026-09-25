@@ -137,6 +137,7 @@ Referência: `design/prototipo/Modal de Lead.dc.html` (desktop e mobile), com `D
 | Muitas tentativas | `Alert` de erro acima do botão: "Muitas tentativas, tente em alguns minutos" (LEAD-006). Campos mantêm os valores. |
 | Erro genérico | `Alert` de erro acima do botão: "Não foi possível concluir. Tente novamente." (Turnstile, artigo inexistente ou falha interna, sem detalhes, SEC-008). |
 | Sucesso | Título "Pronto!"; `Alert` de sucesso "O download começou." com "“<título>” está sendo salvo no seu dispositivo."; `Button` link "Baixar novamente"; `Button` primário "Conheça a Rio Negro" (nova aba, ícone de link externo), só neste estado (LEAD-010). |
+| Link expirado | "Baixar novamente" depois dos 60 s da URL (LEAD-009) volta ao formulário vazio com `Alert` de aviso "O link de download expirou." e "Envie o formulário de novo para baixar o artigo." (nenhum dado fica retido no client). |
 
 O texto do erro genérico acima é o que a Server Action devolve ao client neste fluxo.
 

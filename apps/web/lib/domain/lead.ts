@@ -6,6 +6,9 @@ import { z } from 'zod'
 /** LEAD-013 · Versão do aviso de privacidade aceito. Mudar o texto do aviso exige nova versão. */
 export const POLICY_VERSION = 'blog-2026-09-v1'
 
+/** LEAD-009 · Validade da URL assinada do PDF completo, em segundos. */
+export const SIGNED_URL_SECONDS = 60
+
 /** Erro genérico do fluxo de lead (spec 04, UI · Estados); nunca traz detalhe da falha (SEC-008). */
 export const LEAD_ERROR_MESSAGE = 'Não foi possível concluir. Tente novamente.'
 
