@@ -238,3 +238,22 @@ test.describe('PUB-008 · Redirect de slug antigo', () => {
     ).toBeVisible()
   })
 })
+
+test.describe('PUB-014 · Privacidade', () => {
+  test('abre pelo rodapé, mostra o texto de LEAD-013 e é indexável', async ({ page }) => {
+    await page.goto(webUrl('/'))
+    await page.getByRole('contentinfo').getByRole('link', { name: 'Privacidade' }).click()
+
+    await expect(page).toHaveURL(webUrl('/privacidade'))
+    const main = page.getByRole('main')
+    await expect(
+      main.getByRole('heading', { level: 1, name: 'Aviso de privacidade' }),
+    ).toBeVisible()
+    await expect(main).toContainText(
+      'Rio Negro Assessoria de Investimentos Ltda., CNPJ 33.457.321/0001-79.',
+    )
+    await expect(main).toContainText('Consentimento (LGPD, art. 7º, I).')
+    await expect(page.locator('meta[name="robots"]')).toHaveCount(0)
+    await expect(page.getByRole('contentinfo')).toBeVisible()
+  })
+})
