@@ -14,7 +14,7 @@ vi.stubEnv('ADMIN_SITE_URL', 'http://localhost:3001')
 const { deleteArticle, saveArticle, uploadArticleImage } =
   await import('../../apps/admin/app/artigos/actions')
 const { UNAUTHORIZED_MESSAGE } = await import('../../apps/admin/lib/services/require-admin')
-const { deleteLead } = await import('../../apps/admin/app/leads/actions')
+const { deleteLead, resendWebhookFailures } = await import('../../apps/admin/app/leads/actions')
 const { GET: exportLeads } = await import('../../apps/admin/app/leads/exportar/route')
 
 const ARTICLE_ID = '22222222-2222-4222-8222-222222222222'
@@ -77,5 +77,9 @@ describe('SEC-005 · actions de artigo sem sessão', () => {
 
     expect(response.status).toBe(401)
     expect(response.headers.get('content-type')).not.toContain('text/csv')
+  })
+
+  it('resendWebhookFailures nega sem reenviar', async () => {
+    expect(await resendWebhookFailures(null)).toEqual({ ok: false, error: UNAUTHORIZED_MESSAGE })
   })
 })

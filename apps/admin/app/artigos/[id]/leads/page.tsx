@@ -5,6 +5,7 @@ import { AdminHeader } from '@/components/admin-header'
 import { LeadsView } from '@/components/leads-view'
 import { pageFromParam } from '@/lib/domain/leads'
 import { findArticleSummary, listLeads } from '@/lib/services/leads'
+import { countFailedLeads, webhookConfigFromEnv } from '@/lib/services/lead-webhook'
 import { requireAdminPage } from '@/lib/services/require-admin'
 
 export const metadata: Metadata = {
@@ -27,6 +28,7 @@ export default async function ArticleLeadsPage({
   const page = pageFromParam((await searchParams).pagina)
   const { leads, total } = await listLeads(supabase, article.id, page)
   if (leads.length === 0 && page > 1) redirect(basePath)
+  const failedCount = webhookConfigFromEnv() ? await countFailedLeads(supabase, article.id) : null
 
   return (
     <>
@@ -39,6 +41,8 @@ export default async function ArticleLeadsPage({
         backToArticles
         exportHref={`/leads/exportar?artigo=${article.id}`}
         pageHref={(target) => (target === 1 ? basePath : `${basePath}?pagina=${target}`)}
+        articleId={article.id}
+        failedCount={failedCount}
       />
     </>
   )

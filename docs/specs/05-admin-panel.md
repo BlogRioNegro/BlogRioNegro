@@ -100,6 +100,7 @@ Botão "Reenviar falhas" visível só com `LEAD_WEBHOOK_URL` definida; reenvia l
 usando o mesmo payload e assinatura de [LEAD-012](04-lead-capture.md). O código de envio de
 `apps/web/lib/services/lead-webhook.ts` é copiado para o admin, e os testes dos dois apps usam o
 vetor fixo `tests/fixtures/lead-webhook-signature.json` ([ADR 0032](../adr/0032-webhook-copiado-e-agendado-apos-insert.md)).
+Lead de artigo excluído vai com `article.id = null` ([ADR 0039](../adr/0039-reenvio-do-webhook-no-admin.md)).
 **Aceite:** mostra quantos foram enviados e quantos falharam; atualiza status e tentativas.
 
 ## UI

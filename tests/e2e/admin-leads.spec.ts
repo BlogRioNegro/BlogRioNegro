@@ -161,12 +161,34 @@ test.describe('leads', () => {
     await expect(page.getByRole('dialog', { name: 'Excluir lead?' })).toBeVisible()
   })
 
+  test('ADM-014 · Reenviar falhas mostra enviados e falhas e soma as tentativas', async ({
+    page,
+  }) => {
+    await signInAsAdmin(page)
+    await page.goto(`/artigos/${ARTICLE.id}/leads`)
+
+    await page.getByRole('button', { name: 'Reenviar falhas (2)' }).click()
+
+    const status = page.getByRole('status').filter({ hasText: 'Reenvio concluído' })
+    await expect(status).toContainText('0 enviados · 2 falharam')
+    const { data } = await serviceClient()
+      .from('leads')
+      .select('webhook_status, webhook_attempts')
+      .eq('ip_hash', 'hash-e2e')
+      .eq('webhook_status', 'failed')
+    expect(data).toEqual([
+      { webhook_status: 'failed', webhook_attempts: 1 },
+      { webhook_status: 'failed', webhook_attempts: 1 },
+    ])
+  })
+
   test('vazio: mensagem e ações desabilitadas', async ({ page }) => {
     await signInAsAdmin(page)
     await page.goto(`/artigos/${EMPTY_ARTICLE_ID}/leads`)
 
     await expect(page.getByText('Nenhum lead recebido ainda.').first()).toBeVisible()
     await expect(page.getByRole('button', { name: 'Exportar CSV' })).toBeDisabled()
+    await expect(page.getByRole('button', { name: 'Reenviar falhas' })).toBeDisabled()
     await expect(page.getByText('0 leads ·')).toBeVisible()
   })
 })

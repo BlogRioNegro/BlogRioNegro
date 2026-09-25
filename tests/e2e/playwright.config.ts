@@ -54,6 +54,9 @@ export default defineConfig({
         NEXT_PUBLIC_SUPABASE_ANON_KEY: localSupabase.ANON_KEY,
         NEXT_PUBLIC_SITE_URL: 'http://localhost:3000',
         ADMIN_SITE_URL: ADMIN_URL,
+        // ADM-014 · Domínio .invalid (RFC 2606): o reenvio falha na hora, sem sair da máquina.
+        LEAD_WEBHOOK_URL: 'https://crm.invalid/webhook',
+        LEAD_WEBHOOK_SECRET: 'e2e-segredo-do-webhook-com-32-caracteres',
         NEXT_TELEMETRY_DISABLED: '1',
       },
     },

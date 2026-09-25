@@ -15,11 +15,12 @@ import {
 import { ArrowLeft, Download, Trash2 } from '@rio-negro/ui/icons'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
-import { deleteLead } from '@/app/leads/actions'
+import { deleteLead, resendWebhookFailures } from '@/app/leads/actions'
 import { formatDate, formatDateTime, formatTime } from '@/lib/domain/admin-date'
 import { formatPhone, type LeadRow } from '@/lib/domain/leads'
 import { ConfirmDeleteDialog } from './confirm-delete-dialog'
 import { Pagination } from './pagination'
+import { ResendFailuresButton } from './resend-failures-button'
 
 const EMPTY_MESSAGE = 'Nenhum lead recebido ainda.'
 
@@ -33,6 +34,10 @@ type LeadsViewProps = {
   backToArticles?: boolean
   exportHref: string
   pageHref: (page: number) => string
+  /** Filtro do reenvio: o artigo da lista, ou null na lista geral. */
+  articleId: string | null
+  /** Leads `failed` do filtro, ou null sem LEAD_WEBHOOK_URL (o botão some, ADM-014). */
+  failedCount: number | null
 }
 
 function optIn(lead: LeadRow) {
@@ -184,6 +189,8 @@ export function LeadsView({
   backToArticles = false,
   exportHref,
   pageHref,
+  articleId,
+  failedCount,
 }: LeadsViewProps) {
   const empty = total === 0
   const actionClasses = 'max-md:h-(--control-height) max-md:w-full max-md:text-sm'
@@ -207,7 +214,7 @@ export function LeadsView({
             {total} {total === 1 ? 'lead' : 'leads'} · {scope}
           </p>
         </div>
-        <div className="flex flex-col gap-2 md:flex-row">
+        <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:justify-end">
           {empty ? (
             <Button variant="secondary" size="sm" disabled className={actionClasses}>
               <Download aria-hidden className="size-4" />
@@ -220,6 +227,13 @@ export function LeadsView({
                 Exportar CSV
               </a>
             </Button>
+          )}
+          {failedCount === null ? null : (
+            <ResendFailuresButton
+              failedCount={failedCount}
+              action={resendWebhookFailures.bind(null, articleId)}
+              className={actionClasses}
+            />
           )}
         </div>
       </div>
