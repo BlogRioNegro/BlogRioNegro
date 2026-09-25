@@ -13,7 +13,7 @@ vi.stubEnv('TURNSTILE_SECRET_KEY', 'turnstile-secret-key')
 vi.stubEnv('LEAD_HASH_SECRET', 'x'.repeat(32))
 vi.stubEnv('NEXT_PUBLIC_RIO_NEGRO_URL', 'https://rionegro.example')
 
-const { coverUrl, getArticleBySlug, listArticles, previewPdfUrl } =
+const { coverUrl, findCurrentSlug, getArticleBySlug, listArticles, previewPdfUrl } =
   await import('../../apps/web/lib/services/articles')
 
 const LIST_COLUMNS = [
@@ -108,5 +108,27 @@ describe('previewPdfUrl', () => {
     expect(previewPdfUrl('a/previa.pdf')).toBe(
       `${localSupabase.API_URL}/storage/v1/object/public/article-previews/a/previa.pdf`,
     )
+  })
+})
+
+describe('findCurrentSlug', () => {
+  const id = '77777777-7777-4777-8777-777777777777'
+
+  beforeAll(() => {
+    insertOldArticle(id)
+    executeLocalSql(`update public.articles set slug = 'slug-novo-${id}' where id = '${id}'`)
+  })
+
+  afterAll(() => {
+    executeLocalSql(`delete from public.articles where id = '${id}'`)
+  })
+
+  it('devolve o slug atual para um slug antigo (anon)', async () => {
+    expect(await findCurrentSlug(`empate-${id}`)).toBe(`slug-novo-${id}`)
+  })
+
+  it('devolve null para slug atual ou inexistente', async () => {
+    expect(await findCurrentSlug(`slug-novo-${id}`)).toBeNull()
+    expect(await findCurrentSlug('nao-existe')).toBeNull()
   })
 })

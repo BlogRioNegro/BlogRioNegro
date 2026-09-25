@@ -5,6 +5,10 @@ import nextConfig from './next.config'
 
 const MAIN_ROUTES = ['/', '/artigos/exemplo']
 
+vi.mock('./lib/services/articles', () => ({
+  findCurrentSlug: vi.fn(async (slug: string) => (slug === 'slug-antigo' ? 'slug-atual' : null)),
+}))
+
 async function loadProxy() {
   vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://projeto.supabase.co')
   vi.stubEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'anon-key')
@@ -32,7 +36,7 @@ describe('proxy do apps/web', () => {
     proxyModule = await loadProxy()
   })
 
-  function request(path: string) {
+  async function request(path: string) {
     return proxyModule.proxy(new NextRequest(`https://blog.example${path}`))
   }
 
@@ -48,8 +52,8 @@ describe('proxy do apps/web', () => {
     )
   })
 
-  it('envia a CSP com nonce, strict-dynamic, Supabase e Turnstile', () => {
-    const csp = cspOf(request('/'))
+  it('envia a CSP com nonce, strict-dynamic, Supabase e Turnstile', async () => {
+    const csp = cspOf(await request('/'))
 
     expect(csp).toMatch(
       /script-src 'self' 'nonce-[^']+' 'strict-dynamic' https:\/\/challenges\.cloudflare\.com/,
@@ -67,23 +71,53 @@ describe('proxy do apps/web', () => {
     )
   })
 
-  it('gera um nonce diferente a cada request', () => {
-    const nonces = MAIN_ROUTES.flatMap((path) => [request(path), request(path)]).map((response) =>
-      nonceOf(cspOf(response)),
+  it('gera um nonce diferente a cada request', async () => {
+    const responses = await Promise.all(
+      MAIN_ROUTES.flatMap((path) => [request(path), request(path)]),
     )
+    const nonces = responses.map((response) => nonceOf(cspOf(response)))
 
     expect(nonces.every(Boolean)).toBe(true)
     expect(new Set(nonces).size).toBe(nonces.length)
   })
 
-  it('repassa a mesma CSP ao render para o Next aplicar o nonce nos scripts', () => {
-    const response = request('/')
+  it('repassa a mesma CSP ao render para o Next aplicar o nonce nos scripts', async () => {
+    const response = await request('/')
 
     expect(response.headers.get('x-middleware-request-content-security-policy')).toBe(
       cspOf(response),
     )
     expect(response.headers.get('x-middleware-request-x-nonce')).toBe(nonceOf(cspOf(response)))
   })
+})
+
+describe('PUB-008 · redirect de slug antigo no proxy', () => {
+  let proxyModule: Awaited<ReturnType<typeof loadProxy>>
+
+  beforeAll(async () => {
+    proxyModule = await loadProxy()
+  })
+
+  it('responde 301 para o slug atual, mantendo a query', async () => {
+    const response = await proxyModule.proxy(
+      new NextRequest('https://blog.example/artigos/slug-antigo?utm_source=whatsapp'),
+    )
+
+    expect(response.status).toBe(301)
+    expect(response.headers.get('location')).toBe(
+      'https://blog.example/artigos/slug-atual?utm_source=whatsapp',
+    )
+  })
+
+  it.each(['/artigos/slug-atual', '/artigos/nao-existe', '/artigos', '/slug-antigo'])(
+    'segue para a página em %s',
+    async (path) => {
+      const response = await proxyModule.proxy(new NextRequest(`https://blog.example${path}`))
+
+      expect(response.status).toBe(200)
+      expect(cspOf(response)).toContain('nonce-')
+    },
+  )
 })
 
 describe('headers fixos do apps/web', () => {

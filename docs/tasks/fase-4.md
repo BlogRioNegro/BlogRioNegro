@@ -12,7 +12,7 @@ Specs: [03-public-site](../specs/03-public-site.md). UI depende da fase 2.
 - [x] **F4-008** · PUB-006 · Prévia rich_text
 - [x] **F4-009** · PUB-013 · Rodapé: CTA discreto, disclaimer copiado exatamente do site oficial, link Privacidade
 - [x] **F4-010** · PUB-007 · Prévia pdf embutida com fallback de link
-- [ ] **F4-011** · PUB-008 · Redirect 301 de slug antigo
+- [x] **F4-011** · PUB-008 · Redirect 301 de slug antigo
 - [ ] **F4-012** · PUB-014 · Página `/privacidade` com o texto de LEAD-013
 - [ ] **F4-013** · PUB-010 · Metadata e OG com fallback de descrição
 - [ ] **F4-014** · PUB-011 · sitemap.xml e robots.txt

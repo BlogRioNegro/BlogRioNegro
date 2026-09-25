@@ -42,6 +42,21 @@ export async function getArticleBySlug(slug: string) {
   return data
 }
 
+/** PUB-008 · Slug atual do artigo que já usou `oldSlug`, ou null se o slug nunca foi trocado. */
+export async function findCurrentSlug(oldSlug: string): Promise<string | null> {
+  const { data, error } = await createPublicClient()
+    .from('article_slug_history')
+    .select('articles(slug)')
+    .eq('old_slug', oldSlug)
+    .maybeSingle()
+
+  if (error) {
+    logger.error('articles.slug_history_failed', { error })
+    throw new Error('Falha ao consultar o histórico de slugs')
+  }
+  return data?.articles?.slug ?? null
+}
+
 function publicUrl(bucket: 'covers' | 'article-previews', path: string): string {
   return createPublicClient().storage.from(bucket).getPublicUrl(path).data.publicUrl
 }

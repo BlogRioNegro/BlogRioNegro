@@ -207,3 +207,34 @@ test.describe('PUB-007 · Prévia pdf', () => {
     expect((await response.body()).toString('latin1')).toContain('/Count 2')
   })
 })
+
+test.describe('PUB-008 · Redirect de slug antigo', () => {
+  const id = '88888888-8888-4888-8888-888888888888'
+
+  test.beforeAll(() => {
+    executeLocalSql(`with a as (
+      insert into public.articles (id, slug, title, cover_path, content_type, preview_pdf_path, published_at)
+      values ('${id}', 'slug-compartilhado', 'Artigo com slug editado', 'x/capa.jpg', 'pdf', 'x/previa.pdf',
+        now() - interval '30 days')
+      returning id
+    ) insert into public.article_contents (article_id, full_pdf_path) select id, 'x/completo.pdf' from a`)
+    executeLocalSql(`update public.articles set slug = 'slug-editado' where id = '${id}'`)
+  })
+
+  test.afterAll(() => {
+    executeLocalSql(`delete from public.articles where id = '${id}'`)
+  })
+
+  test('link antigo responde 301 para o slug atual e abre o artigo', async ({ page, request }) => {
+    const response = await request.get(webUrl('/artigos/slug-compartilhado'), { maxRedirects: 0 })
+
+    expect(response.status()).toBe(301)
+    expect(response.headers()['location']).toMatch(/\/artigos\/slug-editado$/)
+
+    await page.goto(webUrl('/artigos/slug-compartilhado'))
+    await expect(page).toHaveURL(webUrl('/artigos/slug-editado'))
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Artigo com slug editado' }),
+    ).toBeVisible()
+  })
+})
