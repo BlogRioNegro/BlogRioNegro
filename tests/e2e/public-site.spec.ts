@@ -33,6 +33,10 @@ test.describe('PUB-001 · Home', () => {
       'href',
       '/privacidade',
     )
+    await expect(footer).toContainText(
+      'A Rio Negro Assessoria de Investimentos Ltda, inscrita sob o CNPJ 33.457.321/0001-79',
+    )
+    await expect(footer).toContainText('Ouvidoria da XP pelo telefone 0800 722 3730.')
   })
 })
 

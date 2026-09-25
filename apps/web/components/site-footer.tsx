@@ -4,9 +4,9 @@ import Link from 'next/link'
 import { env } from '@/lib/env'
 import { Logo } from './logo'
 
-// TODO(F4-009): trocar pelo disclaimer copiado do rodapé de rionegroinvestimentos.com.br.
+// PUB-013 · Cópia exata do rodapé de rionegroinvestimentos.com.br (2026-09-25). Não editar à mão.
 const DISCLAIMER =
-  'Texto provisório, sujeito à aprovação do compliance. A Rio Negro Assessoria de Investimentos Ltda. é uma assessoria de investimento registrada na Comissão de Valores Mobiliários (CVM), nos termos da Resolução CVM 178/23, e atua por meio de contrato de distribuição com a XP Investimentos CCTVM S.A. O conteúdo deste blog é informativo e não constitui oferta nem recomendação de investimento. Rentabilidade passada não garante rentabilidade futura.'
+  'A Rio Negro Assessoria de Investimentos Ltda, inscrita sob o CNPJ 33.457.321/0001-79 é uma empresa de Assessoria de Investimento devidamente registrada na Comissão de Valores Mobiliários na forma da Resolução CVM 178/23 (“Sociedade”), que mantém contrato de distribuição de produtos financeiros com a XP Investimentos Corretora de Câmbio, Títulos e Valores Mobiliários S.A. (“XP”) e pode, por conta e ordem dos seus clientes, operar no mercado de capitais segundo a legislação vigente. Na forma da legislação da CVM, o Assessor de Investimento não pode administrar ou gerir o patrimônio de investidores. O investimento em ações é um investimento de risco e rentabilidade passada não é garantia de rentabilidade futura. Na realização de operações com derivativos existe a possibilidade de perdas superiores aos valores investidos, podendo resultar em significativas perdas patrimoniais. A Sociedade poderá exercer atividades complementares relacionadas aos mercados financeiro, securitário, de previdência e capitalização, desde que não conflitem com a atividade de assessoria de investimentos, podendo ser realizada por meio da pessoa jurídica acima descrita ou por meio de pessoa jurídica terceira. Todas as atividades são prestadas mantendo a devida segregação e em cumprimento ao quanto previsto nas regras da CVM ou de outros órgãos reguladores e autorreguladores. Para informações e dúvidas sobre produtos contacte seu assessor de investimentos. Para reclamações, contacte a Ouvidoria da XP pelo telefone 0800 722 3730.'
 
 export function SiteFooter() {
   return (
