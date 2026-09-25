@@ -6,5 +6,5 @@ Specs: [06-design-system](../specs/06-design-system.md). Depende da fase 1 e da 
 - [x] **F2-002** · DS-004 · Componentes base shadcn/ui com os tokens; registrar a lista na spec 06
 - [x] **F2-003** · DS-005 · Preencher "UI · pending-design" da spec 03
 - [x] **F2-004** · DS-005 · Preencher "UI · pending-design" da spec 04
-- [ ] **F2-005** · DS-005 · Preencher "UI · pending-design" da spec 05
+- [x] **F2-005** · DS-005 · Preencher "UI · pending-design" da spec 05
 - [ ] **F2-006** · DS-006 · Registrar checklist de acessibilidade por componente
