@@ -206,6 +206,22 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      save_article: {
+        Args: {
+          article_id: string
+          body_json?: Json
+          content_type: Database['public']['Enums']['article_content_type']
+          cover_path: string
+          full_pdf_path: string
+          preview_json?: Json
+          preview_pdf_path?: string
+          published_at: string
+          slug: string
+          summary?: string
+          title: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       article_content_type: 'pdf' | 'rich_text'

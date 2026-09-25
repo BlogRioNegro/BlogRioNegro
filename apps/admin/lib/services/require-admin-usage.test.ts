@@ -38,6 +38,7 @@ const serverEntries = SCANNED_DIRS.flatMap(sourceFiles).filter((file) =>
 describe('requireAdmin() em toda Server Action e route handler', () => {
   it('encontra os arquivos de server do admin', () => {
     expect(serverEntries).toContain(path.join('app', 'auth-actions.ts'))
+    expect(serverEntries).toContain(path.join('app', 'artigos', 'actions.ts'))
   })
 
   it.each(serverEntries.filter((file) => !EXEMPT.has(file)))(

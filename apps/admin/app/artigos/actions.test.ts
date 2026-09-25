@@ -1,0 +1,145 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { ARTICLE_MESSAGES } from '../../lib/domain/article-form'
+import { GENERIC_ERROR_MESSAGE } from '../../lib/services/action-result'
+import type { ArticleForEdit } from '../../lib/services/article-store'
+
+const requireAdmin = vi.fn()
+const store = {
+  findArticleForEdit: vi.fn(),
+  saveArticleRecord: vi.fn(),
+  uploadFile: vi.fn(),
+  removeFiles: vi.fn(),
+}
+
+vi.mock('../../lib/services/require-admin', () => ({ requireAdmin }))
+vi.mock('../../lib/services/article-store', () => store)
+vi.mock('next/navigation', () => ({
+  redirect: (url: string) => {
+    throw new Error(`NEXT_REDIRECT:${url}`)
+  },
+}))
+
+const { saveArticle } = await import('./actions')
+
+const ID = '4b4f7c5e-2d7a-4c1e-9d55-0a3f5c1e8b21'
+const supabase = { marker: 'supabase' }
+
+const EXISTING: ArticleForEdit = {
+  id: ID,
+  slug: 'carteira-de-outubro',
+  title: 'Carteira de outubro',
+  summary: null,
+  cover_path: `${ID}/capa-antiga.png`,
+  content_type: 'pdf',
+  preview_json: null,
+  preview_pdf_path: `${ID}/previa.pdf`,
+  published_at: '2026-09-20T12:00:00.000Z',
+  article_contents: { body_json: null, full_pdf_path: `${ID}/completo.pdf` },
+}
+
+function form(overrides: Record<string, string | File> = {}) {
+  const values: Record<string, string | File> = {
+    id: ID,
+    title: 'Carteira recomendada de outubro',
+    slug: 'carteira-de-outubro',
+    summary: '',
+    contentType: 'pdf',
+    publishedDate: '2026-09-20',
+    ...overrides,
+  }
+  const formData = new FormData()
+  for (const [name, value] of Object.entries(values)) formData.set(name, value)
+  return formData
+}
+
+const png = () => new File([new Uint8Array([1, 2, 3])], 'capa.png', { type: 'image/png' })
+
+describe('saveArticle', () => {
+  beforeEach(() => {
+    vi.spyOn(process.stderr, 'write').mockReturnValue(true)
+    requireAdmin.mockResolvedValue({ ok: true, supabase, userId: 'admin' })
+    store.findArticleForEdit.mockResolvedValue(EXISTING)
+    store.saveArticleRecord.mockResolvedValue(null)
+    store.uploadFile.mockResolvedValue(null)
+  })
+
+  afterEach(() => {
+    vi.resetAllMocks()
+  })
+
+  it('devolve a negação do requireAdmin sem tocar no banco', async () => {
+    requireAdmin.mockResolvedValue({ ok: false, error: 'Sessão expirada' })
+
+    expect(await saveArticle(null, form())).toEqual({
+      ok: false,
+      error: 'Sessão expirada',
+      fieldErrors: {},
+    })
+    expect(store.findArticleForEdit).not.toHaveBeenCalled()
+  })
+
+  it('devolve erros por campo sem consultar o banco', async () => {
+    const result = await saveArticle(null, form({ title: 'ab', slug: 'Slug Inválido' }))
+
+    expect(result?.fieldErrors).toEqual({
+      title: ARTICLE_MESSAGES.title,
+      slug: ARTICLE_MESSAGES.slug,
+    })
+    expect(store.findArticleForEdit).not.toHaveBeenCalled()
+  })
+
+  it('edita mantendo capa, conteúdo e instante de publicação e volta para a lista', async () => {
+    await expect(saveArticle(null, form())).rejects.toThrow('NEXT_REDIRECT:/artigos')
+
+    expect(store.saveArticleRecord).toHaveBeenCalledWith(supabase, {
+      article_id: ID,
+      slug: 'carteira-de-outubro',
+      title: 'Carteira recomendada de outubro',
+      summary: undefined,
+      cover_path: EXISTING.cover_path,
+      content_type: 'pdf',
+      published_at: EXISTING.published_at,
+      preview_json: undefined,
+      preview_pdf_path: `${ID}/previa.pdf`,
+      body_json: undefined,
+      full_pdf_path: `${ID}/completo.pdf`,
+    })
+    expect(store.uploadFile).not.toHaveBeenCalled()
+  })
+
+  it('troca a capa e remove a antiga depois de salvar', async () => {
+    await expect(saveArticle(null, form({ cover: png() }))).rejects.toThrow('NEXT_REDIRECT')
+
+    const [, bucket, path] = store.uploadFile.mock.calls[0] ?? []
+    expect(bucket).toBe('covers')
+    expect(path).toMatch(new RegExp(`^${ID}/[0-9a-f-]{36}\\.png$`))
+    expect(store.saveArticleRecord.mock.calls[0]?.[1]).toMatchObject({ cover_path: path })
+    expect(store.removeFiles).toHaveBeenCalledWith(supabase, 'covers', [EXISTING.cover_path])
+  })
+
+  it('exige a capa na criação', async () => {
+    store.findArticleForEdit.mockResolvedValue(null)
+
+    const result = await saveArticle(null, form())
+
+    expect(result?.fieldErrors.cover).toBe(ARTICLE_MESSAGES.cover)
+    expect(store.saveArticleRecord).not.toHaveBeenCalled()
+  })
+
+  it('pede o conteúdo quando não há conteúdo do tipo escolhido', async () => {
+    const result = await saveArticle(null, form({ contentType: 'rich_text' }))
+
+    expect(result?.fieldErrors.content).toBe(ARTICLE_MESSAGES.richText)
+    expect(store.saveArticleRecord).not.toHaveBeenCalled()
+  })
+
+  it('falha ao salvar: erro genérico e remove a capa recém-enviada', async () => {
+    store.saveArticleRecord.mockResolvedValue({ code: '23505', message: 'duplicate key' })
+
+    const result = await saveArticle(null, form({ cover: png() }))
+
+    expect(result).toEqual({ ok: false, error: GENERIC_ERROR_MESSAGE, fieldErrors: {} })
+    const uploadedPath = store.uploadFile.mock.calls[0]?.[2]
+    expect(store.removeFiles).toHaveBeenCalledWith(supabase, 'covers', [uploadedPath])
+  })
+})
