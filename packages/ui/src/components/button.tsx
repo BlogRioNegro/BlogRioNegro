@@ -12,7 +12,7 @@ export const buttonVariants = cva(
         primary: 'bg-action-primary text-action-primary-text hover:bg-action-primary-hover',
         secondary: 'border border-border-strong bg-surface text-text hover:bg-surface-muted',
         ghost: 'text-text hover:bg-surface-muted',
-        link: 'h-auto p-0 text-text underline underline-offset-3 hover:decoration-2 disabled:bg-transparent',
+        link: 'text-text underline underline-offset-3 hover:decoration-2 disabled:bg-transparent',
       },
       size: {
         md: 'h-(--control-height) px-4',
@@ -22,6 +22,8 @@ export const buttonVariants = cva(
       },
       block: { true: 'w-full' },
     },
+    // O link acompanha o texto: sem a altura e o padding do tamanho.
+    compoundVariants: [{ variant: 'link', className: 'h-auto p-0' }],
     defaultVariants: { variant: 'primary', size: 'md' },
   },
 )

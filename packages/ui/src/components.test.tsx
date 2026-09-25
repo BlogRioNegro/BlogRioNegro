@@ -46,6 +46,13 @@ describe('Button', () => {
     expect(html).toMatch(/^<a [^>]*href="\/artigos"/)
     expect(html).toContain('border-border-strong')
   })
+
+  it('link não herda a altura nem o padding do tamanho', () => {
+    const html = render(<Button variant="link">Todos os artigos</Button>)
+
+    expect(html).toContain('h-auto p-0')
+    expect(html).not.toMatch(/px-4|h-\(--control-height\)/)
+  })
 })
 
 describe('TextField', () => {

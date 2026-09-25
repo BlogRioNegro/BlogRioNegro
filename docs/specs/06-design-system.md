@@ -154,7 +154,7 @@ de 4 px (`p-4` = `--space-4`). A paleta padrão do Tailwind é desativada.
 
 Componentes base em `packages/ui/src/components` (shadcn/ui + Radix, só utilitários de token),
 exportados por `@rio-negro/ui`. Esta tabela e os exports do pacote concordam (teste em
-`packages/ui/src/components.test.tsx`). Ícones: `lucide-react` direto, decorativos com `aria-hidden`.
+`packages/ui/src/components.test.tsx`). Ícones: `lucide-react`, que os apps importam de `@rio-negro/ui/icons` ([ADR 0024](../adr/0024-icones-via-packages-ui.md)); decorativos com `aria-hidden`.
 
 | Componente | Responsabilidade | Estados |
 |---|---|---|
