@@ -3,10 +3,10 @@
 _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
 
 ## Fase
-Fase 5 na branch `fase-5` (criada da `fase-4`): F5-001 a F5-004 `[x]`. typecheck, lint, test e format:check verdes. Sem push.
+Fase 5 na branch `fase-5` (criada da `fase-4`): F5-001 a F5-005 `[x]`. typecheck, lint, test e format:check verdes. Sem push.
 
 ## Próxima tarefa
-F5-005 · LEAD-008 · teste de integração da persistência (depois F5-006 e F5-007, sem UI).
+F5-006 · LEAD-009 · testes da URL assinada em `tests/integration/lead-download.test.ts` (depois F5-007).
 A orquestração (`lib/services/article-download.ts`), `insertLead`/`createDownloadUrl` (`lib/services/leads.ts`)
 e a action (`app/artigos/[slug]/actions.ts`) já existem; o insert grava `webhook_status: disabled` até a F5-007.
 Ler [docs/tasks/fase-5.md](tasks/fase-5.md) e [docs/specs/04-lead-capture.md](specs/04-lead-capture.md).
