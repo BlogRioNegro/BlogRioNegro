@@ -3,12 +3,12 @@
 _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
 
 ## Fase
-Fase 6 na branch `fase-6`. F6-001 a F6-007 `[x]`. Correções feitas: WebP fora (ADR 0037), CSP
+Fase 6 na branch `fase-6`. F6-001 a F6-008 `[x]`. Correções feitas: WebP fora (ADR 0037), CSP
 do Dialog (`StyleNonce` + `get-nonce`), deploy em VPS StayCloud Node 22 (ADR 0038). Sem push.
 
 ## Próxima tarefa
-F6-008 · ADM-010 · data de publicação editável (a data editada muda a ordem e o destaque).
-Depois F6-009 a F6-013, visual do login (F6-extra) e o gate.
+F6-009 · ADM-011 · troca de `content_type` sem arquivos órfãos (teste do Storage). Depois
+F6-010 a F6-013, visual do login (F6-extra) e o gate.
 
 ## Decisões da fase 6 (valem para F6-007+)
 - Server Action/route handler: `requireAdmin()` na 1ª linha + teste de integração sem cookie
