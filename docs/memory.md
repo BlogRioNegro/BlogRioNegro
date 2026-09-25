@@ -3,12 +3,13 @@
 _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
 
 ## Fase
-Fase 6 na branch `fase-6`. F6-001 a F6-009 `[x]`. Correções feitas: WebP fora (ADR 0037), CSP
+Fase 6 na branch `fase-6`. F6-001 a F6-010 `[x]`. Correções feitas: WebP fora (ADR 0037), CSP
 do Dialog (`StyleNonce` + `get-nonce`), deploy em VPS StayCloud Node 22 (ADR 0038). Sem push.
 
 ## Próxima tarefa
-F6-010 · ADM-012 · exclusão de artigo (Dialog, remove arquivos, leads preservados com
-`article_id = null`). Depois F6-011 a F6-013, visual do login (F6-extra) e o gate.
+F6-011 · ADM-013 · leads: lista por artigo e geral (paginada, 10), CSV em route handler
+(BOM, `;`, anti-injection), exclusão de lead com `ConfirmDeleteDialog`. Depois F6-012, F6-013,
+visual do login (F6-extra) e o gate.
 
 ## Decisões da fase 6 (valem para F6-007+)
 - Server Action/route handler: `requireAdmin()` na 1ª linha + teste de integração sem cookie
@@ -18,6 +19,7 @@ F6-010 · ADM-012 · exclusão de artigo (Dialog, remove arquivos, leads preserv
   `resolveContent` → `uploadAll` (rollback) → RPC → `staleFiles` removidos.
 - Uploads (ADR 0034, 0037): `UPLOAD_RULES` + `validateUpload`; imagens só PNG/JPEG (`IMAGE_ACCEPT`).
 - Slug (ADM-009): `slugFromTitle`; 23505 do `save_article` = slug em uso (`ARTICLE_MESSAGES.slugTaken`).
+- Exclusão: `components/confirm-delete-dialog.tsx` (action ligada com `.bind`, `router.refresh`).
 - Integração com sessão de admin: mock de `require-admin` devolvendo `adminClient()`
   (`tests/integration/admin-content-type-switch.test.ts`).
 - Editor (ADR 0035): `checkRichText`, imagens só de `article-images/<article_id>/`, `alt` obrigatório.
