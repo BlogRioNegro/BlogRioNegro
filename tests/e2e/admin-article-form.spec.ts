@@ -67,7 +67,7 @@ test.describe('formulário de artigo', () => {
     await signInAsAdmin(page)
     await page.goto('/artigos/novo')
     const articleId = await page.locator('input[name="id"]').inputValue()
-    // Só o editor: a carga em modo dev e o Dialog do Radix têm violações próprias (ver memory).
+    // Só o editor: a carga em modo dev (`next dev`) tem violações de estilo próprias.
     cspViolations.length = 0
 
     await page.getByRole('group', { name: 'Tipo' }).getByRole('button', { name: 'Texto' }).click()

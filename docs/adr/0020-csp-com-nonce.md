@@ -17,6 +17,10 @@ O App Router injeta scripts inline (payload do RSC). Uma CSP sem nonce só funci
   de prévias (`<supabase>/storage/v1/object/public/article-previews/`), porque a prévia pdf é
   embutida num `<object>` (o Chrome aplica `frame-src`, o Firefox `object-src`). Antes,
   `object-src 'none'`.
+- Estilos injetados em runtime (2026-09-25): o `Dialog` do Radix (`react-remove-scroll`) cria um
+  `<style>` ao abrir. O layout raiz de cada app lê o `x-nonce` do request e o componente folha
+  `StyleNonce` chama `setNonce` do `get-nonce` antes de qualquer `Dialog`. `style-src` segue sem
+  `'unsafe-inline'` (e2e `csp-dialog.spec.ts`).
 
 ## Consequências
 - Páginas com nonce precisam de render dinâmico; custa pouco porque a [ADR 0003](0003-renderizacao-dinamica.md)

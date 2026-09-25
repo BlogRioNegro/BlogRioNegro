@@ -1,8 +1,10 @@
 import { fontVariables } from '@rio-negro/ui/fonts'
 import type { Metadata } from 'next'
+import { headers } from 'next/headers'
 import { connection } from 'next/server'
 import type { ReactNode } from 'react'
 import { SiteFooter } from '@/components/site-footer'
+import { StyleNonce } from '@/components/style-nonce'
 import { BLOG_DESCRIPTION } from '@/lib/domain/article-description'
 import { env } from '@/lib/env'
 import './globals.css'
@@ -20,10 +22,12 @@ export const metadata: Metadata = {
 // não re-renderiza na navegação.
 export default async function RootLayout({ children }: { children: ReactNode }) {
   await connection()
+  const nonce = (await headers()).get('x-nonce') ?? ''
 
   return (
     <html lang="pt-BR" className={fontVariables}>
       <body className="flex min-h-screen flex-col">
+        <StyleNonce nonce={nonce} />
         {children}
         <SiteFooter />
       </body>
