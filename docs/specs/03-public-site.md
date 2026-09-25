@@ -152,6 +152,12 @@ Rótulo "Erro 404" (`text-xs`, `--color-text-muted`), H1 "Página não encontrad
 pode ter mudado ou o conteúdo não está mais disponível." e `Button` primário "Ver todos os
 artigos" → `/artigos`.
 
+### Erro (PUB-015)
+Mesmo layout do 404, sem rótulo: H1 "Algo deu errado", texto "Não foi possível carregar esta página
+agora. Tente novamente em instantes.", `Button` primário "Tentar novamente" (chama o `reset` do
+error boundary) e `Button` link "Ver artigos" → `/artigos`
+([ADR 0030](../adr/0030-textos-da-pagina-de-erro.md)). Nada do erro é exibido (SEC-008).
+
 ### Divergências do protótipo (vale a spec)
 - Listagem em grade de colunas no protótipo → **coluna única** (PUB-003).
 - Página do artigo sem capa no protótipo → **com capa** (PUB-005).

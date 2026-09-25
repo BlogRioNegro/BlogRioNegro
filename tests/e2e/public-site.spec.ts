@@ -396,3 +396,66 @@ test.describe('PUB-012 · RSS', () => {
     )
   })
 })
+
+test.describe('PUB-015 · Páginas de erro', () => {
+  test('rota inexistente mostra o 404 com link para /artigos', async ({ page }) => {
+    const response = await page.goto(webUrl('/pagina-que-nao-existe'))
+
+    expect(response?.status()).toBe(404)
+    const main = page.getByRole('main')
+    await expect(main.getByText('Erro 404')).toBeVisible()
+    await expect(
+      main.getByRole('heading', { level: 1, name: 'Página não encontrada' }),
+    ).toBeVisible()
+    await expect(main.getByRole('link', { name: 'Ver todos os artigos' })).toHaveAttribute(
+      'href',
+      '/artigos',
+    )
+  })
+
+  test.describe('com o banco recusando a leitura', () => {
+    test.beforeAll(() => {
+      executeLocalSql('revoke select on public.articles from anon')
+    })
+
+    test.afterAll(() => {
+      executeLocalSql('grant select on public.articles to anon')
+    })
+
+    test('mostra a página de erro sem detalhes do banco', async ({ page }) => {
+      await page.goto(webUrl('/artigos'))
+
+      const main = page.getByRole('main')
+      await expect(main.getByRole('heading', { level: 1, name: 'Algo deu errado' })).toBeVisible()
+      await expect(
+        main.getByText(
+          'Não foi possível carregar esta página agora. Tente novamente em instantes.',
+        ),
+      ).toBeVisible()
+      await expect(main.getByRole('button', { name: 'Tentar novamente' })).toBeVisible()
+      await expect(main.getByRole('link', { name: 'Ver artigos' })).toHaveAttribute(
+        'href',
+        '/artigos',
+      )
+      await expect(main).not.toContainText(/permission|denied|articles|Falha/i)
+    })
+  })
+})
+
+test.describe('PUB-013 · Rodapé em todas as páginas', () => {
+  for (const path of [
+    '/',
+    '/artigos',
+    '/artigos/renda-fixa-em-2026',
+    '/privacidade',
+    '/nao-existe',
+  ]) {
+    test(`rodapé com disclaimer e Privacidade em ${path}`, async ({ page }) => {
+      await page.goto(webUrl(path))
+
+      const footer = page.getByRole('contentinfo')
+      await expect(footer).toContainText('Resolução CVM 178/23')
+      await expect(footer.getByRole('link', { name: 'Privacidade' })).toBeVisible()
+    })
+  }
+})
