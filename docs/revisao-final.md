@@ -2,7 +2,7 @@
 
 Auditoria somente leitura da branch `fase-7` (a partir da `fase-6`, commit `00afb7b`), em
 2026-09-25, contra o Supabase local. Nenhum código de `apps/`, `packages/` ou `supabase/` foi
-alterado. Dados de exemplo nos testes e scripts são fictícios.
+alterado; só entraram este relatório, `tests/e2e/a11y.spec.ts` e a devDependency `@axe-core/playwright`. Dados de exemplo nos testes e scripts são fictícios.
 
 Tarefas: [F7-001](tasks/fase-7.md) (security review), F7-003 (QA exploratório) e F7-004
 (acessibilidade).
@@ -16,7 +16,13 @@ Tarefas: [F7-001](tasks/fase-7.md) (security review), F7-003 (QA exploratório) 
 | Médio | 2 |
 | Baixo | 9 |
 
-**Pronto para deploy: _em andamento_** (veredito final ao fim da F7-004).
+A11Y (F7-004): 0 violações axe em 22 cenários.
+
+**Pronto para deploy: sim.** Nenhum achado bloqueia. Condições: confirmar o SEC-1 (header de IP)
+no 1º deploy e concluir as tarefas de produção (F7-002, F7-005 a F7-009).
+
+Correções mais urgentes: **QA-1** (CSP do Dialog após o login), **SEC-1** (IP do rate limit) e
+**SEC-2** (nome em log e lead com nome de 1 emoji recusado).
 
 ## 2. Achados
 
@@ -87,7 +93,35 @@ passo. Conteúdo e leads de QA foram criados e removidos no fim (e-mails fictíc
 | Admin: leads (geral e por artigo), CSV | ✅ | ✅ | CSV baixado; leads de artigo excluído seguem na lista geral com o título original |
 | Admin: "Reenviar falhas" | não verificado no build | não verificado no build | O botão não apareceu, então o ambiente local não define o webhook (`.env.local` não foi lido); é o comportamento da spec. Coberto pelo e2e `admin-leads.spec.ts` e pela integração `admin-lead-webhook.test.ts` |
 
-## 5. Fora do escopo
+## 5. Acessibilidade (F7-004)
+
+`tests/e2e/a11y.spec.ts` roda o axe (`@axe-core/playwright` 4.13, tags `wcag2a`, `wcag2aa`,
+`wcag21a`, `wcag21aa`) só com `A11Y=1`, contra os servidores do e2e (web :3100 em `next dev` e
+:3102 em build de produção). Comando: `A11Y=1 pnpm test:e2e a11y`.
+
+| Tela / estado | 1440 | 390 |
+|---|---|---|
+| Home, listagem, artigo pdf, artigo rich_text, /privacidade, 404 | 0 violações | 0 violações |
+| Página de erro (`revoke select` temporário) | 0 | 0 |
+| Modal · aberto | 0 | 0 |
+| Modal · erros de validação | 0 | 0 |
+| Modal · erro no envio (Turnstile recusado, :3102) | 0 | 0 |
+| Modal · sucesso ("Pronto!") | 0 | 0 |
+| Modal · link expirado (relógio avançado 2 min com `page.clock`) | 0 | 0 |
+
+Resultado: **22 cenários, 0 violações.** Para confirmar que não é um falso negativo, rodei o mesmo
+`AxeBuilder` com as mesmas tags num HTML de teste (imagem sem `alt`, botão sem nome, campo sem
+label, contraste baixo): ele acusou `image-alt`, `button-name`, `label` e `color-contrast`.
+
+Limites da auditoria automática:
+- O axe cobre só parte dos critérios WCAG; leitor de tela real (NVDA, VoiceOver) não foi usado.
+- O iframe do Turnstile é de outra origem e não é inspecionado.
+- O estado "Enviando…" é transitório e não foi auditado.
+- O admin fica fora do escopo da DS-006. O teclado nos dialogs dele foi checado no QA (seção 4).
+- Adicionar a devDependency fez o `pnpm` re-resolver o `vitest` da raiz no lockfile, com o peer
+  opcional `happy-dom`; nenhuma versão mudou.
+
+## 6. Fora do escopo
 
 - **Header de IP no Deploy Pro** (SEC-1) e HSTS (SEC-4): dependem da infraestrutura da StayCloud
   (F3-002, F7-007).
