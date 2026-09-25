@@ -3,44 +3,41 @@
 _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
 
 ## Fase
-Fase 6 na branch `fase-6` (a partir da `fase-5`). F6-001 a F6-003 `[x]`. Sem push.
+Fase 6 na branch `fase-6` (a partir da `fase-5`). F6-001 a F6-004 `[x]`. Sem push.
 
 ## Próxima tarefa
-F6-004 · ADM-005 · editor Tiptap (extensões de ADM-005) + upload de imagem inline em
-`article-images` via `validateUpload`; imagem sem `alt` impede salvar.
+F6-005 · ADM-007 · PDF: original em `article-files` + prévia de 2 páginas (`pdf-lib`) em
+`article-previews`; protegido/corrompido rejeitado; trocar o PDF remove os antigos.
 
 ## Decisões da fase 6 (valem para F6-007+)
-- Toda Server Action e route handler novos: `requireAdmin()` na 1ª linha + teste de integração
-  sem cookie esperando `UNAUTHORIZED_MESSAGE` (`require-admin-usage.test.ts` varre os arquivos).
-- `save_article` (migration 20260925184538): RPC transacional sob RLS; nuláveis por último com
-  default null. `saveArticle` em `app/artigos/actions.ts` reaproveita o conteúdo se o tipo não
-  mudou; PDF novo (F6-005) e rich text (F6-006) entram em `keptContent`/conteúdo novo.
-- Uploads (ADR 0034): `UPLOAD_RULES` em `lib/domain/upload-rules.ts`, `validateUpload` em
-  `lib/services/upload.ts` (magic bytes, extensão, tamanho); limites de corpo no `next.config.ts`.
+- Toda Server Action/route handler: `requireAdmin()` na 1ª linha + teste de integração sem cookie
+  (`tests/integration/admin-article-actions.test.ts`); `require-admin-usage.test.ts` varre `app/`.
+  Tipo de retorno com `{` inline quebra a varredura: usar alias de tipo.
+- `save_article` (ADR 0033): RPC transacional sob RLS. `saveArticle` (`app/artigos/actions.ts`)
+  reaproveita o conteúdo se o tipo não mudou e nada novo veio; PDF novo (F6-005) e rich text novo
+  (F6-006, hoje devolve erro de conteúdo) entram ali.
+- Uploads (ADR 0034): `UPLOAD_RULES` + `validateUpload` (magic bytes, extensão, tamanho).
+- Editor (ADR 0035): `checkRichText` em `lib/domain/rich-text.ts`; imagens só de
+  `article-images/<article_id>/`, `alt` obrigatório; `uploadArticleImage`.
 - Código de server do admin usa import relativo (vitest e integração não resolvem `@/`).
-- Páginas do painel usam `requireAdminPage()` (redireciona para /login) e o client dele.
-- Sem `service_role` no admin; se a spec exigir, parar e perguntar.
-- Dependências pré-autorizadas no admin: `@tiptap/*`, `pdf-lib`, `@react-pdf/renderer`, `file-type`.
-- Imagem do rich text exige `alt`, sem legenda (ADR 0031); serializer sem `dangerouslySetInnerHTML`.
-- Rotas: `/artigos` (lista), `/artigos/novo`, `/artigos/[id]` (edição), `/artigos/[id]/leads`, `/leads`.
-- Lista: o botão "Excluir" + `Dialog` entram na F6-010 (a ação ainda não existe).
-- F6-012: copiar `apps/web/lib/services/lead-webhook.ts` e testar com
-  `tests/fixtures/lead-webhook-signature.json` (ADR 0032).
+- Páginas usam `requireAdminPage()`. Sem `service_role` no admin (se a spec exigir, perguntar).
+- Deps pré-autorizadas no admin: `@tiptap/*`, `pdf-lib`, `@react-pdf/renderer`, `file-type`.
+- Rotas: `/artigos`, `/artigos/novo`, `/artigos/[id]`, `/artigos/[id]/leads`, `/leads`.
+- Lista: "Excluir" + `Dialog` entram na F6-010. F6-012: copiar `lead-webhook.ts` do web (ADR 0032).
 
 ## Regras do loop
-- E2E: web :3100 (dev), web :3102 (build+start), admin :3101. Parar o `pnpm dev` antes.
+- E2E: web :3100, web :3102 (build+start), admin :3101. Parar o `pnpm dev` antes.
   `tests/e2e/support/admin.ts` tem `signIn`/`signInAsAdmin`.
-- Visual: `VISUAL=1 pnpm test:e2e admin-articles` gera app e protótipo em `tests/e2e/__visual__/`
+- Visual: `VISUAL=1 pnpm test:e2e admin-` gera app e protótipo em `tests/e2e/__visual__/`
   pelo seletor `[data-screen-label="<Tela> · <estado> · desktop|mobile"] > div`.
-- Env do admin nos testes de integração: `vi.stubEnv` das 4 variáveis (ver `admin-articles.test.ts`).
 
 ## Ambiente
 - Nunca ler `.env*`. `pnpm test` exige Docker Desktop aberto + `pnpm exec supabase start`.
 
 ## Pendências para o Rafael
-- Conferir no `apps/web/.env.local` as chaves de TESTE do Turnstile.
-- Confirmar o header de IP confiável na StayCloud (F3-002).
-- Contato do encarregado (DPO) para `/privacidade`.
-- Aceites manuais com URL pública: PUB-007 (iOS/Android), PUB-010 (WhatsApp/LinkedIn), PUB-012 (W3C).
-- `corepack enable` como admin; push das branches; F3-002 (StayCloud); domínios.
+- Turnstile de teste no `apps/web/.env.local`; header de IP na StayCloud (F3-002); DPO para
+  `/privacidade`; aceites manuais PUB-007/010/012; `corepack enable`; push; domínios.
+- `file-type` 22 exige Node ≥ 22 (conferir a versão na StayCloud).
+- CSP: o `Dialog` do Radix (react-remove-scroll) injeta `<style>` sem nonce e é bloqueado
+  (web e admin); o scroll lock não aplica. O modo dev do Next também gera violações de estilo.
 - Login do admin ainda sem o visual da spec (fora das F6-001 a F6-006).
