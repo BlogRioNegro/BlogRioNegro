@@ -3,11 +3,12 @@
 _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
 
 ## Fase
-Fase 6 na branch `fase-6`. F6-001 a F6-006 `[x]` (WebP removido, ADR 0037). Sem push.
+Fase 6 na branch `fase-6`. F6-001 a F6-006 `[x]` (WebP removido, ADR 0037). CSP do Dialog
+corrigida (`StyleNonce` + `get-nonce`, ADR 0020, e2e `csp-dialog.spec.ts`). Sem push.
 
 ## Próxima tarefa
-Correção 2 (CSP do Dialog: `get-nonce` + `setNonce`), depois correção 3 (ADR VPS StayCloud),
-F6-007 a F6-013, visual do login (F6-extra) e o gate da fase 6.
+Correção 3 (ADR VPS StayCloud + .nvmrc), depois F6-007 a F6-013, visual do login (F6-extra)
+e o gate da fase 6.
 
 ## Decisões da fase 6 (valem para F6-007+)
 - Server Action/route handler: `requireAdmin()` na 1ª linha + teste de integração sem cookie
@@ -32,7 +33,6 @@ F6-007 a F6-013, visual do login (F6-extra) e o gate da fase 6.
 - Nunca ler `.env*`. `pnpm test` exige Docker Desktop aberto + `pnpm exec supabase start`.
 
 ## Pendências para o Rafael
-- CSP: o `Dialog` do Radix injeta `<style>` sem nonce (em correção agora); o modo dev do Next
-  também gera violações de estilo.
+- CSP: o modo dev do Next (`next dev`) gera violações de estilo na carga (produção limpa).
 - Login do admin sem o visual da spec (F6-extra, antes do gate). Turnstile de teste no
   `.env.local`; header de IP (F3-002); DPO; aceites PUB-007/010/012; `corepack enable`; push; domínios.
