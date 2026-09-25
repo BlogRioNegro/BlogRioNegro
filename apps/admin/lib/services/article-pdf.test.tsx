@@ -47,7 +47,7 @@ function imageCount(pdf: Buffer): number {
 const withoutSpaces = (value: string) => value.replace(/\s/g, '')
 
 const SRC = 'https://cdn.test/article-images/artigo/grafico.png'
-const WEBP = 'https://cdn.test/article-images/artigo/foto.webp'
+const MISSING = 'https://cdn.test/article-images/artigo/foto.png'
 
 const DOC = {
   type: 'doc',
@@ -105,13 +105,13 @@ describe('renderArticlePdf', () => {
     expect(imageCount(pdf)).toBe(2)
   })
 
-  it('imagem sem formato suportado entra como texto alternativo', async () => {
+  it('imagem que não pôde ser embutida entra como texto alternativo', async () => {
     const pdf = await renderArticlePdf({
       title: 'Artigo',
       cover: null,
       doc: {
         type: 'doc',
-        content: [{ type: 'image', attrs: { src: WEBP, alt: 'Foto da equipe' } }],
+        content: [{ type: 'image', attrs: { src: MISSING, alt: 'Foto da equipe' } }],
       },
       images: new Map(),
     })

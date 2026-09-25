@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { checkUpload, formatMegabytes, sizeError, UPLOAD_RULES } from './upload-rules'
+import { checkUpload, formatMegabytes, IMAGE_ACCEPT, sizeError, UPLOAD_RULES } from './upload-rules'
 
 const MIB = 1024 * 1024
 
@@ -62,7 +62,7 @@ describe('checkUpload', () => {
   it('rejeita arquivo sem tipo reconhecido', () => {
     expect(checkUpload('covers', { name: 'capa.png', size: 10, detectedMime: null })).toEqual({
       ok: false,
-      error: 'Envie uma imagem JPG, PNG ou WebP.',
+      error: 'Envie uma imagem JPG ou PNG.',
     })
   })
 
@@ -71,8 +71,15 @@ describe('checkUpload', () => {
       checkUpload('covers', { name: 'capa.pdf', size: 10, detectedMime: 'image/png' }),
     ).toEqual({
       ok: false,
-      error: 'Envie uma imagem JPG, PNG ou WebP.',
+      error: 'Envie uma imagem JPG ou PNG.',
     })
+  })
+
+  it('rejeita WebP na capa e no editor', () => {
+    for (const bucket of ['covers', 'article-images'] as const)
+      expect(
+        checkUpload(bucket, { name: 'foto.webp', size: 10, detectedMime: 'image/webp' }),
+      ).toEqual({ ok: false, error: 'Envie uma imagem JPG ou PNG.' })
   })
 
   it('rejeita PDF no bucket de imagens', () => {
@@ -85,5 +92,11 @@ describe('checkUpload', () => {
     expect(
       checkUpload('covers', { name: 'capa.png', size: 3 * MIB, detectedMime: 'image/png' }),
     ).toEqual({ ok: false, error: 'O arquivo tem 3 MB. Envie uma imagem de até 2 MB.' })
+  })
+})
+
+describe('IMAGE_ACCEPT', () => {
+  it('lista só JPEG e PNG', () => {
+    expect(IMAGE_ACCEPT).toBe('image/jpeg,image/png')
   })
 })

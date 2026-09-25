@@ -122,7 +122,7 @@ file_size_limit = "50MiB"
 [storage.buckets.covers]
 public = true
 file_size_limit = "2MiB"
-allowed_mime_types = ["image/jpeg", "image/png", "image/webp"]
+allowed_mime_types = ["image/jpeg", "image/png"]
 objects_path = "./storage/covers"
 
 [storage.buckets.article-previews]

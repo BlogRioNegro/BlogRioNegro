@@ -107,8 +107,8 @@ atômico por janela fixa (`date_bin`, [ADR 0022](../adr/0022-convencoes-do-schem
 
 | Bucket | Público | Conteúdo | Tipos | Máx. |
 |---|---|---|---|---|
-| `covers` | sim | capas | JPG, PNG, WebP | 2 MiB |
-| `article-images` | sim | imagens inline do editor | JPG, PNG, WebP | 2 MiB |
+| `covers` | sim | capas | JPG, PNG | 2 MiB |
+| `article-images` | sim | imagens inline do editor | JPG, PNG | 2 MiB |
 | `article-previews` | sim | PDF de prévia (2 páginas) | PDF | 20 MiB |
 | `article-files` | **não** | PDF completo (upload ou gerado) | PDF | 20 MiB |
 

@@ -18,7 +18,6 @@ const IMAGE_TYPES: Record<string, string> = {
   jpg: 'image/jpeg',
   jpeg: 'image/jpeg',
   png: 'image/png',
-  webp: 'image/webp',
 }
 
 function escapeXml(value: string): string {
@@ -30,7 +29,7 @@ function escapeXml(value: string): string {
     .replace(/'/g, '&apos;')
 }
 
-/** MIME da capa pela extensão (os buckets só aceitam JPEG, PNG e WebP). */
+/** MIME da capa pela extensão (os buckets só aceitam JPEG e PNG). */
 export function imageType(url: string): string {
   const extension = new URL(url).pathname.split('.').pop()?.toLowerCase() ?? ''
   return IMAGE_TYPES[extension] ?? 'image/jpeg'

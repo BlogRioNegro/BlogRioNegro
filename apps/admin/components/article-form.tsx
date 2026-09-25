@@ -16,7 +16,7 @@ import {
   type FieldErrors,
 } from '@/lib/domain/article-form'
 import { checkRichText, parseBodyField } from '@/lib/domain/rich-text'
-import { formatMegabytes, sizeError } from '@/lib/domain/upload-rules'
+import { formatMegabytes, IMAGE_ACCEPT, sizeError } from '@/lib/domain/upload-rules'
 import { RichTextEditor } from './rich-text-editor'
 
 export type ArticleFormValues = {
@@ -130,7 +130,7 @@ export function ArticleForm({ initial, isNew }: { initial: ArticleFormValues; is
           label="Capa"
           name="cover"
           type="file"
-          accept="image/jpeg,image/png,image/webp"
+          accept={IMAGE_ACCEPT}
           help="Proporção 16:9."
           error={errors.cover}
         />

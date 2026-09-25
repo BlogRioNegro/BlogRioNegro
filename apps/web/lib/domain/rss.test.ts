@@ -65,7 +65,6 @@ describe('imageType', () => {
     ['https://cdn.example/a.jpg', 'image/jpeg'],
     ['https://cdn.example/a.JPEG', 'image/jpeg'],
     ['https://cdn.example/a.png', 'image/png'],
-    ['https://cdn.example/a.webp', 'image/webp'],
   ])('%s → %s', (url, type) => {
     expect(imageType(url)).toBe(type)
   })

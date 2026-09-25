@@ -137,7 +137,7 @@ sem "esqueci a senha". Erros em `Alert` de erro acima dos campos:
 - Campos, nesta ordem: Título; Slug (ajuda "Endereço do artigo: /artigos/<slug>. Gerado a partir
   do título; pode ser editado."; na edição, avisa que links antigos continuarão funcionando);
   Resumo (opcional, `<textarea>` com a aparência do `Input`; ajuda "Aparece abaixo do título do
-  artigo e no card de destaque."); Capa (arquivo JPG, PNG ou WebP, ajuda "Proporção 16:9.");
+  artigo e no card de destaque."); Capa (arquivo JPG ou PNG, ajuda "Proporção 16:9.");
   Tipo (dois `Button` sm com `aria-pressed`: "Texto" e "PDF"); Data de publicação (`type="date"`);
   Conteúdo conforme o tipo.
 - **Texto**: editor Tiptap com barra de `Button` ghost sm com rótulo em texto: H2, H3, Negrito,
@@ -165,7 +165,6 @@ sem "esqueci a senha". Erros em `Alert` de erro acima dos campos:
   Comunicações) e as ações abrem num `Dialog` pelo botão "Ações".
 
 ### Divergências do protótipo (vale a spec)
-- Capa "JPG ou PNG" → JPG, PNG ou WebP (DATA-007).
 - "Reenviar falhas" sempre visível → só com `LEAD_WEBHOOK_URL` definida (ADM-014).
 - Barra do editor com "Título" e "Lista" únicos → H2, H3, lista e lista numerada (ADM-005).
 - Sem aviso de links antigos ao editar o slug → aviso obrigatório (ADM-009).

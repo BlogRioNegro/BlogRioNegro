@@ -21,5 +21,5 @@ ADM-008 pede, ao salvar um artigo rich_text, o documento em `body_json`, os 3 pr
 
 ## Consequências
 - O PDF acompanha título, capa e conteúdo sem passo manual.
-- O `@react-pdf` não embute WebP: imagem WebP entra como "[Imagem: <alt>]" até a decisão pendente
-  registrada em `docs/memory.md`.
+- O `@react-pdf` não embute WebP; por isso capa e imagens aceitam só PNG e JPEG
+  ([ADR 0037](0037-imagens-so-png-e-jpeg.md)).

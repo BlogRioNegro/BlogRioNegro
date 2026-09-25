@@ -292,7 +292,7 @@ export async function saveArticle(
   redirect('/artigos')
 }
 
-const IMAGE_MISSING_MESSAGE = 'Escolha uma imagem JPG, PNG ou WebP.'
+const IMAGE_MISSING_MESSAGE = 'Escolha uma imagem JPG ou PNG.'
 
 export type UploadedImage = ActionResult<{ src: string }>
 

@@ -5,8 +5,8 @@ const MIB = 1024 * 1024
 
 const IMAGE = {
   maxBytes: 2 * MIB,
-  extensions: { 'image/jpeg': ['jpg', 'jpeg'], 'image/png': ['png'], 'image/webp': ['webp'] },
-  typeMessage: 'Envie uma imagem JPG, PNG ou WebP.',
+  extensions: { 'image/jpeg': ['jpg', 'jpeg'], 'image/png': ['png'] },
+  typeMessage: 'Envie uma imagem JPG ou PNG.',
   noun: 'uma imagem',
 }
 
@@ -25,6 +25,9 @@ export const UPLOAD_RULES = {
 } as const
 
 export type Bucket = keyof typeof UPLOAD_RULES
+
+/** Atributo `accept` dos campos de imagem (capa e editor). */
+export const IMAGE_ACCEPT = Object.keys(IMAGE.extensions).join(',')
 
 /** Teto do corpo do formulário de artigo: capa + PDF, com folga para os campos e o multipart. */
 export const ARTICLE_FORM_MAX_BYTES = IMAGE.maxBytes + PDF.maxBytes + MIB

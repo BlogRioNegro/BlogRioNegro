@@ -158,12 +158,12 @@ describe('saveArticle', () => {
   })
 
   it('recusa a capa que não passa na validação de upload', async () => {
-    validateUpload.mockResolvedValue({ ok: false, error: 'Envie uma imagem JPG, PNG ou WebP.' })
+    validateUpload.mockResolvedValue({ ok: false, error: 'Envie uma imagem JPG ou PNG.' })
 
     const result = await saveArticle(null, form({ cover: png() }))
 
     expect(validateUpload).toHaveBeenCalledWith('covers', expect.any(File))
-    expect(result?.fieldErrors.cover).toBe('Envie uma imagem JPG, PNG ou WebP.')
+    expect(result?.fieldErrors.cover).toBe('Envie uma imagem JPG ou PNG.')
     expect(store.uploadFile).not.toHaveBeenCalled()
   })
 
@@ -364,11 +364,11 @@ describe('uploadArticleImage', () => {
   })
 
   it('devolve o erro de validação do arquivo', async () => {
-    validateUpload.mockResolvedValue({ ok: false, error: 'Envie uma imagem JPG, PNG ou WebP.' })
+    validateUpload.mockResolvedValue({ ok: false, error: 'Envie uma imagem JPG ou PNG.' })
 
     expect(await uploadArticleImage(imageForm())).toEqual({
       ok: false,
-      error: 'Envie uma imagem JPG, PNG ou WebP.',
+      error: 'Envie uma imagem JPG ou PNG.',
     })
     expect(store.uploadFile).not.toHaveBeenCalled()
   })

@@ -7,7 +7,7 @@ import { EditorContent, useEditor, useEditorState, type Editor } from '@tiptap/r
 import { useEffect, useState, type FormEvent } from 'react'
 import { uploadArticleImage } from '@/app/artigos/actions'
 import { isSafeLinkHref, RICH_TEXT_EXTENSIONS } from '@/lib/domain/rich-text'
-import { sizeError } from '@/lib/domain/upload-rules'
+import { IMAGE_ACCEPT, sizeError } from '@/lib/domain/upload-rules'
 
 // Tipografia próxima à do artigo no site (apps/web/components/rich-text.tsx).
 const CONTENT_CLASSES =
@@ -60,7 +60,7 @@ const QUOTE: Tool = {
 
 const LINK_ERROR = 'Use um endereço que comece com http://, https://, mailto: ou /.'
 const ALT_ERROR = 'Descreva a imagem para quem não pode vê-la.'
-const IMAGE_ERROR = 'Escolha uma imagem JPG, PNG ou WebP.'
+const IMAGE_ERROR = 'Escolha uma imagem JPG ou PNG.'
 
 // Os formulários dos diálogos ficam num portal, mas o evento de submit sobe pela árvore do React
 // até o formulário do artigo: stopPropagation evita publicar o artigo junto.
@@ -160,8 +160,8 @@ function ImageDialog({
           label="Arquivo"
           name="image"
           type="file"
-          accept="image/jpeg,image/png,image/webp"
-          help="JPG, PNG ou WebP, até 2 MB."
+          accept={IMAGE_ACCEPT}
+          help="JPG ou PNG, até 2 MB."
           error={errors.image}
           disabled={pending}
         />
