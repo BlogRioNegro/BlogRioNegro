@@ -136,3 +136,60 @@ describe('LEAD-008 · persistência', () => {
     expect(leadsOf(input.email)).toHaveLength(0)
   })
 })
+
+describe('LEAD-009 · URL assinada', () => {
+  const BROKEN_ID = 'bbbbbbbb-0000-4000-8000-000000000006'
+
+  beforeAll(() => {
+    executeLocalSql(`with a as (
+      insert into public.articles (id, slug, title, cover_path, content_type, preview_pdf_path)
+      values ('${BROKEN_ID}', 'teste-lead-${BROKEN_ID}', 'Artigo sem PDF', 'x/capa.png', 'pdf', 'x/previa.pdf')
+      returning id
+    ) insert into public.article_contents (article_id, full_pdf_path)
+      select id, '${BROKEN_ID}/nao-existe.pdf' from a`)
+  })
+
+  afterAll(() => {
+    executeLocalSql(`delete from public.leads where article_id = '${BROKEN_ID}'`)
+    executeLocalSql(`delete from public.articles where id = '${BROKEN_ID}'`)
+  })
+
+  function tokenPayload(url: string): { exp: number; iat: number; url: string } {
+    const token = new URL(url).searchParams.get('token') ?? ''
+    return JSON.parse(Buffer.from(token.split('.')[1] ?? '', 'base64url').toString())
+  }
+
+  it('devolve uma URL de 60 s do article-files que baixa o PDF completo', async () => {
+    const result = await handleDownloadRequest(leadInput(), { ip: uniqueIp(), schedule })
+    if (!result.ok) throw new Error('o download devia ter sido liberado')
+
+    const payload = tokenPayload(result.data.url)
+    expect(payload.exp - payload.iat).toBe(60)
+    expect(payload.url).toBe(`article-files/${FULL_PDF_PATH}`)
+    expect(new URL(result.data.url).searchParams.has('download')).toBe(true)
+
+    const response = await realFetch(result.data.url)
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('%PDF-1.4 completo')
+  })
+
+  it('falha na URL depois do insert: erro genérico, sem path, e o lead permanece', async () => {
+    const input = leadInput({ articleId: BROKEN_ID })
+
+    const result = await handleDownloadRequest(input, { ip: uniqueIp(), schedule })
+
+    expect(result).toEqual({ ok: false, error: LEAD_ERROR_MESSAGE })
+    expect(JSON.stringify(result)).not.toContain(BROKEN_ID)
+    expect(leadsOf(input.email)).toHaveLength(1)
+  })
+
+  it('nenhuma URL nem path quando a etapa até o insert falha', async () => {
+    const result = await handleDownloadRequest(leadInput({ phone: '98765-4321' }), {
+      ip: uniqueIp(),
+      schedule,
+    })
+
+    expect(result).toEqual({ ok: false, error: LEAD_ERROR_MESSAGE })
+    expect(JSON.stringify(result)).not.toMatch(/article-files|completo\.pdf/)
+  })
+})
