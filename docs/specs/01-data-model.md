@@ -122,7 +122,8 @@ por magic bytes ([ADM-006](05-admin-panel.md)), com os mesmos números lidos de 
 **Aceite:**
 - Toda mudança de schema é uma migration em `supabase/migrations/`, versionada.
 - `pnpm db:types` gera `packages/db/src/types.gen.ts`; o arquivo gerado é commitado.
-- `supabase db reset` recria o banco local com seed (admin local + 3 artigos de exemplo).
+- `supabase db reset` recria o banco local com seed (admin local + 3 artigos de exemplo, com capas e
+  prévias pdf enviadas ao Storage a partir de `supabase/storage`; [ADR 0027](../adr/0027-seed-de-arquivos-no-storage-local.md)).
 
 ## Fora de escopo
 

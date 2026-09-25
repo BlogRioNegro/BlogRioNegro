@@ -1,4 +1,4 @@
--- Seed local (DATA-008): admin local e 3 artigos de exemplo. Os arquivos citados nos caminhos não existem no Storage.
+-- Seed local (DATA-008): admin local e 3 artigos de exemplo. Capas e prévias estão em supabase/storage (config.toml); os PDFs completos não existem.
 -- Cada artigo e seu conteúdo entram no mesmo statement, porque a F3-005 checa o 1:1 no commit.
 
 with article as (
@@ -8,7 +8,7 @@ with article as (
     'renda-fixa-em-2026',
     'Renda fixa em 2026: o que muda para o investidor',
     'Um panorama dos títulos públicos e privados diante da nova trajetória de juros.',
-    '11111111-1111-4111-8111-111111111111/a1b2c3d4-0000-4000-8000-000000000001.jpg',
+    '11111111-1111-4111-8111-111111111111/a1b2c3d4-0000-4000-8000-000000000001.png',
     'rich_text',
     '{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Com a nova trajetória da Selic, a renda fixa volta ao centro das carteiras."}]}]}',
     now() - interval '2 days'
@@ -29,7 +29,7 @@ with article as (
     'carteira-recomendada-outubro',
     'Carteira recomendada de outubro',
     'Alocação sugerida por perfil de risco para o próximo mês.',
-    '22222222-2222-4222-8222-222222222222/b1b2c3d4-0000-4000-8000-000000000001.jpg',
+    '22222222-2222-4222-8222-222222222222/b1b2c3d4-0000-4000-8000-000000000001.png',
     'pdf',
     '22222222-2222-4222-8222-222222222222/b1b2c3d4-0000-4000-8000-000000000002.pdf',
     now() - interval '1 day'
@@ -47,7 +47,7 @@ with article as (
     'guia-de-previdencia-privada',
     'Guia de previdência privada: PGBL ou VGBL?',
     'Como escolher o plano certo de acordo com a sua declaração de IR.',
-    '33333333-3333-4333-8333-333333333333/c1b2c3d4-0000-4000-8000-000000000001.jpg',
+    '33333333-3333-4333-8333-333333333333/c1b2c3d4-0000-4000-8000-000000000001.png',
     'pdf',
     '33333333-3333-4333-8333-333333333333/c1b2c3d4-0000-4000-8000-000000000002.pdf',
     now()
