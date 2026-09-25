@@ -67,3 +67,42 @@ test.describe('LEAD-001 · Modal', () => {
     expect(violations.filter((text) => text.includes('challenges.cloudflare.com'))).toEqual([])
   })
 })
+
+test.describe('LEAD-003 · Consentimento', () => {
+  test('mostra o aviso de LEAD-013 e o checkbox desmarcado com link para /privacidade', async ({
+    page,
+  }) => {
+    const dialog = await openModal(page)
+
+    await expect(
+      dialog.getByText(
+        'Usaremos seu nome, e-mail e telefone para enviar este material e registrar seu interesse. Se você autorizar abaixo, também poderemos enviar novidades da Rio Negro.',
+        { exact: true },
+      ),
+    ).toBeVisible()
+    const consent = dialog.getByRole('checkbox', {
+      name: 'Li e concordo com o aviso de privacidade.',
+    })
+    await expect(consent).not.toBeChecked()
+    const link = dialog.getByRole('link', { name: 'aviso de privacidade' })
+    await expect(link).toHaveAttribute('href', '/privacidade')
+    await expect(link).toHaveAttribute('target', '_blank')
+  })
+
+  test('sem o checkbox, o client bloqueia o envio sem chamar a action', async ({ page }) => {
+    const actions: string[] = []
+    page.on('request', (request) => {
+      if (request.headers()['next-action']) actions.push(request.url())
+    })
+    const dialog = await openModal(page)
+    await dialog.getByLabel('Nome').fill('Maria Silva')
+    await dialog.getByLabel('E-mail').fill('maria@exemplo.com.br')
+    await dialog.getByLabel('Telefone').fill('11987654321')
+
+    await dialog.getByRole('button', { name: 'Baixar artigo completo' }).click()
+
+    await expect(dialog.getByText('Marque esta opção para continuar.')).toBeVisible()
+    await expect(dialog.getByRole('checkbox')).toBeFocused()
+    expect(actions).toEqual([])
+  })
+})

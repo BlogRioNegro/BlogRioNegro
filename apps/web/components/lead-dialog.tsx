@@ -1,6 +1,14 @@
 'use client'
 
-import { Alert, Button, Dialog, DialogContent, DialogTrigger, TextField } from '@rio-negro/ui'
+import {
+  Alert,
+  Button,
+  Checkbox,
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  TextField,
+} from '@rio-negro/ui'
 import { Download } from '@rio-negro/ui/icons'
 import { useId, useState, type FormEvent } from 'react'
 import { requestArticleDownload } from '@/app/artigos/[slug]/actions'
@@ -131,6 +139,29 @@ function LeadForm({ article, turnstileSiteKey }: Props) {
           disabled={submitting}
           onChange={(event) => update('phone', maskPhone(event.target.value))}
         />
+        {/* LEAD-003 · LEAD-013: textos do rascunho, versão POLICY_VERSION. Não reescrever. */}
+        <p className="mt-2 text-xs text-text-muted">
+          Usaremos seu nome, e-mail e telefone para enviar este material e registrar seu interesse.
+          Se você autorizar abaixo, também poderemos enviar novidades da Rio Negro.
+        </p>
+        <Checkbox
+          id={fieldId('consent')}
+          checked={values.consent}
+          error={errors.consent}
+          disabled={submitting}
+          onCheckedChange={(checked) => update('consent', checked === true)}
+        >
+          Li e concordo com o{' '}
+          <a
+            href="/privacidade"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-3 hover:decoration-2"
+          >
+            aviso de privacidade
+          </a>
+          .
+        </Checkbox>
         <Turnstile siteKey={turnstileSiteKey} resetKey={turnstileReset} onToken={setToken} />
         {formError ? <Alert variant="error" title={formError} /> : null}
         {/* Mobile: o botão fica fixo no rodapé enquanto o corpo rola (spec 04, Layout). */}
