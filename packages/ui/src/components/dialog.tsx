@@ -31,14 +31,14 @@ export function DialogContent({
       <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-overlay" />
       <DialogPrimitive.Content
         className={cn(
-          'fixed inset-0 z-50 flex flex-col gap-6 overflow-y-auto bg-surface p-6 md:inset-auto md:top-1/2 md:left-1/2 md:max-h-[90vh] md:w-[480px] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-card md:shadow-modal',
+          'fixed inset-0 z-50 flex flex-col gap-4 overflow-y-auto bg-surface p-4 md:inset-auto md:p-6 md:top-1/2 md:left-1/2 md:max-h-[90vh] md:w-[480px] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-card md:shadow-modal',
           className,
         )}
         {...props}
       >
         <div className="flex items-start justify-between gap-4">
-          <div className="flex flex-col gap-2">
-            <DialogPrimitive.Title className="text-xl font-semibold text-text">
+          <div className="flex flex-col gap-4">
+            <DialogPrimitive.Title className="pt-2 text-xl font-semibold text-text">
               {title}
             </DialogPrimitive.Title>
             {description ? (
@@ -47,7 +47,7 @@ export function DialogContent({
               </DialogPrimitive.Description>
             ) : null}
           </div>
-          <DialogPrimitive.Close className="inline-flex size-(--control-height) shrink-0 items-center justify-center rounded-control text-text hover:bg-surface-muted">
+          <DialogPrimitive.Close className="-mr-2 inline-flex size-(--control-height) shrink-0 items-center justify-center rounded-control text-text hover:bg-surface-muted">
             <X aria-hidden className="size-5" />
             <span className="sr-only">Fechar</span>
           </DialogPrimitive.Close>

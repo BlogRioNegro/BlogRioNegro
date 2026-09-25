@@ -175,7 +175,7 @@ function LeadForm({ article, turnstileSiteKey, rioNegroUrl }: Props) {
         document.getElementById(fieldId('name'))?.focus()
       }}
     >
-      <form noValidate onSubmit={submit} className="flex flex-col gap-4">
+      <form noValidate onSubmit={submit} className="flex flex-1 flex-col gap-4">
         {expired ? (
           <Alert variant="warning" title="O link de download expirou.">
             Envie o formulário de novo para baixar o artigo.
@@ -248,7 +248,7 @@ function LeadForm({ article, turnstileSiteKey, rioNegroUrl }: Props) {
         <Turnstile siteKey={turnstileSiteKey} resetKey={turnstileReset} onToken={setToken} />
         {formError ? <Alert variant="error" title={formError} /> : null}
         {/* Mobile: o botão fica fixo no rodapé enquanto o corpo rola (spec 04, Layout). */}
-        <div className="sticky -bottom-6 -mx-6 mt-auto border-t border-border bg-surface p-4 md:static md:mx-0 md:border-0 md:p-0">
+        <div className="sticky -bottom-4 -mx-4 -mb-4 mt-auto border-t border-border bg-surface p-4 md:static md:m-0 md:border-0 md:p-0">
           <Button type="submit" block loading={submitting}>
             {submitting ? 'Enviando…' : 'Baixar artigo completo'}
             {submitting ? null : <Download aria-hidden className="size-5" />}

@@ -1,6 +1,8 @@
+import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import { serviceClient } from '../integration/support/clients'
-import { webUrl } from './support/urls'
+import { TURNSTILE_FAIL_WEB_URL, webUrl } from './support/urls'
 
 // Captura de lead (spec 04) na página do artigo do seed, com as chaves de teste do Turnstile.
 
@@ -41,8 +43,8 @@ async function fillValidForm(dialog: Locator) {
   await expect(dialog.locator('input[name="cf-turnstile-response"]')).not.toHaveValue('')
 }
 
-async function openModal(page: Page) {
-  await page.goto(webUrl(ARTICLE_PATH))
+async function openModal(page: Page, url: string = webUrl(ARTICLE_PATH)) {
+  await page.goto(url)
   await page.getByRole('button', { name: 'Baixar artigo completo' }).click()
   return page.getByRole('dialog', { name: 'Baixe o artigo completo' })
 }
@@ -292,4 +294,164 @@ test.describe('LEAD-011 · Nenhum dado pessoal no navegador', () => {
       dialog.getByRole('checkbox', { name: 'Li e concordo com o aviso de privacidade.' }),
     ).not.toBeChecked()
   })
+})
+
+test.describe('LEAD-007 · Fluxo completo', () => {
+  const submitButton = (dialog: Locator) =>
+    dialog.getByRole('button', { name: 'Baixar artigo completo' })
+
+  async function leadsInDb() {
+    const { data, error } = await serviceClient()
+      .from('leads')
+      .select('email, phone, article_title_snapshot, policy_version')
+      .eq('article_id', ARTICLE_ID)
+    if (error) throw error
+    return data
+  }
+
+  test('sucesso: grava o lead no banco e dispara o download', async ({ page }) => {
+    const dialog = await openModal(page)
+    await fillValidForm(dialog)
+
+    const download = page.waitForEvent('download')
+    await submitButton(dialog).click()
+
+    expect(await (await download).failure()).toBeNull()
+    await expect(page.getByRole('dialog', { name: 'Pronto!' })).toBeVisible()
+    expect(await leadsInDb()).toEqual([
+      {
+        email: LEAD.email,
+        phone: '+5511987654321',
+        article_title_snapshot: 'Carteira recomendada de outubro',
+        policy_version: 'blog-2026-09-v1',
+      },
+    ])
+  })
+
+  test('rate limit: o 4º envio do mesmo e-mail recebe "Muitas tentativas"', async ({ page }) => {
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      const dialog = await openModal(page)
+      await fillValidForm(dialog)
+      await submitButton(dialog).click()
+      await expect(page.getByRole('dialog', { name: 'Pronto!' })).toBeVisible()
+    }
+
+    const dialog = await openModal(page)
+    await fillValidForm(dialog)
+    await submitButton(dialog).click()
+
+    await expect(dialog.getByRole('alert')).toHaveText('Muitas tentativas, tente em alguns minutos')
+    await expect(dialog.getByLabel('Nome', { exact: true })).toHaveValue(LEAD.name)
+    expect(await leadsInDb()).toHaveLength(3)
+  })
+
+  test('Turnstile inválido: erro genérico, nenhum lead e nenhum download', async ({ page }) => {
+    let downloads = 0
+    page.on('download', () => downloads++)
+    const dialog = await openModal(page, new URL(ARTICLE_PATH, TURNSTILE_FAIL_WEB_URL).href)
+    await fillValidForm(dialog)
+
+    await submitButton(dialog).click()
+
+    await expect(dialog.getByRole('alert')).toHaveText(
+      'Não foi possível concluir. Tente novamente.',
+    )
+    await expect(submitButton(dialog)).toBeEnabled()
+    expect(await leadsInDb()).toEqual([])
+    expect(downloads).toBe(0)
+  })
+})
+
+// Fidelidade visual (spec 04, UI): só com VISUAL=1. Salva o app e o protótipo em __visual__.
+test.describe('Visual · Modal de lead', () => {
+  test.skip(!process.env.VISUAL, 'Gerado só com VISUAL=1')
+  test.setTimeout(180_000)
+
+  const OUT = path.join(import.meta.dirname, '__visual__')
+  const PROTOTYPE = pathToFileURL(
+    path.join(import.meta.dirname, '../../design/prototipo/Modal de Lead.dc.html'),
+  ).href
+  const SIZES = {
+    desktop: { width: 1440, height: 960 },
+    mobile: { width: 390, height: 844 },
+  } as const
+  // Tira o mouse do botão (hover) e espera a transição de cor (--duration-fast) dos campos.
+  async function settle(page: Page) {
+    await page.mouse.move(0, 0)
+    await page.waitForTimeout(300)
+  }
+
+  const STATES = {
+    vazio: 'vazio',
+    erros: 'erros de validação',
+    enviando: 'enviando',
+    'erro-generico': 'erro genérico',
+    'muitas-tentativas': 'erro muitas tentativas',
+    sucesso: 'sucesso',
+  } as const
+
+  for (const [device, viewport] of Object.entries(SIZES)) {
+    test(device, async ({ browser }) => {
+      const shot = (name: string) => path.join(OUT, `modal-${name}-${device}`)
+
+      const prototype = await browser.newPage({ viewport: { width: 1600, height: 1000 } })
+      await prototype.goto(PROTOTYPE, { waitUntil: 'networkidle' })
+      for (const [name, label] of Object.entries(STATES)) {
+        await prototype
+          .locator(`[data-screen-label="Modal de lead · ${label} · ${device}"] > div`)
+          .first()
+          .screenshot({ path: `${shot(name)}-prototipo.png` })
+      }
+      await prototype.close()
+
+      const page = await browser.newPage({ viewport })
+      const dialog = await openModal(page)
+      await expect(dialog.locator('input[name="cf-turnstile-response"]')).not.toHaveValue('')
+      await page.screenshot({ path: `${shot('vazio')}-app.png` })
+
+      await dialog.getByRole('button', { name: 'Baixar artigo completo' }).click()
+      await expect(dialog.getByText('Informe seu nome.')).toBeVisible()
+      await page.screenshot({ path: `${shot('erros')}-app.png` })
+
+      // Segura a resposta da action para fotografar o "Enviando…".
+      let release = () => {}
+      await page.route(webUrl(ARTICLE_PATH), async (route) => {
+        if (route.request().headers()['next-action']) {
+          await new Promise<void>((resolve) => (release = resolve))
+        }
+        await route.continue()
+      })
+      await fillValidForm(dialog)
+      await dialog.getByRole('button', { name: 'Baixar artigo completo' }).click()
+      await expect(dialog.getByRole('button', { name: 'Enviando…' })).toBeVisible()
+      await settle(page)
+      await page.screenshot({ path: `${shot('enviando')}-app.png` })
+      release()
+
+      const success = page.getByRole('dialog', { name: 'Pronto!' })
+      await expect(success).toBeVisible()
+      await page.screenshot({ path: `${shot('sucesso')}-app.png` })
+      await page.unroute(webUrl(ARTICLE_PATH))
+
+      for (let attempt = 2; attempt <= 3; attempt++) {
+        const again = await openModal(page)
+        await fillValidForm(again)
+        await again.getByRole('button', { name: 'Baixar artigo completo' }).click()
+        await expect(success).toBeVisible()
+      }
+      const limited = await openModal(page)
+      await fillValidForm(limited)
+      await limited.getByRole('button', { name: 'Baixar artigo completo' }).click()
+      await expect(limited.getByRole('alert')).toBeVisible()
+      await settle(page)
+      await page.screenshot({ path: `${shot('muitas-tentativas')}-app.png` })
+
+      const failing = await openModal(page, new URL(ARTICLE_PATH, TURNSTILE_FAIL_WEB_URL).href)
+      await fillValidForm(failing)
+      await failing.getByRole('button', { name: 'Baixar artigo completo' }).click()
+      await expect(failing.getByRole('alert')).toBeVisible()
+      await settle(page)
+      await page.screenshot({ path: `${shot('erro-generico')}-app.png` })
+    })
+  }
 })

@@ -3,7 +3,7 @@ import { CircleAlert, CircleCheck, TriangleAlert } from 'lucide-react'
 import type { ComponentProps } from 'react'
 import { cn } from '../cn'
 
-const alertVariants = cva('flex gap-3 rounded-control border p-4 text-sm text-text', {
+const alertVariants = cva('flex gap-3 rounded-control border px-4 py-3 text-xs text-text', {
   variants: {
     variant: {
       success: 'border-success-border bg-success-bg',
@@ -37,8 +37,8 @@ export function Alert({ className, variant, title, children, ...props }: AlertPr
       {...props}
     >
       <Icon aria-hidden className={cn('mt-0.5 size-5 shrink-0', color)} />
-      <div className="flex flex-col gap-1">
-        <p className={cn('font-semibold', color)}>{title}</p>
+      <div className="flex flex-col">
+        <p className={cn('text-sm font-semibold', color)}>{title}</p>
         {children ? <div>{children}</div> : null}
       </div>
     </div>

@@ -9,9 +9,10 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: 'bg-action-primary text-action-primary-text hover:bg-action-primary-hover',
+        primary:
+          'bg-action-primary text-action-primary-text hover:bg-action-primary-hover aria-busy:bg-action-primary-hover aria-busy:text-action-primary-text',
         secondary:
-          'border-border-strong bg-surface text-text hover:border-text-muted hover:bg-surface-muted',
+          'border-border-strong bg-surface text-text hover:border-text-muted hover:bg-surface-muted aria-busy:border-border-strong aria-busy:bg-surface-muted aria-busy:text-text',
         ghost: 'text-text hover:bg-surface-muted',
         link: 'text-text underline underline-offset-3 hover:decoration-2 disabled:bg-transparent',
       },

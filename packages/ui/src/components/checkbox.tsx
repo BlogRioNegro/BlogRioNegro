@@ -25,19 +25,19 @@ export function Checkbox({ id, className, children, error, ...props }: CheckboxP
           id={checkboxId}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
-          className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-control border border-border-strong bg-surface data-[state=checked]:border-action-primary data-[state=checked]:bg-action-primary data-[state=checked]:text-action-primary-text disabled:cursor-not-allowed disabled:bg-disabled-bg aria-invalid:border-error"
+          className="peer mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-control border border-border-strong bg-surface data-[state=checked]:border-action-primary data-[state=checked]:bg-action-primary data-[state=checked]:text-action-primary-text disabled:cursor-not-allowed disabled:border-border disabled:bg-disabled-bg disabled:data-[state=checked]:border-border-strong disabled:data-[state=checked]:bg-border-strong disabled:data-[state=checked]:text-surface aria-invalid:border-error"
           {...props}
         >
           <CheckboxPrimitive.Indicator>
             <Check aria-hidden className="size-4" />
           </CheckboxPrimitive.Indicator>
         </CheckboxPrimitive.Root>
-        <label htmlFor={checkboxId} className="text-xs text-text">
+        <label htmlFor={checkboxId} className="text-sm text-text peer-disabled:text-disabled-text">
           {children}
         </label>
       </div>
       {error ? (
-        <FieldMessage id={errorId} variant="error">
+        <FieldMessage id={errorId} variant="error" className="pl-8">
           {error}
         </FieldMessage>
       ) : null}

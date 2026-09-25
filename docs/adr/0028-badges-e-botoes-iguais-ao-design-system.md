@@ -15,6 +15,12 @@ protótipo. A [ADR 0026](0026-ordem-da-pagina-do-artigo.md) tinha mantido o badg
 - `Button` tem borda transparente de 1 px em todas as variantes; o secundário usa
   `--color-border-strong` e escurece para `--color-text-muted` no hover.
 
+- Na F5-013 (modal de lead), pelo mesmo critério: `Button` em `loading` mantém a cor do hover
+  (`rn-btn[aria-busy]`) em vez do estilo desabilitado; `Checkbox` com rótulo `text-sm`, erro recuado
+  até o texto e estados desabilitados do `rn-check`; `Alert` com corpo `text-xs`, título `text-sm` e
+  padding 12/16 (`rn-alert`); `DialogContent` com 16 px de padding no mobile, 16 px entre cabeçalho e
+  corpo, título com `pt-2` e "Fechar" recuado 8 px (`rn-modal`).
+
 ## Consequências
 - Badges e botões com as mesmas medidas do protótipo nos dois apps.
 - Contraste do badge PDF registrado na spec 06 (13,70:1).

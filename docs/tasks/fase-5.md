@@ -14,4 +14,4 @@ Specs: [04-lead-capture](../specs/04-lead-capture.md). UI depende da fase 2.
 - [x] **F5-010** · LEAD-004 · Checkbox de opt-in opcional
 - [x] **F5-011** · LEAD-010 · Tela de sucesso com "Baixar novamente" e CTA "Conheça a Rio Negro"
 - [x] **F5-012** · LEAD-011 · Verificação: nenhum dado do lead em storage, cookie, URL ou log do client
-- [ ] **F5-013** · LEAD-007 · E2E do fluxo completo (sucesso, checkbox ausente, rate limit, Turnstile inválido)
+- [x] **F5-013** · LEAD-007 · E2E do fluxo completo (sucesso, checkbox ausente, rate limit, Turnstile inválido)
