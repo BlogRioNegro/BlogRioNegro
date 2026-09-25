@@ -44,6 +44,23 @@ export const getArticleBySlug = cache(async (slug: string) => {
   return data
 })
 
+/** PUB-012 · Artigos mais recentes com a prévia rich_text, para a descrição do RSS. */
+export async function listFeedArticles(limit: number) {
+  const { data, error } = await createPublicClient()
+    .from('articles')
+    .select(`${LIST_COLUMNS}, preview_json`)
+    .order('published_at', { ascending: false })
+    .order('created_at', { ascending: false })
+    .order('id', { ascending: false })
+    .limit(limit)
+
+  if (error) {
+    logger.error('articles.feed_failed', { error })
+    throw new Error('Falha ao listar artigos do feed')
+  }
+  return data
+}
+
 /** PUB-011 · Slug atual e última alteração de todos os artigos, para o sitemap. */
 export async function listArticleSlugs() {
   const { data, error } = await createPublicClient()

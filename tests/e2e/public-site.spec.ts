@@ -368,3 +368,31 @@ test.describe('PUB-011 · Sitemap e robots', () => {
     expect(robots).toContain(`Sitemap: ${webUrl('/sitemap.xml')}`)
   })
 })
+
+test.describe('PUB-012 · RSS', () => {
+  test('/rss.xml é RSS 2.0 com os artigos do seed e sem conteúdo completo', async ({
+    page,
+    request,
+  }) => {
+    const response = await request.get(webUrl('/rss.xml'))
+    const xml = await response.text()
+
+    expect(response.headers()['content-type']).toBe('application/rss+xml; charset=utf-8')
+    expect(xml).toContain('<rss version="2.0"')
+    expect(xml.match(/<item>/g)).toHaveLength(3)
+    expect(xml).toContain(`<link>${webUrl('/artigos/renda-fixa-em-2026')}</link>`)
+    expect(xml).toContain(
+      '<description>Um panorama dos títulos públicos e privados diante da nova trajetória de juros.</description>',
+    )
+    expect(xml).toMatch(
+      /<enclosure url="http:\/\/127\.0\.0\.1:54321\/[^"]+\.png" length="0" type="image\/png"\/>/,
+    )
+    expect(xml).not.toContain('Texto completo de exemplo')
+
+    await page.goto(webUrl('/'))
+    await expect(page.locator('link[rel="alternate"][type="application/rss+xml"]')).toHaveAttribute(
+      'href',
+      webUrl('/rss.xml'),
+    )
+  })
+})

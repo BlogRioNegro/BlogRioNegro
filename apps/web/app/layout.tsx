@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   title: { default: 'Rio Negro Investimentos', template: '%s · Rio Negro Investimentos' },
   description: BLOG_DESCRIPTION,
   openGraph: { siteName: 'Rio Negro Investimentos', locale: 'pt_BR' },
+  alternates: { types: { 'application/rss+xml': '/rss.xml' } },
 }
 
 // O SiteHeader fica em cada segmento, porque o link ativo muda com a rota e o layout raiz

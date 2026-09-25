@@ -19,6 +19,7 @@ const {
   getArticleBySlug,
   listArticles,
   listArticleSlugs,
+  listFeedArticles,
   previewPdfUrl,
 } = await import('../../apps/web/lib/services/articles')
 
@@ -149,5 +150,19 @@ describe('listArticleSlugs', () => {
       'renda-fixa-em-2026',
     ])
     for (const article of slugs) expect(Object.keys(article).sort()).toEqual(['slug', 'updated_at'])
+  })
+})
+
+describe('listFeedArticles', () => {
+  it('devolve os mais recentes até o limite, com a prévia e sem conteúdo completo', async () => {
+    const articles = await listFeedArticles(2)
+
+    expect(articles.map((article) => article.slug)).toEqual([
+      'guia-de-previdencia-privada',
+      'carteira-recomendada-outubro',
+    ])
+    for (const article of articles) {
+      expect(Object.keys(article).sort()).toEqual([...LIST_COLUMNS, 'preview_json'].sort())
+    }
   })
 })
