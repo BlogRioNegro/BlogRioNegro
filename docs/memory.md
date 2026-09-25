@@ -3,11 +3,11 @@
 _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
 
 ## Fase
-Fase 6 na branch `fase-6` (a partir da `fase-5`). F6-001 e F6-002 `[x]`. Sem push.
+Fase 6 na branch `fase-6` (a partir da `fase-5`). F6-001 a F6-003 `[x]`. Sem push.
 
 ## Próxima tarefa
-F6-003 · ADM-006 · uploads com magic bytes (`file-type`) e limites de constante única;
-ajustar `serverActions.bodySizeLimit` e `proxyClientMaxBodySize` (padrões 1 MB e 10 MB).
+F6-004 · ADM-005 · editor Tiptap (extensões de ADM-005) + upload de imagem inline em
+`article-images` via `validateUpload`; imagem sem `alt` impede salvar.
 
 ## Decisões da fase 6 (valem para F6-007+)
 - Toda Server Action e route handler novos: `requireAdmin()` na 1ª linha + teste de integração
@@ -15,6 +15,8 @@ ajustar `serverActions.bodySizeLimit` e `proxyClientMaxBodySize` (padrões 1 MB 
 - `save_article` (migration 20260925184538): RPC transacional sob RLS; nuláveis por último com
   default null. `saveArticle` em `app/artigos/actions.ts` reaproveita o conteúdo se o tipo não
   mudou; PDF novo (F6-005) e rich text (F6-006) entram em `keptContent`/conteúdo novo.
+- Uploads (ADR 0034): `UPLOAD_RULES` em `lib/domain/upload-rules.ts`, `validateUpload` em
+  `lib/services/upload.ts` (magic bytes, extensão, tamanho); limites de corpo no `next.config.ts`.
 - Código de server do admin usa import relativo (vitest e integração não resolvem `@/`).
 - Páginas do painel usam `requireAdminPage()` (redireciona para /login) e o client dele.
 - Sem `service_role` no admin; se a spec exigir, parar e perguntar.
