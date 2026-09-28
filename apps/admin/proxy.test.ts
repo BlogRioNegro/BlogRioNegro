@@ -117,4 +117,8 @@ describe('headers fixos do apps/admin', () => {
       },
     ])
   })
+
+  it('não envia X-Powered-By (SEC-3)', () => {
+    expect(nextConfig.poweredByHeader).toBe(false)
+  })
 })

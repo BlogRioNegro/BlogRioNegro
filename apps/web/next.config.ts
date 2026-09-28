@@ -11,6 +11,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  poweredByHeader: false,
   transpilePackages: ['@rio-negro/db', '@rio-negro/ui'],
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }]

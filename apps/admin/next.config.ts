@@ -13,6 +13,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  poweredByHeader: false,
   transpilePackages: ['@rio-negro/db', '@rio-negro/ui'],
   // ADM-006 · O formulário de artigo leva capa + PDF numa Server Action; os padrões (1 MB na
   // action, 10 MB no proxy) são menores que os limites dos buckets.

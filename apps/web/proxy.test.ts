@@ -139,4 +139,8 @@ describe('headers fixos do apps/web', () => {
       },
     ])
   })
+
+  it('não envia X-Powered-By (SEC-3)', () => {
+    expect(nextConfig.poweredByHeader).toBe(false)
+  })
 })
