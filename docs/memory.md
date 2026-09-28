@@ -7,12 +7,13 @@ Fase 7 na branch `fase-7` (criada da `fase-6`). Fechando o gate do PR `fase-7` �
 correções escolhidas pelo Rafael: QA-1, SEC-2, SEC-3. F7-001, F7-003 e F7-004 `[x]`. Sem push.
 
 ## Próxima tarefa
-SEC-2 (não logar `details` de erro do banco; nome do lead por code points), depois SEC-3
-(`poweredByHeader: false`) e o gate final (`pnpm test`, `pnpm build`, `pnpm test:e2e`).
+SEC-3 (`poweredByHeader: false` nos dois `next.config.ts`) e o gate final (`pnpm test`,
+`pnpm build`, `pnpm test:e2e`).
 
 ## Feito nesta rodada
 - Capa de até 5 MB otimizada no browser (ADR 0041): `c1fc6bb`.
 - QA-1: `StyleNonce` fixa o nonce do documento uma única vez: `2769954`.
+- SEC-2: logger só com `code` e `message` de erro do banco; nome por code points: `8ec72fd`.
 
 ## Fora do escopo (decisão do Rafael)
 SEC-1, SEC-7, QA-2 a QA-4 e as tarefas de produção (F7-002, F7-005 a F7-009) ficam para depois.
