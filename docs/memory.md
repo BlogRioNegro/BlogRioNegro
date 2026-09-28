@@ -3,38 +3,37 @@
 _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
 
 ## Fase
-Fase 7 na branch `fase-7` (criada da `fase-6`). Revisão concluída; aguardando o Rafael decidir as
-correções de `docs/revisao-final.md`. F7-001, F7-003 e F7-004 `[x]`. Sem push.
+Fase 7 na branch `fase-7` (criada da `fase-6`). Fechando o gate do PR `fase-7` → `main` com as
+correções escolhidas pelo Rafael: QA-1, SEC-2, SEC-3. F7-001, F7-003 e F7-004 `[x]`. Sem push.
 
 ## Próxima tarefa
-Aguardar a decisão do Rafael sobre as correções de `docs/revisao-final.md` (sugestão: QA-1,
-SEC-1, SEC-2). Depois, as tarefas de produção: F7-002, F7-005 a F7-009.
+SEC-2 (não logar `details` de erro do banco; nome do lead por code points), depois SEC-3
+(`poweredByHeader: false`) e o gate final (`pnpm test`, `pnpm build`, `pnpm test:e2e`).
 
-## Resultado da revisão (`docs/revisao-final.md`)
-- 0 crítico, 0 alto, 2 médios, 9 baixos; nenhum bloqueia o deploy. Veredito: pronto para deploy,
-  condicionado ao SEC-1 no 1º deploy e às tarefas de produção.
-- Médios: QA-1 (`StyleNonce` troca o nonce após navegação por Server Action; o 1º Dialog depois
-  do login viola a CSP) e SEC-1 (IP do `X-Forwarded-For` falsificável se o proxy não sobrescrever).
-- Baixos: SEC-2 (nome em `details` do log; nome de 1 emoji passa no Zod e falha no CHECK), SEC-3
-  (`X-Powered-By`), SEC-4 (sem HSTS), SEC-5 (`[auth.email] enable_signup = true`, sem teste de
-  signUp), SEC-6 (Turnstile sem `hostname`), SEC-7 (login do admin sem limite próprio), QA-2
-  (sonda `eval` do Zod), QA-3 (imagens órfãs do editor), QA-4 (seed sem PDFs completos).
-- Matriz RLS-*/SEC-* toda ✅; `.env.example` não verificado (regra de não ler `.env*`).
-- A pedido do Rafael: formulário de artigo centralizado (ADR 0040) e capa de até 5 MB otimizada
-  no browser, 1920 px JPEG, bucket segue 2 MiB (ADR 0041, `lib/browser/optimize-cover.ts`).
-- A11Y: `A11Y=1 pnpm test:e2e a11y` → 22 cenários, 0 violações (sanidade do axe confirmada).
+## Feito nesta rodada
+- Capa de até 5 MB otimizada no browser (ADR 0041): `c1fc6bb`.
+- QA-1: `StyleNonce` fixa o nonce do documento uma única vez: `2769954`.
+
+## Fora do escopo (decisão do Rafael)
+SEC-1, SEC-7, QA-2 a QA-4 e as tarefas de produção (F7-002, F7-005 a F7-009) ficam para depois.
 
 ## Regras do loop
-- A skill `security-review` exige `origin/HEAD`; sem remote, a revisão do diff foi manual.
+- A skill `security-review` exige `origin/HEAD`; sem remote, a revisão do diff é manual.
 - Build de produção para QA: `pnpm build`; web `next start --port 3200`, admin `--port 3201`.
-  E2E: web :3100/:3102, admin :3101; parar servidores antes.
+  E2E: web :3100/:3102, admin :3101; parar servidores antes (`taskkill //PID <pid> //T //F`).
+- "Corrigido em `<hash>`" no `docs/revisao-final.md` entra no commit seguinte (`docs(memory)`),
+  porque um commit não contém o próprio hash.
 - Scripts de investigação ficam no scratchpad da sessão, nunca no repo.
 - Nunca ler `.env*`. `pnpm test` exige Docker + `pnpm exec supabase start`.
 
+## Pendências pós-deploy
+- SEC-4: sem `Strict-Transport-Security`; adicionar no `next.config.ts` ou confirmar no Deploy Pro.
+- SEC-5: `[auth.email] enable_signup = true`; desligar no projeto de produção e testar signUp.
+- SEC-6: Turnstile sem checagem de `hostname`; validar o hostname de produção.
+
 ## Pendências para o Rafael
-- Decidir as correções da revisão (sugestão de ordem: QA-1, SEC-1, SEC-2).
+- SEC-1 / F3-002: confirmar em qual header o Deploy entrega o IP real do visitante.
 - ADR 0039: reenvio de lead de artigo excluído manda `article.id = null`; confirmar com o CRM.
 - Deploy Pro: validar se o install do pnpm roda na raiz do monorepo; se falhar, VPS.
-- F3-002: confirmar em qual header o Deploy entrega o IP real do visitante (SEC-1).
 - Comando de start no Deploy Pro: `node .next/standalone/server.js` (`next start` avisa).
 - Turnstile de teste no `.env.local`; DPO; aceites PUB-007/010/012; `corepack enable`; domínios.
