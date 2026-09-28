@@ -39,11 +39,14 @@ export function toBrazilianE164(input: string): string | null {
 
 export const leadSchema = z.object({
   articleId: z.uuid(),
+  // SEC-2 · Tamanho em code points, como o `char_length` do CHECK de `leads.name`.
   name: z
     .string({ error: LEAD_MESSAGES.name })
     .trim()
-    .min(2, LEAD_MESSAGES.name)
-    .max(120, LEAD_MESSAGES.name),
+    .refine((name) => {
+      const length = [...name].length
+      return length >= 2 && length <= 120
+    }, LEAD_MESSAGES.name),
   email: z
     .string({ error: LEAD_MESSAGES.email })
     .trim()

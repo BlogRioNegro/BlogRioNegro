@@ -68,6 +68,14 @@ describe('leadSchema', () => {
     expect(errorsOf({ ...valid, name: 'A'.repeat(120) })).toEqual({})
   })
 
+  // SEC-2 · O CHECK do Postgres conta code points (`char_length`); '😀'.length é 2 no JS.
+  it('conta o nome por code points, como o CHECK do banco', () => {
+    expect(errorsOf({ ...valid, name: '😀' })).toEqual({ name: LEAD_MESSAGES.name })
+    expect(errorsOf({ ...valid, name: '😀😀' })).toEqual({})
+    expect(errorsOf({ ...valid, name: '😀'.repeat(121) })).toEqual({ name: LEAD_MESSAGES.name })
+    expect(errorsOf({ ...valid, name: '😀'.repeat(120) })).toEqual({})
+  })
+
   it('não conta espaços das pontas no tamanho do nome', () => {
     expect(errorsOf({ ...valid, name: '  A  ' })).toEqual({ name: LEAD_MESSAGES.name })
   })

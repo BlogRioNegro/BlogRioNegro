@@ -51,4 +51,24 @@ describe('logger', () => {
     expect(written).not.toContain('ana@example.com')
     expect(written).not.toContain('203.0.113.7')
   })
+
+  // SEC-2 · Erro do banco traz em `details` a linha recusada ("Failing row contains (…)").
+  it('loga só code e message de erro do banco, sem o details', () => {
+    const dbError = {
+      code: '23514',
+      message: 'new row for relation "leads" violates check constraint "leads_name_check"',
+      details: 'Failing row contains (5f1c, Ana Souza, +5511912345678).',
+      hint: null,
+    }
+
+    logger.error('lead.request_failed', {
+      error: dbError,
+      cause: Object.assign(new Error(dbError.message), dbError),
+    })
+
+    const written = lastWritten(spies.stderr)
+    expect(written).not.toContain('Ana Souza')
+    expect(written).not.toContain('Failing row')
+    expect(JSON.parse(written).context.error).toEqual({ code: '23514', message: dbError.message })
+  })
 })
