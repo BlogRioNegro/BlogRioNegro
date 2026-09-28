@@ -16,6 +16,8 @@ import {
   type ArticleFields,
   type FieldErrors,
 } from '@/lib/domain/article-form'
+import { optimizeCover } from '@/lib/browser/optimize-cover'
+import { coverSourceError } from '@/lib/domain/cover-image'
 import { checkRichText, parseBodyField } from '@/lib/domain/rich-text'
 import { formatMegabytes, IMAGE_ACCEPT, sizeError } from '@/lib/domain/upload-rules'
 import { RichTextEditor } from './rich-text-editor'
@@ -40,13 +42,14 @@ const TEXTAREA_CLASSES =
   'w-full rounded-control border border-border-strong bg-surface p-3 font-serif text-md leading-normal text-text transition-colors duration-(--duration-fast) hover:border-text-muted aria-invalid:border-error'
 
 // O tamanho é conferido antes do envio: acima do limite, o arquivo nem sai do browser (ADM-006).
+// A capa pode ter até 5 MB porque é otimizada antes do envio (ADR 0041).
 function clientErrors(formData: FormData, isNew: boolean): FieldErrors {
   const parsed = articleFieldsSchema.safeParse(articleFieldsFrom(formData))
   const errors = parsed.success ? {} : fieldErrorsOf(parsed.error)
   const cover = fileFrom(formData, 'cover')
   const pdf = fileFrom(formData, 'pdf')
   if (isNew && !cover) errors.cover = ARTICLE_MESSAGES.cover
-  const coverTooBig = cover && sizeError('covers', cover.size)
+  const coverTooBig = cover && coverSourceError(cover.size)
   if (coverTooBig) errors.cover = coverTooBig
   const pdfTooBig = pdf && sizeError('article-files', pdf.size)
   if (pdfTooBig) errors.content = pdfTooBig
@@ -66,16 +69,29 @@ export function ArticleForm({ initial, isNew }: { initial: ArticleFormValues; is
   const [slugEdited, setSlugEdited] = useState(!isNew)
   const [pdf, setPdf] = useState<File | null>(null)
   const [localErrors, setLocalErrors] = useState<FieldErrors | null>(null)
+  const [optimizing, setOptimizing] = useState(false)
   const errors = localErrors ?? state?.fieldErrors ?? {}
   const summaryMessageId = `${initial.id}-resumo-mensagem`
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
     const found = clientErrors(formData, isNew)
     if (Object.keys(found).length > 0) {
       setLocalErrors(found)
       return
+    }
+
+    const cover = fileFrom(formData, 'cover')
+    if (cover) {
+      setOptimizing(true)
+      const optimized = await optimizeCover(cover)
+      setOptimizing(false)
+      if (!optimized.ok) {
+        setLocalErrors({ cover: optimized.error })
+        return
+      }
+      formData.set('cover', optimized.file)
     }
     setLocalErrors(null)
     startTransition(() => formAction(formData))
@@ -145,7 +161,7 @@ export function ArticleForm({ initial, isNew }: { initial: ArticleFormValues; is
           name="cover"
           type="file"
           accept={IMAGE_ACCEPT}
-          help="Proporção 16:9."
+          help="Proporção 16:9. JPG ou PNG de até 5 MB; a imagem é otimizada antes do envio."
           error={errors.cover}
         />
         <div className="flex flex-col gap-2">
@@ -217,7 +233,7 @@ export function ArticleForm({ initial, isNew }: { initial: ArticleFormValues; is
         <Button asChild variant="secondary" className="max-md:w-full">
           <Link href="/artigos">Cancelar</Link>
         </Button>
-        <Button type="submit" loading={pending} className="max-md:w-full">
+        <Button type="submit" loading={pending || optimizing} className="max-md:w-full">
           Publicar
         </Button>
       </div>

@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { expect, test } from '@playwright/test'
+import { expect, test, type BrowserContext } from '@playwright/test'
 import { serviceClient } from '../integration/support/clients'
 import { signInAsAdmin } from './support/admin'
 import { webUrl } from './support/urls'
@@ -31,6 +31,51 @@ const SEED_PDF = path.join(
   import.meta.dirname,
   '../../supabase/storage/article-previews/22222222-2222-4222-8222-222222222222/b1b2c3d4-0000-4000-8000-000000000002.pdf',
 )
+
+const MIB = 1024 * 1024
+
+// Imagem 4000 × 2250 com gradiente e ruído, gerada num canvas: JPEG 95% ≈ 3,3 MB e PNG ≈ 16 MB.
+async function generatedImage(context: BrowserContext, type: 'image/jpeg' | 'image/png') {
+  const page = await context.newPage()
+  const base64 = await page.evaluate(async (mime) => {
+    const width = 4000
+    const height = 2250
+    const canvas = document.createElement('canvas')
+    canvas.width = width
+    canvas.height = height
+    const context2d = canvas.getContext('2d')
+    if (!context2d) throw new Error('canvas sem 2d')
+    const image = context2d.createImageData(width, height)
+    for (let index = 0; index < image.data.length; index += 4) {
+      const pixel = index / 4
+      const noise = (Math.random() - 0.5) * 20
+      image.data[index] = ((pixel % width) / width) * 200 + noise
+      image.data[index + 1] = (Math.floor(pixel / width) / height) * 180 + noise
+      image.data[index + 2] = 120 + noise
+      image.data[index + 3] = 255
+    }
+    context2d.putImageData(image, 0, 0)
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, mime, 0.95))
+    if (!blob) throw new Error('toBlob falhou')
+    const bytes = new Uint8Array(await blob.arrayBuffer())
+    let binary = ''
+    for (const byte of bytes) binary += String.fromCharCode(byte)
+    return btoa(binary)
+  }, type)
+  await page.close()
+  return Buffer.from(base64, 'base64')
+}
+
+/** Largura do JPEG pelo marcador SOF (C0 a C2). */
+function jpegWidth(bytes: Buffer): number | null {
+  let offset = 2
+  while (offset + 9 < bytes.length) {
+    const marker = bytes[offset + 1] ?? 0
+    if (marker >= 0xc0 && marker <= 0xc2) return bytes.readUInt16BE(offset + 7)
+    offset += 2 + bytes.readUInt16BE(offset + 2)
+  }
+  return null
+}
 
 test.describe('formulário de artigo', () => {
   test.afterAll(async () => {
@@ -140,6 +185,70 @@ test.describe('formulário de artigo', () => {
         .from('articles')
         .update({ published_at: before?.published_at })
         .eq('id', SEED.id)
+    }
+  })
+
+  test('ADR 0041 · capa acima de 5 MB é recusada no browser, sem envio', async ({
+    page,
+    context,
+  }) => {
+    const png = await generatedImage(context, 'image/png')
+    expect(png.length).toBeGreaterThan(5 * MIB)
+    await signInAsAdmin(page)
+    await page.goto('/artigos/novo')
+
+    await page
+      .getByLabel('Capa')
+      .setInputFiles({ name: 'capa.png', mimeType: 'image/png', buffer: png })
+    await page.getByRole('button', { name: 'Publicar' }).click()
+
+    await expect(
+      page.getByText(/^O arquivo tem [\d,]+ MB\. Envie uma imagem de até 5 MB\.$/),
+    ).toBeVisible()
+    await expect(page).toHaveURL(/\/artigos\/novo$/)
+  })
+
+  test('ADR 0041 · capa de 2 a 5 MB é reduzida a 1920 px em JPEG de até 2 MB', async ({
+    page,
+    context,
+  }) => {
+    const service = serviceClient()
+    const jpeg = await generatedImage(context, 'image/jpeg')
+    expect(jpeg.length).toBeGreaterThan(2 * MIB)
+    expect(jpeg.length).toBeLessThanOrEqual(5 * MIB)
+    await signInAsAdmin(page)
+    await page.goto('/artigos/novo')
+    const articleId = await page.locator('input[name="id"]').inputValue()
+
+    await page.getByLabel('Título').fill('Artigo com capa pesada')
+    await page.getByLabel('Slug').fill(`capa-pesada-e2e-${Date.now()}`)
+    await page
+      .getByLabel('Capa')
+      .setInputFiles({ name: 'capa-grande.jpeg', mimeType: 'image/jpeg', buffer: jpeg })
+    await page.getByLabel('Arquivo PDF').setInputFiles(SEED_PDF)
+    await page.getByRole('button', { name: 'Publicar' }).click()
+
+    try {
+      await expect(page).toHaveURL(/\/artigos$/)
+      const { data: article } = await service
+        .from('articles')
+        .select('cover_path')
+        .eq('id', articleId)
+        .single()
+      const coverPath = article?.cover_path ?? ''
+      expect(coverPath).toMatch(new RegExp(`^${articleId}/[0-9a-f-]+\\.jpg$`))
+      const { data: file } = await service.storage.from('covers').download(coverPath)
+      const bytes = Buffer.from((await file?.arrayBuffer()) ?? new ArrayBuffer(0))
+      expect(bytes.length).toBeLessThanOrEqual(2 * MIB)
+      expect([...bytes.subarray(0, 3)]).toEqual([0xff, 0xd8, 0xff])
+      expect(jpegWidth(bytes)).toBe(1920)
+    } finally {
+      await service.from('articles').delete().eq('id', articleId)
+      for (const bucket of ['covers', 'article-files', 'article-previews']) {
+        const { data } = await service.storage.from(bucket).list(articleId)
+        const paths = (data ?? []).map((item) => `${articleId}/${item.name}`)
+        if (paths.length > 0) await service.storage.from(bucket).remove(paths)
+      }
     }
   })
 

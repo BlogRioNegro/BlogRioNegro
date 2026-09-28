@@ -44,8 +44,11 @@ legenda ([ADR 0031](../adr/0031-imagem-do-rich-text-so-com-alt.md)). Sem tabelas
 
 ### ADM-006 · Uploads
 Tipos e tamanhos conforme [DATA-007](01-data-model.md). MIME validado por magic bytes na
-Server Action, além do limite configurado no bucket.
-**Aceite:** arquivo renomeado (`.exe` → `.pdf`) é rejeitado; upload acima do limite é rejeitado.
+Server Action, além do limite configurado no bucket. A capa escolhida pode ter até 5 MB: o browser
+a reduz a 1920 px de largura e a recomprime em JPEG antes do envio, e o server segue com o limite do
+bucket ([ADR 0041](../adr/0041-capa-otimizada-no-browser.md)).
+**Aceite:** arquivo renomeado (`.exe` → `.pdf`) é rejeitado; upload acima do limite é rejeitado;
+capa de 2 a 5 MB chega ao bucket como JPEG de até 2 MB com 1920 px de largura.
 
 ### ADM-007 · Processamento de artigo `pdf`
 Ao salvar: PDF original → `article-files`; `pdf-lib` copia as **2 primeiras páginas** para
@@ -140,7 +143,8 @@ sem "esqueci a senha". Erros em `Alert` de erro acima dos campos:
 - Campos, nesta ordem: Título; Slug (ajuda "Endereço do artigo: /artigos/<slug>. Gerado a partir
   do título; pode ser editado."; na edição, avisa que links antigos continuarão funcionando);
   Resumo (opcional, `<textarea>` com a aparência do `Input`; ajuda "Aparece abaixo do título do
-  artigo e no card de destaque."); Capa (arquivo JPG ou PNG, ajuda "Proporção 16:9.");
+  artigo e no card de destaque."); Capa (arquivo JPG ou PNG de até 5 MB, ajuda "Proporção 16:9. JPG ou PNG de até 5 MB; a imagem
+  é otimizada antes do envio.");
   Tipo (dois `Button` sm com `aria-pressed`: "Texto" e "PDF"); Data de publicação (`type="date"`);
   Conteúdo conforme o tipo.
 - **Texto**: editor Tiptap com barra de `Button` ghost sm com rótulo em texto: H2, H3, Negrito,
