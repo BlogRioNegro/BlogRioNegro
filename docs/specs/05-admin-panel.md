@@ -134,6 +134,8 @@ sem "esqueci a senha". Erros em `Alert` de erro acima dos campos:
   as ações abrem num `Dialog` a partir de um `Button` secundário "Ações" de 44 px.
 
 ### Formulário de artigo (ADM-004 a ADM-011)
+- Bloco inteiro (voltar, título, card e rodapé) na largura de leitura, centralizado na página
+  ([ADR 0040](../adr/0040-formulario-de-artigo-centralizado.md)).
 - `Button` link "Artigos" (voltar), H1 "Novo artigo" ou "Editar artigo".
 - Campos, nesta ordem: Título; Slug (ajuda "Endereço do artigo: /artigos/<slug>. Gerado a partir
   do título; pode ser editado."; na edição, avisa que links antigos continuarão funcionando);
@@ -169,6 +171,7 @@ sem "esqueci a senha". Erros em `Alert` de erro acima dos campos:
 - "Reenviar falhas" sempre visível → só com `LEAD_WEBHOOK_URL` definida (ADM-014).
 - Barra do editor com "Título" e "Lista" únicos → H2, H3, lista e lista numerada (ADM-005).
 - Sem aviso de links antigos ao editar o slug → aviso obrigatório (ADM-009).
+- Formulário de artigo alinhado à esquerda → centralizado na página (ADR 0040).
 
 ## Fora de escopo
 

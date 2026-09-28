@@ -85,7 +85,7 @@ export function ArticleForm({ initial, isNew }: { initial: ArticleFormValues; is
     <form
       noValidate
       onSubmit={handleSubmit}
-      className="flex max-w-(--layout-reading) flex-col gap-6"
+      className="mx-auto flex w-full max-w-(--layout-reading) flex-col gap-6"
     >
       <div className="flex flex-col items-start gap-4">
         <Button asChild variant="link">
