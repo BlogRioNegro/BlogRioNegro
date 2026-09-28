@@ -7,7 +7,9 @@ Fase 7 na branch `fase-7` (criada da `fase-6`). Fechando o gate do PR `fase-7` �
 correções escolhidas pelo Rafael: QA-1, SEC-2, SEC-3. F7-001, F7-003 e F7-004 `[x]`. Sem push.
 
 ## Próxima tarefa
-Gate final do PR `fase-7` → `main`: `pnpm test`, `pnpm build`, `pnpm test:e2e`.
+Gate final do PR `fase-7` → `main`: `pnpm test` verde (467 + 90 de integração); faltam
+`pnpm build` e `pnpm test:e2e` (o build foi negado pela permissão do agente; rodar à mão).
+Com os dois verdes: código pronto para o PR; próximo: deploy com o Rafael.
 
 ## Feito nesta rodada
 - Capa de até 5 MB otimizada no browser (ADR 0041): `c1fc6bb`.
@@ -33,6 +35,8 @@ SEC-1, SEC-7, QA-2 a QA-4 e as tarefas de produção (F7-002, F7-005 a F7-009) f
 - SEC-6: Turnstile sem checagem de `hostname`; validar o hostname de produção.
 
 ## Pendências para o Rafael
+- Rodar `pnpm build` e `pnpm test:e2e` (gate final); parar `pnpm dev` antes.
+- Artigo manual `teste` (criado às 10:08 de 28/09) removido do banco local: sujava a integração.
 - SEC-1 / F3-002: confirmar em qual header o Deploy entrega o IP real do visitante.
 - ADR 0039: reenvio de lead de artigo excluído manda `article.id = null`; confirmar com o CRM.
 - Deploy Pro: validar se o install do pnpm roda na raiz do monorepo; se falhar, VPS.
