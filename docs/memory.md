@@ -7,9 +7,8 @@ Fase 7 na branch `fase-7` (criada da `fase-6`). Revisão concluída; aguardando 
 correções de `docs/revisao-final.md`. F7-001, F7-003 e F7-004 `[x]`. Sem push.
 
 ## Próxima tarefa
-Capa do artigo: aceitar arquivo de até 5 MB e otimizar no browser (1920 px, JPEG) antes do envio;
-bucket `covers` segue com 2 MiB (decisão do Rafael). Depois, aguardar a decisão sobre as
-correções de `docs/revisao-final.md` e as tarefas de produção (F7-002, F7-005 a F7-009).
+Aguardar a decisão do Rafael sobre as correções de `docs/revisao-final.md` (sugestão: QA-1,
+SEC-1, SEC-2). Depois, as tarefas de produção: F7-002, F7-005 a F7-009.
 
 ## Resultado da revisão (`docs/revisao-final.md`)
 - 0 crítico, 0 alto, 2 médios, 9 baixos; nenhum bloqueia o deploy. Veredito: pronto para deploy,
@@ -21,7 +20,8 @@ correções de `docs/revisao-final.md` e as tarefas de produção (F7-002, F7-00
   signUp), SEC-6 (Turnstile sem `hostname`), SEC-7 (login do admin sem limite próprio), QA-2
   (sonda `eval` do Zod), QA-3 (imagens órfãs do editor), QA-4 (seed sem PDFs completos).
 - Matriz RLS-*/SEC-* toda ✅; `.env.example` não verificado (regra de não ler `.env*`).
-- Formulário de artigo centralizado (ADR 0040, commit 39b8d22), a pedido do Rafael.
+- A pedido do Rafael: formulário de artigo centralizado (ADR 0040) e capa de até 5 MB otimizada
+  no browser, 1920 px JPEG, bucket segue 2 MiB (ADR 0041, `lib/browser/optimize-cover.ts`).
 - A11Y: `A11Y=1 pnpm test:e2e a11y` → 22 cenários, 0 violações (sanidade do axe confirmada).
 
 ## Regras do loop
