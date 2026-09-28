@@ -1,7 +1,7 @@
 ---
 id: 03-public-site
 status: approved
-ui_status: pending-design
+ui_status: approved
 fase: 4
 depends_on: [01-data-model.md, 02-security-rls.md, 04-lead-capture.md, 06-design-system.md]
 ---
@@ -94,11 +94,77 @@ Renderiza o texto definido em [LEAD-013](04-lead-capture.md).
 `not-found` e `error` com o layout do site e link para `/artigos`.
 **Aceite:** erro de banco mostra a página de erro sem vazar detalhes ([SEC-008](02-security-rls.md)).
 
-## UI · pending-design
+## UI
 
-Layout, componentes e estados visuais de home, listagem, card, página do artigo, prévia,
-rodapé e 404 serão definidos na fase 2 a partir do protótipo do Claude Design
-([06-design-system](06-design-system.md)). Não inventar layout antes disso.
+Referência: `design/prototipo/Site Publico.dc.html` (desktop 1440 px e mobile 390 px), só com
+tokens e componentes de [06-design-system](06-design-system.md). Onde o protótipo diverge desta
+spec, vale a spec (divergências abaixo).
+
+### Estrutura comum
+- **Header** (`SiteHeader`): 64 px, fundo `--color-bg`, borda inferior; logotipo escuro à esquerda
+  (link para `/`) e link "Artigos" à direita, com sublinhado de 2 px quando ativo (`aria-current`).
+  Mobile: igual, sem menu hambúrguer.
+- **Conteúdo**: coluna de leitura de `--layout-reading` (720 px), centralizada. Mobile: margem
+  lateral de 16 px, sem rolagem horizontal.
+- **Rodapé** (`SiteFooter`, PUB-013): fundo `--color-surface-muted`; logotipo + "Conheça a Rio
+  Negro" (nova aba), disclaimer regulatório (`text-xs`, `--color-text-muted`) e link "Privacidade".
+  Mobile: empilha logotipo/CTA, disclaimer, "Privacidade".
+- **Tipografia**: H1 `--font-size-h1` (36 px mobile, 48 px ≥ 768 px), peso 700; datas no formato
+  "15 set. 2026" em `text-xs` e `--color-text-muted`.
+
+### Home (`/`, PUB-001)
+Hero sem consulta ao banco: H1 "Análises sobre investimentos, escritas pela equipe da Rio Negro.",
+subtítulo "Artigos e estudos para ajudar você a entender o mercado e decidir com mais informação."
+(`text-md`, `--color-text-muted`) e `Button` primário "Ver artigos" → `/artigos` (100% da largura
+no mobile).
+
+### Listagem (`/artigos`, PUB-002 a PUB-004)
+- H1 "Artigos"; card de destaque no topo e, abaixo, os demais em **coluna única**.
+- **Card de destaque**: superfície com `--radius-card` e `--shadow-card`; capa 16:9 e texto lado a
+  lado a partir de 768 px (empilha no mobile, capa acima); título 24 px (mobile) / 30 px; data.
+- **Card**: o card inteiro é o link; capa 16:9 na largura toda, título (Inter 18/600, até ~3
+  linhas) e data. Sem capa: área neutra `--color-surface-muted`. Hover: borda `--color-border-strong`
+  e título sublinhado; foco: anel de 2 px.
+- **"Carregar mais"**: `Button` secundário centralizado, 44 px, largura mínima 240 px. Estados:
+  carregando (`loading`, anunciado em região `aria-live`), erro ("Tentar novamente") e fim da lista
+  (o botão some). Sem JS é um link `/artigos?page=N`.
+- **Vazio**: superfície branca com borda e o texto "Nenhum artigo publicado ainda".
+
+### Artigo (`/artigos/[slug]`, PUB-005 a PUB-007)
+- `Button` link "Todos os artigos" (ícone seta à esquerda) → `/artigos`.
+- H1, capa 16:9, formato (`TypeBadge`) + data e resumo (Source Serif 4, `text-lg` no mobile e `text-xl` ≥ 768 px, `--color-text-muted`), nesta ordem, como no protótipo ([ADR 0026](../adr/0026-ordem-da-pagina-do-artigo.md)).
+- **Prévia `rich_text`**: texto em `--font-serif`, `--font-size-article` (18/1.7 mobile,
+  20/1.7 ≥ 768 px), largura máxima `--measure-article`; H2/H3 em Inter 600; citações com borda
+  esquerda de 2 px; imagens só com `alt`, sem legenda ([ADR 0031](../adr/0031-imagem-do-rich-text-so-com-alt.md)).
+- **Prévia `pdf`**: área neutra com borda (`--radius-card`) contendo o PDF embutido e o rótulo
+  "Prévia". Fallback quando o navegador não embute: "Seu navegador não exibe o PDF nesta página."
+  + link "Ver prévia" para o mesmo arquivo.
+- Abaixo da prévia: nota "Esta é uma prévia. O artigo completo está disponível para download." e
+  `Button` primário "Baixar artigo completo" (100% no mobile), que abre o modal de
+  [04-lead-capture](04-lead-capture.md). Nenhum CTA comercial no corpo.
+
+### Privacidade (`/privacidade`, PUB-014)
+H1 "Aviso de privacidade", data de atualização em `text-xs`, seções com H2 e texto em
+`--font-serif` na coluna de leitura. O texto é o de LEAD-013, não o provisório do protótipo.
+
+### 404 (PUB-015)
+Rótulo "Erro 404" (`text-xs`, `--color-text-muted`), H1 "Página não encontrada", texto "O endereço
+pode ter mudado ou o conteúdo não está mais disponível." e `Button` primário "Ver todos os
+artigos" → `/artigos`.
+
+### Erro (PUB-015)
+Mesmo layout do 404, sem rótulo: H1 "Algo deu errado", texto "Não foi possível carregar esta página
+agora. Tente novamente em instantes.", `Button` primário "Tentar novamente" (chama o `reset` do
+error boundary) e `Button` link "Ver artigos" → `/artigos`
+([ADR 0030](../adr/0030-textos-da-pagina-de-erro.md)). Nada do erro é exibido (SEC-008).
+
+### Divergências do protótipo (vale a spec)
+- Listagem em grade de colunas no protótipo → **coluna única** (PUB-003).
+- Página do artigo sem capa no protótipo → **com capa** (PUB-005).
+- Card com badge de tipo e destaque com excerto no protótipo → card com **capa, título e data**
+  (PUB-003).
+- Rótulo "páginas 1 e 2 de 18" → só "Prévia": o total de páginas não existe no modelo de dados.
+- Rodapé com texto regulatório provisório → texto copiado de rionegroinvestimentos.com.br (F4-009).
 
 ## Fora de escopo
 

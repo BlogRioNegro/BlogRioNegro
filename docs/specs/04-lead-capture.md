@@ -1,7 +1,7 @@
 ---
 id: 04-lead-capture
 status: approved
-ui_status: pending-design
+ui_status: approved
 fase: 5
 depends_on: [01-data-model.md, 02-security-rls.md, 03-public-site.md]
 ---
@@ -32,7 +32,8 @@ Checkbox opcional, desmarcado: "Aceito receber novidades da Rio Negro por e-mail
 **Aceite:** gravado em `marketing_opt_in`; o download não depende dele.
 
 ### LEAD-005 · Cloudflare Turnstile
-Widget no modal; token verificado no server (`siteverify`) antes de qualquer escrita.
+Widget no modal; token verificado no server (`siteverify`, timeout de 5 s) antes de qualquer escrita.
+Sem resposta no prazo, o token conta como recusado.
 **Aceite:** token ausente, inválido ou reutilizado → erro genérico, nenhum insert, nenhuma URL.
 
 ### LEAD-006 · Rate limit
@@ -48,8 +49,10 @@ tentativas, tente em alguns minutos"; a janela seguinte volta a aceitar.
 Ordem obrigatória: (1) Zod → (2) Turnstile → (3) rate limit IP e e-mail → (4) artigo existe
 → (5) insert do lead → (6) URL assinada → (7) agendar webhook. Usa o client service role de
 [SEC-002](02-security-rls.md). Orquestração em `lib/services`, não no componente.
+O webhook (7) é agendado sempre que o insert (5) tiver sucesso, mesmo se a URL (6) falhar, para
+nenhum lead ficar `pending` para sempre ([ADR 0032](../adr/0032-webhook-copiado-e-agendado-apos-insert.md)).
 **Aceite:** falha em qualquer etapa até (5) não gera URL; falha em (6) após insert retorna
-erro e o lead permanece (o usuário pode tentar de novo).
+erro, o lead permanece (o usuário pode tentar de novo) e o webhook ainda é agendado.
 
 ### LEAD-008 · Persistência
 Um registro por download, com `article_title_snapshot`, `consent_at = now()`,
@@ -110,10 +113,33 @@ teste unitário da assinatura.
 **Aceite:** textos acima implementados como conteúdo estático; marcados em código com a
 versão; substituídos pelo texto validado na F7-006.
 
-## UI · pending-design
+## UI
 
-Layout do modal, estados (idle, enviando, erro, rate limit, sucesso) e comportamento mobile
-serão definidos na fase 2 ([06-design-system](06-design-system.md)).
+Referência: `design/prototipo/Modal de Lead.dc.html` (desktop e mobile), com `Dialog`,
+`TextField`, `Checkbox`, `Alert` e `Button` de [06-design-system](06-design-system.md).
+
+### Layout
+- `DialogContent` com título "Baixe o artigo completo" e descrição "<título do artigo> · PDF" ou
+  "· Texto". 480 px no desktop; tela cheia no mobile, com "Fechar" no topo e o botão de envio
+  fixo no rodapé enquanto o corpo rola. Foco no primeiro campo ao abrir; Esc e o fundo fecham.
+- Ordem dos campos: Nome (`autocomplete="name"`), E-mail (`type="email"`, `autocomplete="email"`),
+  Telefone (máscara `(99) 99999-9999`, `autocomplete="tel"`), aviso de coleta (LEAD-013, `text-xs`),
+  checkbox obrigatório "Li e concordo com o aviso de privacidade." (link para `/privacidade` em
+  nova aba), checkbox opcional de LEAD-004, widget do Turnstile (área de 300 × 65 px) e o `Button`
+  primário "Baixar artigo completo" (ícone de download, largura total).
+
+### Estados
+| Estado | Comportamento |
+|---|---|
+| Vazio | Campos vazios e os dois checkboxes desmarcados (LEAD-001, LEAD-003, LEAD-004). |
+| Erros de validação | Erro inline em cada campo e no checkbox obrigatório: "Informe seu nome.", "Informe um e-mail válido, como nome@exemplo.com.br.", "Informe o telefone com DDD, no formato (99) 99999-9999.", "Marque esta opção para continuar.". |
+| Enviando | Campos e checkboxes desabilitados; botão com `loading` e texto "Enviando…". |
+| Muitas tentativas | `Alert` de erro acima do botão: "Muitas tentativas, tente em alguns minutos" (LEAD-006). Campos mantêm os valores. |
+| Erro genérico | `Alert` de erro acima do botão: "Não foi possível concluir. Tente novamente." (Turnstile, artigo inexistente ou falha interna, sem detalhes, SEC-008). |
+| Sucesso | Título "Pronto!"; `Alert` de sucesso "O download começou." com "“<título>” está sendo salvo no seu dispositivo."; `Button` link "Baixar novamente"; `Button` primário "Conheça a Rio Negro" (nova aba, ícone de link externo), só neste estado (LEAD-010). |
+| Link expirado | "Baixar novamente" depois dos 60 s da URL (LEAD-009) volta ao formulário vazio com `Alert` de aviso "O link de download expirou." e "Envie o formulário de novo para baixar o artigo." (nenhum dado fica retido no client). |
+
+O texto do erro genérico acima é o que a Server Action devolve ao client neste fluxo.
 
 ## Fora de escopo
 

@@ -14,3 +14,5 @@ Artigos são compartilhados no WhatsApp; links não podem quebrar.
 ## Consequências
 - Nenhum link compartilhado quebra, e o SEO é transferido pelo 301.
 - Unicidade verificada entre slugs atuais e históricos.
+- O 301 sai do `proxy.ts` do `apps/web` (PUB-008, 2026-09-25): em `/artigos/<slug>`, uma consulta por
+  chave primária em `article_slug_history`. Página do App Router só consegue responder 307/308.

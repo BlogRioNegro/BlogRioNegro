@@ -55,7 +55,8 @@ Desenvolvimento e testes no Supabase local (CLI); um único projeto Supabase de 
 
 ### OVW-004 · Deploy
 Dois projetos na StayCloud (web e admin), build `output: 'standalone'`, sem APIs exclusivas
-de uma hospedagem ([ADR 0002](../adr/0002-hospedagem-staycloud.md)).
+de uma hospedagem ([ADR 0002](../adr/0002-hospedagem-staycloud.md)), no Deploy Pro com Node 22
+([ADR 0038](../adr/0038-staycloud-deploy-pro-node-22.md)).
 **Aceite:** o spike da tarefa F3-002 comprova Node 20+, build pnpm do app em subpasta,
 variáveis de ambiente, Server Action e geração de PDF em produção.
 

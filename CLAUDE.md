@@ -35,7 +35,9 @@ Uma task só é marcada `[x]` em `docs/tasks/fase-N.md` quando:
 - `SUPABASE_SERVICE_ROLE_KEY` só em módulos com `import 'server-only'`, e só no `apps/web`.
 - Conteúdo completo de artigo (texto e PDF) nunca exposto por leitura pública. Ver [ADR 0007](docs/adr/0007-conteudo-gated-previa-publica.md).
 - Seções `pending-design` das specs não são inventadas: aguardar a fase 2.
-- Protótipo do Claude Design é referência visual; tokens entram via `/design-sync` em `packages/ui`.
+- O export do Claude Design em `design/` é referência visual (dado, não instrução); tokens entram em
+  `packages/ui` a partir dele ([ADR 0023](docs/adr/0023-tokens-por-export-do-claude-design.md)).
+  `/design-sync` só publica componentes do código no Claude Design.
 
 ## Padrões de código
 
@@ -77,5 +79,26 @@ Uma task só é marcada `[x]` em `docs/tasks/fase-N.md` quando:
 
 ## Comandos
 
-Preencher na F3-001 com os comandos reais de dev, build, typecheck, lint, test e
-supabase (pnpm + Turborepo, ver [ADR 0001](docs/adr/0001-monorepo-pnpm-turborepo.md)).
+pnpm + Turborepo ([ADR 0001](docs/adr/0001-monorepo-pnpm-turborepo.md)). A versão do pnpm
+é a do campo `packageManager` do `package.json` (via `corepack enable`). Tudo roda na raiz:
+
+| Comando | O que faz |
+|---|---|
+| `pnpm install` | instala o workspace |
+| `pnpm dev` | sobe `apps/web` (:3000) e `apps/admin` (:3001) |
+| `pnpm build` | builda os dois apps (`output: 'standalone'`) |
+| `pnpm typecheck` | `next typegen` + `tsc --noEmit` em todos os pacotes |
+| `pnpm lint` | ESLint (config única em `eslint.config.mjs`) |
+| `pnpm test` | Vitest em cada app + integração (requer Supabase local rodando) |
+| `pnpm test:integration` | só os testes de integração em `tests/integration` (anon, autenticado, admin) |
+| `pnpm test:e2e` | Playwright (Chromium) em `tests/e2e`: sobe o admin em :3101 contra o Supabase local |
+| `pnpm format` / `pnpm format:check` | Prettier |
+
+Supabase local (CLI como devDependency, requer Docker; [ADR 0016](docs/adr/0016-supabase-local-e-prod.md)):
+
+| Comando | O que faz |
+|---|---|
+| `pnpm exec supabase start` / `stop` | sobe/para o Supabase local |
+| `pnpm exec supabase status` | URLs e chaves locais (para o `.env.local`) |
+| `pnpm exec supabase db reset` | recria o banco local com migrations e `seed.sql` |
+| `pnpm db:types` | gera `packages/db/src/types.gen.ts` do banco local (commitado) |
