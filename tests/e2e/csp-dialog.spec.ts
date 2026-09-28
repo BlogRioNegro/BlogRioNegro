@@ -40,3 +40,17 @@ test('admin: dialog do editor abre sem violação de CSP', async ({ page }) => {
 
   expect(violations).toEqual([])
 })
+
+// QA-1 · O login navega por Server Action: o layout re-renderiza com o nonce de outro request,
+// mas a CSP do documento segue a da 1ª carga.
+test('admin: 1º dialog depois do login abre sem violação de CSP', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  const violations = collectCspViolations(page)
+  await signInAsAdmin(page)
+  violations.length = 0
+
+  await page.getByRole('button', { name: 'Excluir' }).first().click()
+  await expect(page.getByRole('dialog', { name: 'Excluir artigo?' })).toBeVisible()
+
+  expect(violations).toEqual([])
+})
