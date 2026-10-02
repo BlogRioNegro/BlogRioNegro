@@ -11,6 +11,12 @@ O export do Claude Design em `design/` é **referência visual**: os tokens entr
 a partir dele ([ADR 0023](../adr/0023-tokens-por-export-do-claude-design.md)); telas são
 reimplementadas como componentes seguindo as specs 03, 04 e 05, não copiadas.
 
+Cores, fontes, logo e favicon seguem o guia oficial da marca
+([design/marca/INFO-RN-XP.pdf](../../design/marca/INFO-RN-XP.pdf),
+[ADR 0043](../adr/0043-marca-oficial-conforme-o-guia.md)): `#101820`, `#bc955c` e `#ffcb05` com o hex
+exato; Roboto Slab 900 em títulos, Roboto Slab 400 em subtítulos e Roboto no restante. Os tons que o
+guia não define (paleta `--rn-warm-*`, estados, sombras) ficam como no export.
+
 `packages/ui` é a verdade no código e esta spec é a verdade na documentação: os dois concordam
 (teste em `packages/ui/src/tokens.test.ts`).
 
@@ -28,8 +34,9 @@ Home, listagem, artigo (prévia pdf e rich_text), modal de lead (todos os estado
 
 ### DS-003 · Tokens em `packages/ui` (fase 2)
 Tokens do export do Claude Design em `packages/ui` (CSS variables + `@theme` do Tailwind v4, mesmos
-nomes e valores; [ADR 0023](../adr/0023-tokens-por-export-do-claude-design.md)). Fontes Inter e Source
-Serif 4 via `next/font/google`, a partir de `@rio-negro/ui/fonts`.
+nomes e valores; [ADR 0023](../adr/0023-tokens-por-export-do-claude-design.md),
+[ADR 0043](../adr/0043-marca-oficial-conforme-o-guia.md)). Fontes Roboto e Roboto
+Slab via `next/font/google`, a partir de `@rio-negro/ui/fonts`.
 **Aceite:** os dois apps consomem os tokens de `@rio-negro/ui`; nenhum valor de cor ou fonte
 hard-coded fora do pacote.
 
@@ -71,6 +78,10 @@ de 4 px (`p-4` = `--space-4`). A paleta padrão do Tailwind é desativada.
 | `--rn-amber-700` | `#8a5a00` | Paleta de estado. Não usar direto: usar os semânticos. |
 | `--rn-amber-50` | `#f7edd9` | Paleta de estado. Não usar direto: usar os semânticos. |
 | `--rn-amber-200` | `#e3cb98` | Paleta de estado. Não usar direto: usar os semânticos. |
+| `--rn-navy-900` | `#101820` | Guia da marca: cor principal. Não usar direto: usar os semânticos. |
+| `--rn-gold-500` | `#bc955c` | Guia da marca: cor secundária (dourado). Não usar direto: usar os semânticos. |
+| `--rn-yellow-500` | `#ffcb05` | Guia da marca: cor de apoio (amarelo). Não usar direto: usar os semânticos. |
+| `--rn-gray-700` | `#4c4c4c` | Guia da marca: início do degradê. Não usar direto. |
 | `--space-1` | `4px` | Espaçamento (múltiplo de 4 px) |
 | `--space-2` | `8px` | Espaçamento (múltiplo de 4 px) |
 | `--space-3` | `12px` | Espaçamento (múltiplo de 4 px) |
@@ -112,15 +123,18 @@ de 4 px (`p-4` = `--space-4`). A paleta padrão do Tailwind é desativada.
 | `--line-height-article` | `var(--line-height-relaxed)` | Entrelinha do artigo |
 | `--measure-article` | `68ch` | Largura máxima do texto do artigo |
 | `--font-size-h1` | `var(--font-size-3xl)` | H1 (≥768px: var(--font-size-4xl)) |
+| `--gradient-brand` | `linear-gradient(90deg, var(--rn-gray-700), var(--rn-navy-900))` | Degradê da marca. Só token: não aplicado em nenhuma tela. |
 | `--color-bg` | `var(--rn-warm-50)` | Fundo da página |
 | `--color-surface` | `var(--rn-warm-0)` | Cards, modal, campos |
 | `--color-surface-muted` | `var(--rn-warm-100)` | Superfície secundária, linhas de tabela |
 | `--color-border` | `var(--rn-warm-200)` | Bordas e divisórias |
 | `--color-border-strong` | `var(--rn-warm-400)` | Borda de campo e hover |
-| `--color-text` | `var(--rn-warm-900)` | Texto principal |
+| `--color-divider` | `var(--rn-gold-500)` | Divisórias e detalhes decorativos (nunca texto) |
+| `--color-highlight` | `var(--rn-yellow-500)` | Selo de destaque (fundo, com texto `--color-text`). Só token: o selo não existe. |
+| `--color-text` | `var(--rn-navy-900)` | Texto principal |
 | `--color-text-muted` | `var(--rn-warm-600)` | Legenda, data, texto regulatório |
 | `--color-text-inverse` | `var(--rn-warm-50)` | Texto sobre ação primária |
-| `--color-action-primary` | `var(--rn-warm-900)` | Botão primário |
+| `--color-action-primary` | `var(--rn-navy-900)` | Botão primário |
 | `--color-action-primary-hover` | `var(--rn-warm-800)` | Botão primário em hover |
 | `--color-action-primary-text` | `var(--rn-warm-50)` | Texto do botão primário |
 | `--color-disabled-bg` | `var(--rn-warm-100)` | Fundo de controle desabilitado |
@@ -134,14 +148,19 @@ de 4 px (`p-4` = `--space-4`). A paleta padrão do Tailwind é desativada.
 | `--color-warning` | `var(--rn-amber-700)` | Texto/ícone de aviso |
 | `--color-warning-bg` | `var(--rn-amber-50)` | Fundo de alerta de aviso |
 | `--color-warning-border` | `var(--rn-amber-200)` | Borda de alerta de aviso |
-| `--color-focus-ring` | `var(--rn-warm-900)` | Anel de foco |
+| `--color-focus-ring` | `var(--rn-navy-900)` | Anel de foco |
 | `--color-overlay` | `rgba(29, 28, 27, 0.48)` | Fundo do modal |
-| `--font-sans` | `var(--font-inter), system-ui, -apple-system, 'Segoe UI', sans-serif` | Interface (Inter, via next/font) |
-| `--font-serif` | `var(--font-source-serif), 'Source Serif Pro', Georgia, 'Times New Roman', serif` | Corpo do artigo (Source Serif 4, via next/font) |
+| `--color-footer-bg` | `var(--rn-navy-900)` | Fundo do rodapé do site |
+| `--color-footer-text` | `#ffffff` | Texto e foco do rodapé |
+| `--color-footer-accent` | `var(--rn-gold-500)` | Ícones sociais e de telefone do rodapé |
+| `--color-footer-accent-hover` | `color-mix(in srgb, var(--color-footer-accent) 80%, var(--color-footer-text))` | Hover dos ícones sociais |
+| `--font-sans` | `var(--font-roboto), system-ui, -apple-system, 'Segoe UI', sans-serif` | Apoio: corpo, interface, textos jurídicos (Roboto, via next/font) |
+| `--font-serif` | `var(--font-roboto-slab), Georgia, 'Times New Roman', serif` | Títulos (peso 900) e subtítulos (peso 400) (Roboto Slab, via next/font) |
 | `--font-weight-regular` | `400` | Peso da fonte |
 | `--font-weight-medium` | `500` | Peso da fonte |
 | `--font-weight-semibold` | `600` | Peso da fonte |
 | `--font-weight-bold` | `700` | Peso da fonte |
+| `--font-weight-black` | `900` | Títulos (Roboto Slab Black) |
 | `--radius-control` | `6px` | Botão, campo, badge |
 | `--radius-card` | `12px` | Card e modal |
 | `--shadow-card` | `0 1px 2px rgba(29, 28, 27, 0.06), 0 1px 3px rgba(29, 28, 27, 0.04)` | Card |
@@ -190,24 +209,27 @@ identifica o controle ≥ 3:1 (1.4.11). Superfícies de referência: `--color-su
 `--color-bg` (`#f2f0ef`). Controle desabilitado é isento (1.4.3).
 
 **Foco visível (todos):** `:focus-visible` global em `packages/ui/src/styles.css`, contorno de 2 px
-em `--color-focus-ring` (`#1d1c1b`) afastado 2 px: 17,02:1 sobre surface e 14,98:1 sobre bg. Nenhum
+em `--color-focus-ring` (`#101820`) afastado 2 px: 17,89:1 sobre surface e 15,75:1 sobre bg. Nenhum
 componente remove o `outline`.
 
 | Componente | Contraste (valores reais) | Foco e teclado | Label e nome acessível |
 |---|---|---|---|
-| `Button` | primary: texto `#f2f0ef` sobre `#1d1c1b` 14,98:1 (hover `#3a3735` 10,40:1); secondary/ghost/link: `#1d1c1b` sobre surface 17,02:1 e sobre `surface-muted` (hover) 13,70:1; borda do secondary `#8c8782` 3,56:1 | `<button>` nativo (Enter/Espaço); `type="button"` por padrão; desabilitado e `loading` saem da ordem de clique | texto visível; ícone com `aria-hidden`; botões só de ícone (`icon`, `icon-sm`) exigem `aria-label` ou texto `sr-only`; `loading` marca `aria-busy` |
-| `Label` | `#1d1c1b` sobre surface 17,02:1; "(opcional)" `#5c5854` 7,05:1 (6,21:1 sobre bg) | — | sempre visível, ligado por `htmlFor`; placeholder nunca substitui o label |
-| `Input` | texto `#1d1c1b` 17,02:1; placeholder `#5c5854` 7,05:1; borda `#8c8782` 3,56:1 (3,13:1 contra bg); borda de erro `#a8322d` 6,65:1 | nativo | só é usado com `Label` (via `TextField` ou `htmlFor`); erro com `aria-invalid` |
+| `Button` | primary: texto `#f2f0ef` sobre `#101820` 15,75:1 (hover `#3a3735` 10,40:1); secondary/ghost/link: `#101820` sobre surface 17,89:1 e sobre `surface-muted` (hover) 14,40:1; borda do secondary `#8c8782` 3,56:1 | `<button>` nativo (Enter/Espaço); `type="button"` por padrão; desabilitado e `loading` saem da ordem de clique | texto visível; ícone com `aria-hidden`; botões só de ícone (`icon`, `icon-sm`) exigem `aria-label` ou texto `sr-only`; `loading` marca `aria-busy` |
+| `Label` | `#101820` sobre surface 17,89:1; "(opcional)" `#5c5854` 7,05:1 (6,21:1 sobre bg) | — | sempre visível, ligado por `htmlFor`; placeholder nunca substitui o label |
+| `Input` | texto `#101820` 17,89:1; placeholder `#5c5854` 7,05:1; borda `#8c8782` 3,56:1 (3,13:1 contra bg); borda de erro `#a8322d` 6,65:1 | nativo | só é usado com `Label` (via `TextField` ou `htmlFor`); erro com `aria-invalid` |
 | `FieldMessage` | ajuda `#5c5854` 7,05:1; erro `#a8322d` 6,65:1 sobre surface e 5,85:1 sobre bg | — | ligado ao campo por `aria-describedby`; erro tem ícone, não só cor (1.4.1) |
 | `TextField` | herda `Label`, `Input` e `FieldMessage` | nativo | liga `id`, `htmlFor`, `aria-describedby` e `aria-invalid` sozinho |
-| `Checkbox` | borda `#8c8782` 3,56:1; marcado: ícone `#f2f0ef` sobre `#1d1c1b` 14,98:1; label `#1d1c1b` 17,02:1 | Radix (`role="checkbox"`, Espaço alterna) | `<label htmlFor>` clicável; erro com `aria-invalid` + `aria-describedby`; nunca pré-marcado |
-| `Alert` | título: sucesso `#2f6b3f` sobre `#e6f0e8` 5,46:1, erro `#a8322d` sobre `#f8e6e4` 5,52:1, aviso `#8a5a00` sobre `#f7edd9` 5,10:1; corpo `#1d1c1b` ≥ 14,12:1 | não recebe foco | `role="alert"` (erro) ou `role="status"`; ícone decorativo, o título carrega o sentido |
-| `Dialog`, `DialogTrigger`, `DialogContent`, `DialogClose` | título `#1d1c1b` 17,02:1; descrição `#5c5854` 7,05:1 | foco preso no conteúdo; **Esc** e clique no fundo fecham; o foco volta ao `DialogTrigger` (Radix) | `title` obrigatório → `aria-labelledby`; `description` → `aria-describedby`; "Fechar" de 44 px com texto `sr-only` |
+| `Checkbox` | borda `#8c8782` 3,56:1; marcado: ícone `#f2f0ef` sobre `#101820` 15,75:1; label `#101820` 17,89:1 | Radix (`role="checkbox"`, Espaço alterna) | `<label htmlFor>` clicável; erro com `aria-invalid` + `aria-describedby`; nunca pré-marcado |
+| `Alert` | título: sucesso `#2f6b3f` sobre `#e6f0e8` 5,46:1, erro `#a8322d` sobre `#f8e6e4` 5,52:1, aviso `#8a5a00` sobre `#f7edd9` 5,10:1; corpo `#101820` ≥ 14,85:1 | não recebe foco | `role="alert"` (erro) ou `role="status"`; ícone decorativo, o título carrega o sentido |
+| `Dialog`, `DialogTrigger`, `DialogContent`, `DialogClose` | título `#101820` 17,89:1; descrição `#5c5854` 7,05:1 | foco preso no conteúdo; **Esc** e clique no fundo fecham; o foco volta ao `DialogTrigger` (Radix) | `title` obrigatório → `aria-labelledby`; `description` → `aria-describedby`; "Fechar" de 44 px com texto `sr-only` |
 | `StatusBadge` | Pendente `#8a5a00`/`#f7edd9` 5,10:1; Enviado `#2f6b3f`/`#e6f0e8` 5,46:1; Falhou `#a8322d`/`#f8e6e4` 5,52:1; Desativado `#5c5854`/`#e9e6e4` 5,67:1 | não recebe foco | o texto do status sempre visível; ponto de cor com `aria-hidden` |
-| `TypeBadge` | PDF: `#1d1c1b` sobre `surface-muted` 13,70:1 (sem borda); Texto: `#1d1c1b` sobre surface 17,02:1 | não recebe foco | texto "PDF"/"Texto"; ícone com `aria-hidden` |
-| `Table` e partes | célula `#1d1c1b` 17,02:1 (hover 13,70:1); cabeçalho `#5c5854` sobre bg 6,21:1 | contêiner rola na horizontal sem prender o foco; ações da linha são `Button` | `TableCaption` obrigatória (oculta visualmente); `TableHead` com `scope="col"` |
+| `TypeBadge` | PDF: `#101820` sobre `surface-muted` 14,40:1 (sem borda); Texto: `#101820` sobre surface 17,89:1 | não recebe foco | texto "PDF"/"Texto"; ícone com `aria-hidden` |
+| `Table` e partes | célula `#101820` 17,89:1 (hover 14,40:1); cabeçalho `#5c5854` sobre bg 6,21:1 | contêiner rola na horizontal sem prender o foco; ações da linha são `Button` | `TableCaption` obrigatória (oculta visualmente); `TableHead` com `scope="col"` |
 
-Divisórias em `--color-border` (`#dcd8d5`, 1,42:1) são decorativas e não identificam controle.
+Divisórias em `--color-border` (`#dcd8d5`, 1,42:1) e em `--color-divider` (`#bc955c`, 2,77:1 sobre
+surface e 2,43:1 sobre bg) são decorativas: não identificam controle nem carregam texto. No rodapé
+(`--color-footer-bg` `#101820`): texto `#ffffff` 17,89:1 e acento `#bc955c` 6,47:1, com ícone
+`#101820` sobre o acento 6,47:1 (hover 8,12:1).
 
 ## Fora de escopo
 

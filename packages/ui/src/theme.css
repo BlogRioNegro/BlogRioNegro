@@ -16,12 +16,14 @@
   --color-surface-muted: var(--rn-warm-100);
   --color-border: var(--rn-warm-200);
   --color-border-strong: var(--rn-warm-400);
+  --color-divider: var(--rn-gold-500);
+  --color-highlight: var(--rn-yellow-500);
 
-  --color-text: var(--rn-warm-900);
+  --color-text: var(--rn-navy-900);
   --color-text-muted: var(--rn-warm-600);
   --color-text-inverse: var(--rn-warm-50);
 
-  --color-action-primary: var(--rn-warm-900);
+  --color-action-primary: var(--rn-navy-900);
   --color-action-primary-hover: var(--rn-warm-800);
   --color-action-primary-text: var(--rn-warm-50);
   --color-disabled-bg: var(--rn-warm-100);
@@ -37,17 +39,27 @@
   --color-warning-bg: var(--rn-amber-50);
   --color-warning-border: var(--rn-amber-200);
 
-  --color-focus-ring: var(--rn-warm-900);
+  --color-focus-ring: var(--rn-navy-900);
   --color-overlay: rgba(29, 28, 27, 0.48);
 
-  /* 'Inter' e 'Source Serif 4' vêm do next/font (fonts.ts), que expõe a família como variável. */
-  --font-sans: var(--font-inter), system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-serif: var(--font-source-serif), 'Source Serif Pro', Georgia, 'Times New Roman', serif;
+  --color-footer-bg: var(--rn-navy-900);
+  --color-footer-text: #ffffff;
+  --color-footer-accent: var(--rn-gold-500);
+  --color-footer-accent-hover: color-mix(
+    in srgb,
+    var(--color-footer-accent) 80%,
+    var(--color-footer-text)
+  );
+
+  /* 'Roboto' e 'Roboto Slab' vêm do next/font (fonts.ts), que expõe a família como variável. */
+  --font-sans: var(--font-roboto), system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-serif: var(--font-roboto-slab), Georgia, 'Times New Roman', serif;
 
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
+  --font-weight-black: 900;
 
   --radius-control: 6px;
   --radius-card: 12px;

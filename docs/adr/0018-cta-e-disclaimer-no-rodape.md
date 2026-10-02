@@ -1,6 +1,6 @@
 # 0018 · CTA discreto no rodapé e no sucesso do modal; disclaimer no rodapé
 
-- Status: accepted · Data: 2026-09-23
+- Status: accepted (CTA no rodapé superseded por [0042](0042-rodape-igual-ao-institucional.md)) · Data: 2026-09-23
 - Specs: [PUB-013](../specs/03-public-site.md), [LEAD-010](../specs/04-lead-capture.md)
 
 ## Contexto

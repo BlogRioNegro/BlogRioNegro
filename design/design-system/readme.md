@@ -72,7 +72,7 @@ Estados de documentação: passe `className="is-hover"` ou `"is-focus"` para ren
 - Não foi fornecido conjunto de ícones. Usamos **Lucide** (traço 2 px, pontas arredondadas, 24×24), embutido em `components/core/Icon.jsx` como traçados copiados — sem dependência de CDN. **Substituição sinalizada.**
 - Ícones são funcionais e sempre acompanham texto (exceto botões de ícone, que têm `aria-label`). Tamanhos: 20 px (md), 16 px (sm), 14 px em badges.
 - Sem emoji, sem caracteres unicode como ícone, sem ícones coloridos/ilustrados. Cor = `currentColor`.
-- Logotipo: `assets/logo-escuro.png` sobre fundos claros (padrão em todo o blog); `assets/logo-branco.png` apenas sobre `#1D1C1B`. Ambos são PNG de 256×42 — para telas de alta densidade, pedir SVG.
+- Logotipo: `assets/logo-escuro.png` sobre fundos claros (padrão em todo o blog); `assets/logo-branco.png` apenas sobre `#101820`. PNGs transparentes recortados do guia da marca (`design/marca/INFO-RN-XP.pdf`): 1024×169 (escuro) e 906×153 (branco). Favicon: `assets/favicon.png` (512×512, "RN" branco sobre `#101820`).
 
 ## Fontes
 Inter e Source Serif 4 são carregadas do Google Fonts (`tokens/fonts.css`). Não há arquivos de fonte locais no projeto.

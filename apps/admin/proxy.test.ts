@@ -89,8 +89,8 @@ describe('proxy do apps/admin', () => {
     },
   )
 
-  it('deixa /login abrir sem sessão', async () => {
-    const response = await request('/login')
+  it.each(['/login', '/icon.png'])('deixa %s abrir sem sessão', async (path) => {
+    const response = await request(path)
 
     expect(response.headers.get('location')).toBeNull()
     expect(response.headers.get('x-middleware-next')).toBe('1')

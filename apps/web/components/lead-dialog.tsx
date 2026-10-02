@@ -80,7 +80,7 @@ function SuccessView({
           Baixar novamente
         </Button>
       </div>
-      <div className="mt-2 flex flex-col gap-3 border-t border-border pt-6">
+      <div className="mt-2 flex flex-col gap-3 border-t border-divider pt-6">
         <Button asChild block>
           <a href={rioNegroUrl} target="_blank" rel="noopener noreferrer">
             Conheça a Rio Negro
@@ -248,7 +248,7 @@ function LeadForm({ article, turnstileSiteKey, rioNegroUrl }: Props) {
         <Turnstile siteKey={turnstileSiteKey} resetKey={turnstileReset} onToken={setToken} />
         {formError ? <Alert variant="error" title={formError} /> : null}
         {/* Mobile: o botão fica fixo no rodapé enquanto o corpo rola (spec 04, Layout). */}
-        <div className="sticky -bottom-4 -mx-4 -mb-4 mt-auto border-t border-border bg-surface p-4 md:static md:m-0 md:border-0 md:p-0">
+        <div className="sticky -bottom-4 -mx-4 -mb-4 mt-auto border-t border-divider bg-surface p-4 md:static md:m-0 md:border-0 md:p-0">
           <Button type="submit" block loading={submitting}>
             {submitting ? 'Enviando…' : 'Baixar artigo completo'}
             {submitting ? null : <Download aria-hidden className="size-5" />}

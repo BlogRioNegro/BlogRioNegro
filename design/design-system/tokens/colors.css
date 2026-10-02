@@ -18,6 +18,11 @@
 --rn-amber-700:#8A5A00;
 --rn-amber-50:#F7EDD9;
 --rn-amber-200:#E3CB98;
+/* Guia da marca (design/marca/INFO-RN-XP.pdf) */
+--rn-navy-900:#101820;
+--rn-gold-500:#BC955C;
+--rn-yellow-500:#FFCB05;
+--rn-gray-700:#4C4C4C;
 
 /* Semânticos: superfícies */
 --color-bg:var(--rn-warm-50);
@@ -25,14 +30,16 @@
 --color-surface-muted:var(--rn-warm-100);
 --color-border:var(--rn-warm-200);
 --color-border-strong:var(--rn-warm-400);
+--color-divider:var(--rn-gold-500);
+--color-highlight:var(--rn-yellow-500);
 
 /* Semânticos: texto */
---color-text:var(--rn-warm-900);
+--color-text:var(--rn-navy-900);
 --color-text-muted:var(--rn-warm-600);
 --color-text-inverse:var(--rn-warm-50);
 
 /* Semânticos: ação */
---color-action-primary:var(--rn-warm-900);
+--color-action-primary:var(--rn-navy-900);
 --color-action-primary-hover:var(--rn-warm-800);
 --color-action-primary-text:var(--rn-warm-50);
 --color-disabled-bg:var(--rn-warm-100);
@@ -50,6 +57,15 @@
 --color-warning-border:var(--rn-amber-200);
 
 /* Foco e sobreposição */
---color-focus-ring:var(--rn-warm-900);
+--color-focus-ring:var(--rn-navy-900);
 --color-overlay:rgba(29,28,27,.48);
+
+/* Rodapé (igual ao do site institucional) */
+--color-footer-bg:var(--rn-navy-900);
+--color-footer-text:#ffffff;
+--color-footer-accent:var(--rn-gold-500);
+--color-footer-accent-hover:color-mix(in srgb,var(--color-footer-accent) 80%,var(--color-footer-text));
+
+/* Degradê da marca (sem uso em tela) */
+--gradient-brand:linear-gradient(90deg,var(--rn-gray-700),var(--rn-navy-900));
 }

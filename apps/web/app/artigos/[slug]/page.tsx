@@ -55,7 +55,9 @@ export default async function ArticlePage({ params }: PageProps<'/artigos/[slug]
           </Link>
         </Button>
       </div>
-      <h1 className="my-6 text-3xl font-bold text-balance md:my-8 md:text-4xl">{article.title}</h1>
+      <h1 className="my-6 font-serif text-3xl font-black text-balance md:my-8 md:text-4xl">
+        {article.title}
+      </h1>
       <CoverImage src={coverUrl(article.cover_path)} eager className="rounded-card" />
       <div className="mt-4 mb-3 flex items-center gap-2 text-xs text-text-muted md:mt-6 md:mb-4">
         <TypeBadge type={article.content_type} />
@@ -74,7 +76,7 @@ export default async function ArticlePage({ params }: PageProps<'/artigos/[slug]
       ) : null}
       <div
         className={cn(
-          'flex flex-col gap-4 border-t border-border pt-6 md:items-start md:pt-8',
+          'flex flex-col gap-4 border-t border-divider pt-6 md:items-start md:pt-8',
           article.content_type === 'rich_text' ? 'mt-2 md:mt-4' : 'mt-6 md:mt-8',
         )}
       >

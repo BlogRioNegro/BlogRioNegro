@@ -1,6 +1,6 @@
 # 0038 · Deploy no StayCloud Deploy Pro com Node 22
 
-- Status: accepted · Data: 2026-09-25
+- Status: superseded por [0043](0043-marca-oficial-conforme-o-guia.md) (produção na Vercel) · Data: 2026-09-25
 - Specs: [OVW-004](../specs/00-overview.md)
 - Complementa: [ADR 0002](0002-hospedagem-staycloud.md)
 

@@ -1,6 +1,6 @@
 # 0023 · Tokens entram por export do Claude Design
 
-- Status: accepted · Data: 2026-09-24
+- Status: accepted (famílias de fonte superseded por [0043](0043-marca-oficial-conforme-o-guia.md)) · Data: 2026-09-24
 - Specs: [DS-003](../specs/06-design-system.md)
 
 ## Contexto
