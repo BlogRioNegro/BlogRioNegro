@@ -17,8 +17,9 @@ _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
 - MO-004 `a76f138`: ADR 0043 (marca oficial; 0038 superseded) e spec 06.
 
 ## Próxima tarefa
-[docs/tasks/marca-oficial.md](tasks/marca-oficial.md): todas as tasks `[x]`. Falta o gate final:
-`pnpm test`, `pnpm build`, `pnpm test:e2e`, `A11Y=1 pnpm test:e2e a11y` e as capturas `marca-*.png`.
+Marca oficial pronta: MO-001 a MO-004 `[x]` e gate verde em 2026-10-02 (`pnpm test` 378 + 90 de
+integração, `pnpm build`, `pnpm test:e2e` 73, a11y 22). Próximo: Rafael revisa as capturas
+`tests/e2e/__visual__/marca-*.png` (não versionadas) e decide o merge/push da `marca-oficial`.
 
 ## Specs e ADRs a ler
 Spec [06-design-system](specs/06-design-system.md); ADRs 0020, 0023, 0024, 0028, 0042 e 0043.
@@ -31,6 +32,7 @@ Spec [06-design-system](specs/06-design-system.md); ADRs 0020, 0023, 0024, 0028,
 - Não alterar `apps/admin/lib/services/article-pdf.tsx` nem `design/prototipo/`.
 - E2E: web :3100/:3102, admin :3101; parar servidores antes (`taskkill //PID <pid> //T //F`).
 - Nunca push, nunca ler `.env*`, nunca editar migration, nenhuma dependência nova.
+- Se o Storage local falhar com `42P10` após `supabase start`, rodar `pnpm exec supabase db reset`.
 - `pnpm test` exige Docker + `pnpm exec supabase start` (parar antes o projeto
   `rio-negro-family-office`, que usa as mesmas portas).
 
