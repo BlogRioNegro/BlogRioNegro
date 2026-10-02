@@ -11,6 +11,12 @@ O export do Claude Design em `design/` é **referência visual**: os tokens entr
 a partir dele ([ADR 0023](../adr/0023-tokens-por-export-do-claude-design.md)); telas são
 reimplementadas como componentes seguindo as specs 03, 04 e 05, não copiadas.
 
+Cores, fontes, logo e favicon seguem o guia oficial da marca
+([design/marca/INFO-RN-XP.pdf](../../design/marca/INFO-RN-XP.pdf),
+[ADR 0043](../adr/0043-marca-oficial-conforme-o-guia.md)): `#101820`, `#bc955c` e `#ffcb05` com o hex
+exato; Roboto Slab 900 em títulos, Roboto Slab 400 em subtítulos e Roboto no restante. Os tons que o
+guia não define (paleta `--rn-warm-*`, estados, sombras) ficam como no export.
+
 `packages/ui` é a verdade no código e esta spec é a verdade na documentação: os dois concordam
 (teste em `packages/ui/src/tokens.test.ts`).
 
@@ -28,7 +34,8 @@ Home, listagem, artigo (prévia pdf e rich_text), modal de lead (todos os estado
 
 ### DS-003 · Tokens em `packages/ui` (fase 2)
 Tokens do export do Claude Design em `packages/ui` (CSS variables + `@theme` do Tailwind v4, mesmos
-nomes e valores; [ADR 0023](../adr/0023-tokens-por-export-do-claude-design.md)). Fontes Roboto e Roboto
+nomes e valores; [ADR 0023](../adr/0023-tokens-por-export-do-claude-design.md),
+[ADR 0043](../adr/0043-marca-oficial-conforme-o-guia.md)). Fontes Roboto e Roboto
 Slab via `next/font/google`, a partir de `@rio-negro/ui/fonts`.
 **Aceite:** os dois apps consomem os tokens de `@rio-negro/ui`; nenhum valor de cor ou fonte
 hard-coded fora do pacote.

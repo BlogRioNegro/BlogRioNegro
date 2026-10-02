@@ -1,6 +1,6 @@
 # 0042 · Rodapé do blog igual ao do site institucional
 
-- Status: accepted · Data: 2026-10-01
+- Status: accepted (cores do rodapé superseded por [0043](0043-marca-oficial-conforme-o-guia.md)) · Data: 2026-10-01
 - Specs: [PUB-013](../specs/03-public-site.md), [PUB-014](../specs/03-public-site.md)
 - Supersedes parcialmente: [0018](0018-cta-e-disclaimer-no-rodape.md) (CTA no rodapé)
 
