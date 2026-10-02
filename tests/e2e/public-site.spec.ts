@@ -11,7 +11,7 @@ test.describe('PUB-001 · Home', () => {
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: 'Análises sobre investimentos, escritas pela equipe da Rio Negro.',
+        name: 'Artigos, estudos e relatórios elaborados por nosso time de assessores e especialistas.',
       }),
     ).toBeVisible()
     await page.getByRole('main').getByRole('link', { name: 'Ver artigos' }).click()
@@ -25,14 +25,16 @@ test.describe('PUB-001 · Home', () => {
       page.getByRole('link', { name: 'Rio Negro Investimentos, página inicial' }),
     ).toHaveAttribute('href', '/')
     const footer = page.getByRole('contentinfo')
-    await expect(footer.getByRole('link', { name: /Conheça a Rio Negro/ })).toHaveAttribute(
+    await expect(footer.getByRole('link', { name: /Política de privacidade/ })).toHaveAttribute(
+      'href',
+      'https://rionegroinvestimentos.com.br/politica-de-privacidade/',
+    )
+    await expect(footer.getByRole('link', { name: /Trabalhe conosco/ })).toHaveAttribute(
       'target',
       '_blank',
     )
-    await expect(footer.getByRole('link', { name: 'Privacidade' })).toHaveAttribute(
-      'href',
-      '/privacidade',
-    )
+    await expect(footer.getByRole('link', { name: '(67) 3304-8380' })).toBeVisible()
+    await expect(footer.getByRole('link', { name: /Instagram/ })).toBeVisible()
     await expect(footer).toContainText(
       'A Rio Negro Assessoria de Investimentos Ltda, inscrita sob o CNPJ 33.457.321/0001-79',
     )
@@ -240,11 +242,9 @@ test.describe('PUB-008 · Redirect de slug antigo', () => {
 })
 
 test.describe('PUB-014 · Privacidade', () => {
-  test('abre pelo rodapé, mostra o texto de LEAD-013 e é indexável', async ({ page }) => {
-    await page.goto(webUrl('/'))
-    await page.getByRole('contentinfo').getByRole('link', { name: 'Privacidade' }).click()
+  test('mostra o texto de LEAD-013 e é indexável', async ({ page }) => {
+    await page.goto(webUrl('/privacidade'))
 
-    await expect(page).toHaveURL(webUrl('/privacidade'))
     const main = page.getByRole('main')
     await expect(
       main.getByRole('heading', { level: 1, name: 'Aviso de privacidade' }),
@@ -450,12 +450,12 @@ test.describe('PUB-013 · Rodapé em todas as páginas', () => {
     '/privacidade',
     '/nao-existe',
   ]) {
-    test(`rodapé com disclaimer e Privacidade em ${path}`, async ({ page }) => {
+    test(`rodapé com disclaimer e contato em ${path}`, async ({ page }) => {
       await page.goto(webUrl(path))
 
       const footer = page.getByRole('contentinfo')
       await expect(footer).toContainText('Resolução CVM 178/23')
-      await expect(footer.getByRole('link', { name: 'Privacidade' })).toBeVisible()
+      await expect(footer.getByRole('link', { name: '(67) 3304-8380' })).toBeVisible()
     })
   }
 })

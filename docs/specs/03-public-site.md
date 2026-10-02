@@ -79,16 +79,18 @@ tipo, com e sem resumo.
 **Aceite:** feed valida no W3C Feed Validator; não inclui conteúdo completo.
 
 ### PUB-013 · Rodapé
-Em todas as páginas: CTA discreto "Conheça a Rio Negro" (`NEXT_PUBLIC_RIO_NEGRO_URL`, nova
-aba), disclaimer regulatório (CVM 178/23 e contrato de distribuição com a XP) e link
-"Privacidade" para `/privacidade`. Não há CTA no corpo do artigo
+Em todas as páginas, igual ao rodapé de rionegroinvestimentos.com.br
+([ADR 0042](../adr/0042-rodape-igual-ao-institucional.md)): logotipo, redes sociais,
+telefone, "Trabalhe conosco", "Política de privacidade" e "Ouvidoria XP" (links do
+institucional, nova aba), disclaimer regulatório (CVM 178/23 e contrato de distribuição com a
+XP) e copyright. Não há CTA no corpo do artigo nem no rodapé
 ([ADR 0018](../adr/0018-cta-e-disclaimer-no-rodape.md)).
 **Aceite:** rodapé presente em home, listagem, artigo, privacidade e 404; texto do
-disclaimer idêntico ao rodapé de rionegroinvestimentos.com.br (copiado na F4-009).
+disclaimer idêntico ao rodapé de rionegroinvestimentos.com.br.
 
 ### PUB-014 · Página `/privacidade`
 Renderiza o texto definido em [LEAD-013](04-lead-capture.md).
-**Aceite:** acessível pelo rodapé e pelo modal; indexável.
+**Aceite:** acessível pelo modal; indexável.
 
 ### PUB-015 · Páginas de erro
 `not-found` e `error` com o layout do site e link para `/artigos`.
@@ -106,14 +108,15 @@ spec, vale a spec (divergências abaixo).
   Mobile: igual, sem menu hambúrguer.
 - **Conteúdo**: coluna de leitura de `--layout-reading` (720 px), centralizada. Mobile: margem
   lateral de 16 px, sem rolagem horizontal.
-- **Rodapé** (`SiteFooter`, PUB-013): fundo `--color-surface-muted`; logotipo + "Conheça a Rio
-  Negro" (nova aba), disclaimer regulatório (`text-xs`, `--color-text-muted`) e link "Privacidade".
-  Mobile: empilha logotipo/CTA, disclaimer, "Privacidade".
+- **Rodapé** (`SiteFooter`, PUB-013, [ADR 0042](../adr/0042-rodape-igual-ao-institucional.md)):
+  fundo preto, ≈ 340 px de altura no desktop. Esquerda: logotipo branco, ícones sociais dourados
+  e copyright. Direita: telefone e Ouvidoria XP, links institucionais (serifada, caixa alta) e
+  disclaimer (11 px). Mobile: tudo empilhado.
 - **Tipografia**: H1 `--font-size-h1` (36 px mobile, 48 px ≥ 768 px), peso 700; datas no formato
   "15 set. 2026" em `text-xs` e `--color-text-muted`.
 
 ### Home (`/`, PUB-001)
-Hero sem consulta ao banco: H1 "Análises sobre investimentos, escritas pela equipe da Rio Negro.",
+Hero sem consulta ao banco, em coluna estreita (680 px) à esquerda, centralizada na vertical: H1 "Artigos, estudos e relatórios elaborados por nosso time de assessores e especialistas.",
 subtítulo "Artigos e estudos para ajudar você a entender o mercado e decidir com mais informação."
 (`text-md`, `--color-text-muted`) e `Button` primário "Ver artigos" → `/artigos` (100% da largura
 no mobile).

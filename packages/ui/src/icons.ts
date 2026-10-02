@@ -10,6 +10,7 @@ export {
   FileText,
   LoaderCircle,
   Pencil,
+  Phone,
   Plus,
   RotateCcw,
   Trash2,

@@ -136,6 +136,10 @@ de 4 px (`p-4` = `--space-4`). A paleta padrão do Tailwind é desativada.
 | `--color-warning-border` | `var(--rn-amber-200)` | Borda de alerta de aviso |
 | `--color-focus-ring` | `var(--rn-warm-900)` | Anel de foco |
 | `--color-overlay` | `rgba(29, 28, 27, 0.48)` | Fundo do modal |
+| `--color-footer-bg` | `#000000` | Fundo do rodapé do site |
+| `--color-footer-text` | `#ffffff` | Texto e foco do rodapé |
+| `--color-footer-accent` | `#b8996b` | Ícones sociais e de telefone do rodapé |
+| `--color-footer-accent-hover` | `#cdb084` | Hover dos ícones sociais |
 | `--font-sans` | `var(--font-inter), system-ui, -apple-system, 'Segoe UI', sans-serif` | Interface (Inter, via next/font) |
 | `--font-serif` | `var(--font-source-serif), 'Source Serif Pro', Georgia, 'Times New Roman', serif` | Corpo do artigo (Source Serif 4, via next/font) |
 | `--font-weight-regular` | `400` | Peso da fonte |
