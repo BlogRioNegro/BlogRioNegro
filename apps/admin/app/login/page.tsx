@@ -14,7 +14,7 @@ export default function LoginPage() {
         <div className="flex">
           <Logo alt="Rio Negro Investimentos" />
         </div>
-        <h1 className="text-xl font-semibold">Entrar no painel</h1>
+        <h1 className="font-serif text-xl font-black">Entrar no painel</h1>
         <LoginForm />
       </div>
     </main>

@@ -1,14 +1,17 @@
-import { Inter, Source_Serif_4 } from 'next/font/google'
+import { Roboto, Roboto_Slab } from 'next/font/google'
 
-// Fontes do design system (DS-003), servidas pelo próprio app (CSP font-src 'self').
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
-
-const sourceSerif = Source_Serif_4({
+// Fontes do guia da marca (DS-003, ADR 0043), servidas pelo próprio app (CSP font-src 'self').
+const roboto = Roboto({
   subsets: ['latin'],
   style: ['normal', 'italic'],
-  axes: ['opsz'],
-  variable: '--font-source-serif',
+  variable: '--font-roboto',
   display: 'swap',
 })
 
-export const fontVariables = `${inter.variable} ${sourceSerif.variable}`
+const robotoSlab = Roboto_Slab({
+  subsets: ['latin'],
+  variable: '--font-roboto-slab',
+  display: 'swap',
+})
+
+export const fontVariables = `${roboto.variable} ${robotoSlab.variable}`
