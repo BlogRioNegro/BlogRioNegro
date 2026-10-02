@@ -74,7 +74,7 @@ export default async function ArticlePage({ params }: PageProps<'/artigos/[slug]
       ) : null}
       <div
         className={cn(
-          'flex flex-col gap-4 border-t border-border pt-6 md:items-start md:pt-8',
+          'flex flex-col gap-4 border-t border-divider pt-6 md:items-start md:pt-8',
           article.content_type === 'rich_text' ? 'mt-2 md:mt-4' : 'mt-6 md:mt-8',
         )}
       >

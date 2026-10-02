@@ -1,4 +1,5 @@
 /* Tokens do Rio Negro (export do Claude Design, ADR 0023). Mesmos nomes e valores do export.
+   Navy, dourado, amarelo e o cinza do degradê são os do guia da marca (ADR 0043).
    Os tokens que são namespaces do Tailwind (cor, fonte, peso, raio, sombra, breakpoint)
    ficam em theme.css. */
 :root {
@@ -19,6 +20,10 @@
   --rn-amber-700: #8a5a00;
   --rn-amber-50: #f7edd9;
   --rn-amber-200: #e3cb98;
+  --rn-navy-900: #101820;
+  --rn-gold-500: #bc955c;
+  --rn-yellow-500: #ffcb05;
+  --rn-gray-700: #4c4c4c;
 
   --space-1: 4px;
   --space-2: 8px;
@@ -67,6 +72,8 @@
   --line-height-article: var(--line-height-relaxed);
   --measure-article: 68ch;
   --font-size-h1: var(--font-size-3xl);
+
+  --gradient-brand: linear-gradient(90deg, var(--rn-gray-700), var(--rn-navy-900));
 }
 
 @media (min-width: 768px) {

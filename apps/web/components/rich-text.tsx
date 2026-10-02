@@ -72,7 +72,7 @@ function renderBlock(block: RichTextBlock, key: number, inList: boolean): ReactN
       )
     case 'blockquote':
       return (
-        <blockquote key={key} className="my-[1.6em] border-l-2 border-text pl-6 italic">
+        <blockquote key={key} className="my-[1.6em] border-l-2 border-divider pl-6 italic">
           {renderBlocks(block.content, false)}
         </blockquote>
       )
