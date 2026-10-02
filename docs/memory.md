@@ -12,9 +12,11 @@ _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
   `--color-divider`, `--color-highlight`, `--gradient-brand`); amarelo e degradê só como token.
 - MO-002 `1c9266b`: Roboto Slab 900 (títulos), Roboto Slab 400 (subtítulos) e Roboto (resto) via
   `next/font`; `--font-weight-black`. Sem overflow a 390 px.
+- MO-003 `6608c9f`: logos (escura 1024×169, branca 906×153) e favicon `app/icon.png` (512×512) nos dois
+  apps, recortados do PDF; `/icon.png` é público no proxy do admin.
 
 ## Próxima tarefa
-[docs/tasks/marca-oficial.md](tasks/marca-oficial.md): MO-003 (logo e favicon do PDF). Depois MO-004 (ADR e spec 06) e o gate final.
+[docs/tasks/marca-oficial.md](tasks/marca-oficial.md): MO-004 (ADR e spec 06) e o gate final.
 
 ## Specs e ADRs a ler
 Spec [06-design-system](specs/06-design-system.md); ADRs 0020, 0023, 0024, 0028 e 0042.
