@@ -8,9 +8,11 @@ _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
   push na `main`. A ADR 0038 (StayCloud) não vale mais.
 - Branch `marca-oficial` (da `main`), sem push. Aplica o guia `design/marca/INFO-RN-XP.pdf`.
 - `1c7e2f2`: rodapé escuro e home conforme o site institucional (ADR 0042), trabalho do Rafael.
+- MO-001 `9aaa4a5`: cores do guia nos tokens (`--rn-navy-900`, `--rn-gold-500`, `--rn-yellow-500`,
+  `--color-divider`, `--color-highlight`, `--gradient-brand`); amarelo e degradê só como token.
 
 ## Próxima tarefa
-[docs/tasks/marca-oficial.md](tasks/marca-oficial.md): MO-001 (cores). Depois MO-002 (fontes),
+[docs/tasks/marca-oficial.md](tasks/marca-oficial.md): MO-002 (fontes Roboto Slab e Roboto). Depois
 MO-003 (logo e favicon), MO-004 (ADR e spec 06) e o gate final.
 
 ## Specs e ADRs a ler
