@@ -11,11 +11,17 @@ O export do Claude Design em `design/` é **referência visual**: os tokens entr
 a partir dele ([ADR 0023](../adr/0023-tokens-por-export-do-claude-design.md)); telas são
 reimplementadas como componentes seguindo as specs 03, 04 e 05, não copiadas.
 
-Cores, fontes, logo e favicon seguem o guia oficial da marca
+Cores, fontes e logo seguem o guia oficial da marca
 ([design/marca/INFO-RN-XP.pdf](../../design/marca/INFO-RN-XP.pdf),
 [ADR 0043](../adr/0043-marca-oficial-conforme-o-guia.md)): `#101820`, `#bc955c` e `#ffcb05` com o hex
-exato; Roboto Slab 900 em títulos, Roboto Slab 400 em subtítulos e Roboto no restante. Os tons que o
-guia não define (paleta `--rn-warm-*`, estados, sombras) ficam como no export.
+exato; Roboto Slab em títulos e subtítulos e Roboto no restante. Os tons que o guia não define
+(paleta `--rn-warm-*`, estados, sombras) ficam como no export.
+
+Peso, entrelinha, espaçamento entre letras e maiúsculas copiam o site institucional, no lugar do
+"Roboto Slab Black em títulos" do guia ([ADR 0044](../adr/0044-tipografia-e-favicon-do-site-institucional.md)):
+H1 em peso 300, maiúsculas e `--letter-spacing-title`; demais títulos em 400; subtítulos, texto
+corrido, menu e rodapé em 300; botão em 400, maiúsculas e `--letter-spacing-button`. O favicon
+(`app/icon.png` nos dois apps) é o do site institucional, sem alteração.
 
 `packages/ui` é a verdade no código e esta spec é a verdade na documentação: os dois concordam
 (teste em `packages/ui/src/tokens.test.ts`).
@@ -56,7 +62,8 @@ Contraste AA, foco visível, modal com foco preso e fechamento por Esc, labels e
 
 Fonte: `packages/ui/src/tokens.css` e `packages/ui/src/theme.css`. Utilitários do Tailwind derivados
 dos tokens: `bg-*`/`text-*`/`border-*` (cores), `font-sans`/`font-serif`, `rounded-control`/`rounded-card`,
-`shadow-card`/`shadow-modal`, `text-xs`…`text-4xl` (com a entrelinha do nível) e espaçamento em múltiplos
+`shadow-card`/`shadow-modal`, `text-xs`…`text-4xl` (com a entrelinha do nível),
+`tracking-title`/`tracking-button` e espaçamento em múltiplos
 de 4 px (`p-4` = `--space-4`). A paleta padrão do Tailwind é desativada.
 
 | Token | Valor | Uso |
@@ -104,23 +111,25 @@ de 4 px (`p-4` = `--space-4`). A paleta padrão do Tailwind é desativada.
 | `--font-size-sm` | `16px` | UI, botões, formulário, tabela |
 | `--line-height-sm` | `1.5` | Altura de linha |
 | `--font-size-md` | `18px` | Corpo do artigo (mobile), título de card |
-| `--line-height-md` | `1.7` | Altura de linha |
+| `--line-height-md` | `1.5` | Altura de linha |
 | `--font-size-lg` | `20px` | Corpo do artigo (desktop) |
-| `--line-height-lg` | `1.7` | Altura de linha |
+| `--line-height-lg` | `1.5` | Altura de linha |
 | `--font-size-xl` | `24px` | H3, título do modal |
-| `--line-height-xl` | `1.35` | Altura de linha |
+| `--line-height-xl` | `1.2` | Altura de linha |
 | `--font-size-2xl` | `30px` | H2, título do destaque |
-| `--line-height-2xl` | `1.3` | Altura de linha |
+| `--line-height-2xl` | `1.2` | Altura de linha |
 | `--font-size-3xl` | `36px` | H1 mobile |
-| `--line-height-3xl` | `1.2` | Altura de linha |
+| `--line-height-3xl` | `1` | Altura de linha |
 | `--font-size-4xl` | `48px` | H1 desktop |
-| `--line-height-4xl` | `1.15` | Altura de linha |
+| `--line-height-4xl` | `1` | Altura de linha |
 | `--line-height-tight` | `1.2` | Altura de linha |
 | `--line-height-snug` | `1.35` | Altura de linha |
 | `--line-height-normal` | `1.5` | Altura de linha |
 | `--line-height-relaxed` | `1.7` | Altura de linha |
+| `--letter-spacing-title` | `5.2px` | H1, sempre em maiúsculas (`tracking-title uppercase`) |
+| `--letter-spacing-button` | `1.4px` | Botão, sempre em maiúsculas (`tracking-button uppercase`) |
 | `--font-size-article` | `var(--font-size-md)` | Corpo do artigo (≥768px: var(--font-size-lg)) |
-| `--line-height-article` | `var(--line-height-relaxed)` | Entrelinha do artigo |
+| `--line-height-article` | `var(--line-height-normal)` | Entrelinha do artigo |
 | `--measure-article` | `68ch` | Largura máxima do texto do artigo |
 | `--font-size-h1` | `var(--font-size-3xl)` | H1 (≥768px: var(--font-size-4xl)) |
 | `--gradient-brand` | `linear-gradient(90deg, var(--rn-gray-700), var(--rn-navy-900))` | Degradê da marca. Só token: não aplicado em nenhuma tela. |
@@ -155,12 +164,12 @@ de 4 px (`p-4` = `--space-4`). A paleta padrão do Tailwind é desativada.
 | `--color-footer-accent` | `var(--rn-gold-500)` | Ícones sociais e de telefone do rodapé |
 | `--color-footer-accent-hover` | `color-mix(in srgb, var(--color-footer-accent) 80%, var(--color-footer-text))` | Hover dos ícones sociais |
 | `--font-sans` | `var(--font-roboto), system-ui, -apple-system, 'Segoe UI', sans-serif` | Apoio: corpo, interface, textos jurídicos (Roboto, via next/font) |
-| `--font-serif` | `var(--font-roboto-slab), Georgia, 'Times New Roman', serif` | Títulos (peso 900) e subtítulos (peso 400) (Roboto Slab, via next/font) |
+| `--font-serif` | `var(--font-roboto-slab), Georgia, 'Times New Roman', serif` | Títulos (H1 peso 300, demais 400) e subtítulos (peso 300) (Roboto Slab, via next/font) |
+| `--font-weight-light` | `300` | H1, subtítulos, texto corrido, menu e rodapé |
 | `--font-weight-regular` | `400` | Peso da fonte |
 | `--font-weight-medium` | `500` | Peso da fonte |
 | `--font-weight-semibold` | `600` | Peso da fonte |
 | `--font-weight-bold` | `700` | Peso da fonte |
-| `--font-weight-black` | `900` | Títulos (Roboto Slab Black) |
 | `--radius-control` | `6px` | Botão, campo, badge |
 | `--radius-card` | `12px` | Card e modal |
 | `--shadow-card` | `0 1px 2px rgba(29, 28, 27, 0.06), 0 1px 3px rgba(29, 28, 27, 0.04)` | Card |

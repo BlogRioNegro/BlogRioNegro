@@ -1,6 +1,7 @@
 # 0043 · Marca oficial conforme o guia
 
-- Status: accepted · Data: 2026-10-02
+- Status: accepted · Data: 2026-10-02 · superseded em parte por
+  [0044](0044-tipografia-e-favicon-do-site-institucional.md) (peso dos títulos e favicon)
 - Specs: [DS-001, DS-003](../specs/06-design-system.md), [PUB-013](../specs/03-public-site.md)
 - Supersedes: [0038](0038-staycloud-deploy-pro-node-22.md) (hospedagem) e, em parte,
   [0042](0042-rodape-igual-ao-institucional.md) (cores do rodapé) e

@@ -4,17 +4,24 @@ import { LoaderCircle } from 'lucide-react'
 import type { ComponentProps } from 'react'
 import { cn } from '../cn'
 
+// Rótulo como o dos botões do site institucional (ADR 0044). O link acompanha o texto corrido.
+const LABEL = 'font-regular tracking-button uppercase'
+
 export const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 rounded-control border border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-(--duration-fast) disabled:pointer-events-none disabled:border-transparent disabled:bg-disabled-bg disabled:text-disabled-text aria-busy:cursor-progress',
+  'inline-flex items-center justify-center gap-2 rounded-control border border-transparent text-sm whitespace-nowrap transition-colors duration-(--duration-fast) disabled:pointer-events-none disabled:border-transparent disabled:bg-disabled-bg disabled:text-disabled-text aria-busy:cursor-progress',
   {
     variants: {
       variant: {
-        primary:
+        primary: cn(
+          LABEL,
           'bg-action-primary text-action-primary-text hover:bg-action-primary-hover aria-busy:bg-action-primary-hover aria-busy:text-action-primary-text',
-        secondary:
+        ),
+        secondary: cn(
+          LABEL,
           'border-border-strong bg-surface text-text hover:border-text-muted hover:bg-surface-muted aria-busy:border-border-strong aria-busy:bg-surface-muted aria-busy:text-text',
-        ghost: 'text-text hover:bg-surface-muted',
-        link: 'text-text underline underline-offset-3 hover:decoration-2 disabled:bg-transparent',
+        ),
+        ghost: cn(LABEL, 'text-text hover:bg-surface-muted'),
+        link: 'font-medium text-text underline underline-offset-3 hover:decoration-2 disabled:bg-transparent',
       },
       size: {
         md: 'h-(--control-height) px-4',

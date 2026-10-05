@@ -1,6 +1,7 @@
 import { Roboto, Roboto_Slab } from 'next/font/google'
 
 // Fontes do guia da marca (DS-003, ADR 0043), servidas pelo próprio app (CSP font-src 'self').
+// Sem `weight`: as duas são variáveis e cobrem os pesos dos tokens (300 a 700, ADR 0044).
 const roboto = Roboto({
   subsets: ['latin'],
   style: ['normal', 'italic'],
