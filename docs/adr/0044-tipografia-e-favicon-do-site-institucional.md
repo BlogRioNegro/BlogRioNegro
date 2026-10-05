@@ -13,7 +13,9 @@ https://rionegroinvestimentos.com.br/, além do favicon de lá.
 - **Peso, entrelinha, espaçamento entre letras e maiúsculas** copiam o site institucional. Isso
   substitui o "Roboto Slab Black em títulos" do guia.
 - **Tamanhos de fonte e cores não mudam.**
-- **Favicon**: o do site institucional (`cropped-favicon-1.png`), no lugar do "RN" do guia.
+- **Favicon**: o do site institucional, no lugar do "RN" do guia. Arquivo original
+  `/wp-content/uploads/2021/10/cropped-favicon-1.png` (512×512, PNG transparente), copiado sem
+  alteração para `app/icon.png` nos dois apps e `design/design-system/assets/favicon.png`.
 
 ### Medição
 Estilos computados no site (Chromium via Playwright, 2026-10-05), a 1440 e a 390 px, na home, em
@@ -70,5 +72,7 @@ não têm elemento correspondente no blog.
 - As fontes do `next/font` são variáveis: nenhum peso novo a declarar em `fonts.ts`.
 - Os tokens foram alterados à mão no export em `design/design-system/tokens/`: reaplicar no Claude
   Design, ou o próximo export os apaga.
+- O favicon é branco e amarelo sobre fundo transparente: em aba clara do navegador, só a barra
+  amarela aparece bem, como no site institucional.
 - Tamanhos diferentes dos do site, mantidos: título 48/36 px (site 30/25), menu 16 (14), botão
   16 (15), corpo do artigo 20/18 (17–18), links do rodapé 16 (14), regulatório 11 (10).

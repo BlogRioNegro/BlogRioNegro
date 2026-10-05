@@ -11,7 +11,7 @@ O export do Claude Design em `design/` é **referência visual**: os tokens entr
 a partir dele ([ADR 0023](../adr/0023-tokens-por-export-do-claude-design.md)); telas são
 reimplementadas como componentes seguindo as specs 03, 04 e 05, não copiadas.
 
-Cores, fontes, logo e favicon seguem o guia oficial da marca
+Cores, fontes e logo seguem o guia oficial da marca
 ([design/marca/INFO-RN-XP.pdf](../../design/marca/INFO-RN-XP.pdf),
 [ADR 0043](../adr/0043-marca-oficial-conforme-o-guia.md)): `#101820`, `#bc955c` e `#ffcb05` com o hex
 exato; Roboto Slab em títulos e subtítulos e Roboto no restante. Os tons que o guia não define
@@ -20,7 +20,8 @@ exato; Roboto Slab em títulos e subtítulos e Roboto no restante. Os tons que o
 Peso, entrelinha, espaçamento entre letras e maiúsculas copiam o site institucional, no lugar do
 "Roboto Slab Black em títulos" do guia ([ADR 0044](../adr/0044-tipografia-e-favicon-do-site-institucional.md)):
 H1 em peso 300, maiúsculas e `--letter-spacing-title`; demais títulos em 400; subtítulos, texto
-corrido, menu e rodapé em 300; botão em 400, maiúsculas e `--letter-spacing-button`.
+corrido, menu e rodapé em 300; botão em 400, maiúsculas e `--letter-spacing-button`. O favicon
+(`app/icon.png` nos dois apps) é o do site institucional, sem alteração.
 
 `packages/ui` é a verdade no código e esta spec é a verdade na documentação: os dois concordam
 (teste em `packages/ui/src/tokens.test.ts`).
