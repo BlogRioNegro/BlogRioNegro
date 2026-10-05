@@ -209,8 +209,10 @@ export function LeadsView({
       ) : null}
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="flex flex-col gap-1">
-          <h1 className="font-serif text-2xl font-black">Leads</h1>
-          <p className="font-serif text-xs text-text-muted">
+          <h1 className="font-serif text-2xl leading-none font-light tracking-title uppercase">
+            Leads
+          </h1>
+          <p className="font-serif text-xs font-light text-text-muted">
             {total} {total === 1 ? 'lead' : 'leads'} · {scope}
           </p>
         </div>

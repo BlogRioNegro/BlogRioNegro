@@ -110,7 +110,7 @@ export function ArticleForm({ initial, isNew }: { initial: ArticleFormValues; is
             Artigos
           </Link>
         </Button>
-        <h1 className="font-serif text-2xl font-black">
+        <h1 className="font-serif text-2xl leading-none font-light tracking-title uppercase">
           {isNew ? 'Novo artigo' : 'Editar artigo'}
         </h1>
       </div>

@@ -31,7 +31,7 @@ const LINK = `underline-offset-4 hover:underline ${FOCUS}`
 
 export function SiteFooter() {
   return (
-    <footer className="bg-footer-bg text-footer-text">
+    <footer className="bg-footer-bg font-light text-footer-text">
       <div className="mx-auto grid max-w-[1400px] gap-10 px-4 py-16 md:px-6 lg:grid-cols-[auto_1fr] lg:items-center lg:gap-16">
         <div className="flex flex-col gap-5">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
@@ -100,7 +100,7 @@ export function SiteFooter() {
               </li>
             </ul>
           </nav>
-          <p className="text-[11px] leading-[1.4]">{DISCLAIMER}</p>
+          <p className="text-[11px] leading-normal">{DISCLAIMER}</p>
         </div>
       </div>
     </footer>

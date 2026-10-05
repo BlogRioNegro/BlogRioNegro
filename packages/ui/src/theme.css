@@ -10,6 +10,7 @@
   --breakpoint-*: initial;
   --text-*: initial;
   --leading-*: initial;
+  --tracking-*: initial;
 
   --color-bg: var(--rn-warm-50);
   --color-surface: var(--rn-warm-0);
@@ -55,11 +56,11 @@
   --font-sans: var(--font-roboto), system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-serif: var(--font-roboto-slab), Georgia, 'Times New Roman', serif;
 
+  --font-weight-light: 300;
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
-  --font-weight-black: 900;
 
   --radius-control: 6px;
   --radius-card: 12px;
@@ -72,7 +73,8 @@
   --breakpoint-lg: 1280px;
 }
 
-/* Aliases para os utilitários de texto, entrelinha e espaçamento do Tailwind. */
+/* Aliases para os utilitários de texto, entrelinha, espaçamento entre letras e espaçamento do
+   Tailwind. */
 @theme inline {
   --spacing: var(--space-1);
 
@@ -97,4 +99,7 @@
   --leading-snug: var(--line-height-snug);
   --leading-normal: var(--line-height-normal);
   --leading-relaxed: var(--line-height-relaxed);
+
+  --tracking-title: var(--letter-spacing-title);
+  --tracking-button: var(--letter-spacing-button);
 }
