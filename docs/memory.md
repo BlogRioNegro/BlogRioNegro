@@ -11,14 +11,15 @@ _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
   `tracking-title` (5,2 px) e entrelinha 1; demais títulos 400 e 1,2; texto corrido, subtítulos,
   menu e rodapé 300; `Button` 400 + maiúsculas + `tracking-button` (1,4 px). Sai `--font-weight-black`.
   Famílias, tamanhos e cores não mudaram.
-- AJ-002 `[ ]`: **não começou**. O favicon não foi baixado (ver Pendências).
+- AJ-002 `09a52e7` `[x]`: favicon do site institucional (`cropped-favicon-1.png`, 512×512, transparente),
+  sem alteração, em `app/icon.png` dos dois apps e em `design/design-system/assets/`. Abre no login
+  do admin sem sessão.
 
 ## Próxima tarefa
-1. Rafael religa a virtualização/WSL2 e sobe o Docker; depois rodar o gate que faltou:
-   `pnpm test` (integração), `pnpm test:e2e`, `A11Y=1 pnpm test:e2e a11y` e as capturas com dados
-   (listagem, artigo, modal de lead, lista do admin) em `tests/e2e/__visual__/tipografia-*.png`.
-2. AJ-002: com o PNG do favicon em mãos, trocar `app/icon.png` nos dois apps e
-   `design/design-system/assets/favicon.png`, atualizar a spec 06 e conferir no login do admin.
+Rafael religa a virtualização/WSL2 e sobe o Docker; depois rodar o gate que faltou:
+`pnpm test` (integração), `pnpm test:e2e`, `A11Y=1 pnpm test:e2e a11y` e as capturas com dados
+(listagem, artigo, modal de lead, lista do admin) em `tests/e2e/__visual__/tipografia-*.png`.
+Com o gate verde, Rafael decide o merge/push da `ajuste-tipografia`.
 
 ## Specs e ADRs a ler
 Spec [06-design-system](specs/06-design-system.md); ADRs 0020, 0023, 0043 e 0044.
@@ -38,8 +39,9 @@ Spec [06-design-system](specs/06-design-system.md); ADRs 0020, 0023, 0043 e 0044
 ## Pendências para o Rafael
 - **Docker não sobe**: WSL2 falha com `HCS_E_HYPERV_NOT_INSTALLED` (virtualização desabilitada na
   máquina). Sem Supabase local não rodaram integração, E2E, a11y nem as capturas com dados.
-- **Favicon (AJ-002)**: `curl`/`wget` estão no `deny` de `.claude/settings.json`; o download não foi
-  contornado. Baixar à mão `…/wp-content/uploads/2021/10/cropped-favicon-1.png` (ou liberar o comando).
+- O favicon é branco e amarelo sobre transparente: em aba clara só a barra amarela aparece bem,
+  como no site institucional. Validar com o cliente.
+- `curl`/`wget` estão no `deny` de `.claude/settings.json`: download só com autorização explícita.
 - Título de artigo em maiúsculas hifeniza palavras com mais de ~13 letras a 390 px: validar com o cliente.
 - Tokens alterados à mão no export do Claude Design (marca e tipografia): reaplicar lá.
 - SEC-1 / F3-002 (header do IP na Vercel), SEC-4, SEC-5, SEC-6 e ADR 0039 seguem abertos.
