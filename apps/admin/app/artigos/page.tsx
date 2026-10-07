@@ -81,6 +81,9 @@ function ArticlesTable({ articles }: { articles: ArticleRow[] }) {
                 <span className="font-medium">{article.title}</span>
                 {index === 0 ? <FeaturedBadge /> : null}
               </div>
+              {article.subtitle ? (
+                <p className="text-xs text-text-muted">{article.subtitle}</p>
+              ) : null}
             </TableCell>
             <TableCell>
               <TypeBadge type={article.content_type} />
@@ -136,6 +139,9 @@ function ArticleCards({ articles }: { articles: ArticleRow[] }) {
           <span className="font-serif text-md leading-snug font-black text-pretty">
             {article.title}
           </span>
+          {article.subtitle ? (
+            <p className="-mt-2 text-xs text-text-muted">{article.subtitle}</p>
+          ) : null}
           <div className="flex items-end justify-between gap-3">
             <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1 text-xs">
               <dt className="text-text-muted">Publicação</dt>

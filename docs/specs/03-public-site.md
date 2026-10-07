@@ -22,7 +22,7 @@ destaque; alterar `published_at` de outro artigo para mais recente troca o desta
 
 ### PUB-003 · Listagem `/artigos`
 Coluna única: destaque no topo; abaixo, os demais em ordem `published_at desc`, sem repetir
-o destaque. Card: capa + título (+ data).
+o destaque. Card: capa + título (+ subtítulo, se houver) (+ data).
 **Aceite:** o destaque nunca aparece duas vezes; a ordem é estável com datas iguais.
 
 ### PUB-004 · "Carregar mais"
@@ -32,7 +32,7 @@ Fallback para crawlers e sem JS: o botão é um link `/artigos?page=N` renderiza
 o botão some quando não há mais artigos; `page` inválido cai na página 1.
 
 ### PUB-005 · Página do artigo `/artigos/[slug]`
-Mostra título, capa, data de publicação, resumo (se houver) e a **prévia**
+Mostra título, subtítulo (se houver, [ADR 0046](../adr/0046-subtitulo-do-artigo.md)), capa, data de publicação, resumo (se houver) e a **prévia**
 ([ADR 0007](../adr/0007-conteudo-gated-previa-publica.md)), seguida do botão
 "Baixar artigo completo" que abre o modal de [04-lead-capture](04-lead-capture.md).
 A página nunca consulta `article_contents` nem `article-files`.
@@ -62,7 +62,8 @@ Rotas que leem artigos são dinâmicas, sem cache de dados
 ### PUB-010 · Metadata e Open Graph
 `generateMetadata` por artigo: `title`, `description`, `canonical`, `og:title`,
 `og:description`, `og:image` (capa, URL absoluta), `og:type=article`,
-`article:published_time`, `twitter:card=summary_large_image`.
+`article:published_time`, `twitter:card=summary_large_image`. Com subtítulo, `title`, `og:title`
+e `twitter:title` são "Título: Subtítulo" ([ADR 0046](../adr/0046-subtitulo-do-artigo.md)).
 Descrição: `summary`; se vazio, rich_text usa os primeiros ~160 caracteres do texto da
 prévia; pdf usa a descrição padrão do blog.
 **Aceite:** preview correto no WhatsApp e no LinkedIn Post Inspector para um artigo de cada
@@ -74,7 +75,8 @@ tipo, com e sem resumo.
 **Aceite:** sitemap válido; slugs antigos não aparecem.
 
 ### PUB-012 · RSS
-`/rss.xml` (RSS 2.0) com os 20 artigos mais recentes: título, link, data, descrição
+`/rss.xml` (RSS 2.0) com os 20 artigos mais recentes: título ("Título: Subtítulo", se houver
+subtítulo), link, data, descrição
 (mesma regra de PUB-010) e capa como `enclosure`.
 **Aceite:** feed valida no W3C Feed Validator; não inclui conteúdo completo.
 
@@ -126,8 +128,9 @@ no mobile).
 - H1 "Artigos"; card de destaque no topo e, abaixo, os demais em **coluna única**.
 - **Card de destaque**: superfície com `--radius-card` e `--shadow-card`; capa 16:9 e texto lado a
   lado a partir de 768 px (empilha no mobile, capa acima); título 24 px (mobile) / 30 px; data.
+  Subtítulo, se houver, logo abaixo do título: 20 px (mobile) / 24 px.
 - **Card**: o card inteiro é o link; capa 16:9 na largura toda, título (Inter 18/600, até ~3
-  linhas) e data. Sem capa: área neutra `--color-surface-muted`. Hover: borda `--color-border-strong`
+  linhas), subtítulo (se houver, 16 px) e data. Sem capa: área neutra `--color-surface-muted`. Hover: borda `--color-border-strong`
   e título sublinhado; foco: anel de 2 px.
 - **"Carregar mais"**: `Button` secundário centralizado, 44 px, largura mínima 240 px. Estados:
   carregando (`loading`, anunciado em região `aria-live`), erro ("Tentar novamente") e fim da lista
@@ -136,7 +139,9 @@ no mobile).
 
 ### Artigo (`/artigos/[slug]`, PUB-005 a PUB-007)
 - `Button` link "Todos os artigos" (ícone seta à esquerda) → `/artigos`.
-- H1, capa 16:9, formato (`TypeBadge`) + data e resumo (Source Serif 4, `text-lg` no mobile e `text-xl` ≥ 768 px, `--color-text-muted`), nesta ordem, como no protótipo ([ADR 0026](../adr/0026-ordem-da-pagina-do-artigo.md)).
+- H1 e, se houver, o subtítulo logo abaixo: um `<p>` (não é heading) em Roboto Slab Regular, um
+  degrau abaixo do título (24 px no mobile, 30 px ≥ 768 px; [ADR 0046](../adr/0046-subtitulo-do-artigo.md)). Sem subtítulo, nada muda.
+- Capa 16:9, formato (`TypeBadge`) + data e resumo (Source Serif 4, `text-lg` no mobile e `text-xl` ≥ 768 px, `--color-text-muted`), nesta ordem, como no protótipo ([ADR 0026](../adr/0026-ordem-da-pagina-do-artigo.md)).
 - **Prévia `rich_text`**: texto em `--font-serif`, `--font-size-article` (18/1.7 mobile,
   20/1.7 ≥ 768 px), largura máxima `--measure-article`; H2/H3 em Inter 600; citações com borda
   esquerda de 2 px; imagens só com `alt`, sem legenda ([ADR 0031](../adr/0031-imagem-do-rich-text-so-com-alt.md)).

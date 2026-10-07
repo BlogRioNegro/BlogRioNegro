@@ -17,6 +17,11 @@ export function FeaturedArticleCard({ article }: { article: ArticleCardData }) {
         <h2 className="font-serif text-xl font-black text-pretty wrap-break-word underline-offset-4 group-hover:underline md:text-2xl">
           {article.title}
         </h2>
+        {article.subtitle ? (
+          <p className="-mt-2 font-serif text-lg font-regular text-pretty wrap-break-word md:text-xl">
+            {article.subtitle}
+          </p>
+        ) : null}
       </div>
     </Link>
   )

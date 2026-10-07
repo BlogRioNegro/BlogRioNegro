@@ -85,6 +85,7 @@ describe('renderArticlePdf', () => {
   it('contém o título, todo o texto, a capa e as imagens', async () => {
     const pdf = await renderArticlePdf({
       title: 'Renda fixa em 2026',
+      subtitle: null,
       cover: { data: PNG, format: 'png' },
       doc: DOC,
       images: new Map([[SRC, { data: OTHER_PNG, format: 'png' }]]),
@@ -108,6 +109,7 @@ describe('renderArticlePdf', () => {
   it('imagem que não pôde ser embutida entra como texto alternativo', async () => {
     const pdf = await renderArticlePdf({
       title: 'Artigo',
+      subtitle: null,
       cover: null,
       doc: {
         type: 'doc',
@@ -118,5 +120,20 @@ describe('renderArticlePdf', () => {
 
     expect(pdfText(pdf)).toContain(withoutSpaces('[Imagem: Foto da equipe]'))
     expect(imageCount(pdf)).toBe(0)
+  })
+
+  // ADR 0046 · O subtítulo sai numa linha logo depois do título.
+  it('com subtítulo: a linha entra logo depois do título', async () => {
+    const input = { title: 'O que moveu o mercado', cover: null, doc: DOC, images: new Map() }
+
+    const withSubtitle = pdfText(
+      await renderArticlePdf({ ...input, subtitle: '21 a 25 de setembro' }),
+    )
+    const without = pdfText(await renderArticlePdf({ ...input, subtitle: null }))
+
+    expect(withSubtitle).toContain(
+      withoutSpaces('O que moveu o mercado21 a 25 de setembroCenário de juros'),
+    )
+    expect(without).toContain(withoutSpaces('O que moveu o mercadoCenário de juros'))
   })
 })

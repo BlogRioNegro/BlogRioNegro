@@ -279,10 +279,13 @@ test.describe('PUB-010 · Metadata e Open Graph', () => {
   const meta = (page: Page, attribute: 'name' | 'property', key: string) =>
     page.locator(`meta[${attribute}="${key}"]`)
 
+  // O artigo do seed tem subtítulo: título e og:title saem como "Título: Subtítulo" (ADR 0046).
   test('artigo pdf com resumo: título, descrição, canonical, og e twitter', async ({ page }) => {
     await page.goto(webUrl('/artigos/carteira-recomendada-outubro'))
 
-    await expect(page).toHaveTitle('Carteira recomendada de outubro · Rio Negro Investimentos')
+    await expect(page).toHaveTitle(
+      'Carteira recomendada de outubro: 1 a 31 de outubro · Rio Negro Investimentos',
+    )
     const description = 'Alocação sugerida por perfil de risco para o próximo mês.'
     await expect(meta(page, 'name', 'description')).toHaveAttribute('content', description)
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
@@ -292,7 +295,11 @@ test.describe('PUB-010 · Metadata e Open Graph', () => {
     await expect(meta(page, 'property', 'og:type')).toHaveAttribute('content', 'article')
     await expect(meta(page, 'property', 'og:title')).toHaveAttribute(
       'content',
-      'Carteira recomendada de outubro',
+      'Carteira recomendada de outubro: 1 a 31 de outubro',
+    )
+    await expect(meta(page, 'name', 'twitter:title')).toHaveAttribute(
+      'content',
+      'Carteira recomendada de outubro: 1 a 31 de outubro',
     )
     await expect(meta(page, 'property', 'og:description')).toHaveAttribute('content', description)
     await expect(meta(page, 'property', 'og:image')).toHaveAttribute(
@@ -381,6 +388,8 @@ test.describe('PUB-012 · RSS', () => {
     expect(xml).toContain('<rss version="2.0"')
     expect(xml.match(/<item>/g)).toHaveLength(3)
     expect(xml).toContain(`<link>${webUrl('/artigos/renda-fixa-em-2026')}</link>`)
+    expect(xml).toContain('<title>Carteira recomendada de outubro: 1 a 31 de outubro</title>')
+    expect(xml).toContain('<title>Renda fixa em 2026: o que muda para o investidor</title>')
     expect(xml).toContain(
       '<description>Um panorama dos títulos públicos e privados diante da nova trajetória de juros.</description>',
     )

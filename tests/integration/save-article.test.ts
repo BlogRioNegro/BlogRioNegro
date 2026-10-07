@@ -138,6 +138,137 @@ describe('save_article', () => {
     expect(await articleExists(id)).toBe(false)
   })
 
+  // ADR 0046 · Subtítulo opcional: quem chama sem o parâmetro (código anterior à migration)
+  // continua funcionando.
+  describe('subtítulo', () => {
+    async function subtitleOf(id: string) {
+      const { data } = await service.from('articles').select('subtitle').eq('id', id).single()
+      return data?.subtitle
+    }
+
+    it('sem o parâmetro, grava null', async () => {
+      const id = newId()
+      const { error } = await admin.rpc('save_article', pdfArticle(id, `sem-sub-${id}`))
+
+      expect(error).toBeNull()
+      expect(await subtitleOf(id)).toBeNull()
+    })
+
+    it('com o parâmetro, grava o subtítulo aparado e deixa título e slug como vieram', async () => {
+      const id = newId()
+      const { error } = await admin.rpc('save_article', {
+        ...pdfArticle(id, `com-sub-${id}`),
+        subtitle: '  21 a 25 de setembro  ',
+      })
+
+      expect(error).toBeNull()
+      const { data } = await service
+        .from('articles')
+        .select('title, subtitle, slug')
+        .eq('id', id)
+        .single()
+      expect(data).toEqual({
+        title: 'Artigo salvo pela função',
+        subtitle: '21 a 25 de setembro',
+        slug: `com-sub-${id}`,
+      })
+    })
+
+    it.each(['', '   '])('string vazia (%j) vira null', async (subtitle) => {
+      const id = newId()
+      const { error } = await admin.rpc('save_article', {
+        ...pdfArticle(id, `vazio-${id}`),
+        subtitle,
+      })
+
+      expect(error).toBeNull()
+      expect(await subtitleOf(id)).toBeNull()
+    })
+
+    it('edita e remove o subtítulo de um artigo existente', async () => {
+      const id = newId()
+      const article = pdfArticle(id, `edita-sub-${id}`)
+      await admin.rpc('save_article', { ...article, subtitle: 'Primeira versão' })
+
+      await admin.rpc('save_article', { ...article, subtitle: 'Segunda versão' })
+      expect(await subtitleOf(id)).toBe('Segunda versão')
+
+      await admin.rpc('save_article', article)
+      expect(await subtitleOf(id)).toBeNull()
+    })
+
+    it('aceita 160 caracteres e rejeita 161, sem criar o artigo', async () => {
+      const ok = newId()
+      const tooLong = newId()
+
+      const accepted = await admin.rpc('save_article', {
+        ...pdfArticle(ok, `limite-${ok}`),
+        subtitle: 'x'.repeat(160),
+      })
+      const rejected = await admin.rpc('save_article', {
+        ...pdfArticle(tooLong, `longo-${tooLong}`),
+        subtitle: 'x'.repeat(161),
+      })
+
+      expect(accepted.error).toBeNull()
+      expect(rejected.error?.code).toBe('23514')
+      expect(await articleExists(tooLong)).toBe(false)
+    })
+
+    it('o CHECK da coluna barra string vazia gravada direto na tabela', async () => {
+      const id = newId()
+      await admin.rpc('save_article', pdfArticle(id, `check-${id}`))
+
+      const { error } = await service.from('articles').update({ subtitle: '' }).eq('id', id)
+
+      expect(error?.code).toBe('23514')
+    })
+
+    it('anon não executa a função com o subtítulo', async () => {
+      const id = newId()
+      const { error } = await anonClient().rpc('save_article', {
+        ...pdfArticle(id, `anon-sub-${id}`),
+        subtitle: 'Invasão',
+      })
+
+      expect(error?.code).toBe('42501')
+      expect(await articleExists(id)).toBe(false)
+    })
+
+    it('autenticado fora de admin_users não cria nem altera o subtítulo', async () => {
+      const created = newId()
+      const existing = newId()
+      const article = pdfArticle(existing, `comum-sub-${existing}`)
+      await admin.rpc('save_article', { ...article, subtitle: 'Original' })
+
+      const create = await user.client.rpc('save_article', {
+        ...pdfArticle(created, `comum-novo-${created}`),
+        subtitle: 'Invasão',
+      })
+      const change = await user.client.rpc('save_article', { ...article, subtitle: 'Invadido' })
+
+      expect(create.error?.code).toBe('42501')
+      expect(change.error?.code).toBe('42501')
+      expect(await articleExists(created)).toBe(false)
+      expect(await subtitleOf(existing)).toBe('Original')
+    })
+
+    it('a coluna herda a RLS: anon lê e não altera; fora da allowlist também não altera', async () => {
+      const id = newId()
+      await admin.rpc('save_article', {
+        ...pdfArticle(id, `rls-sub-${id}`),
+        subtitle: 'Original',
+      })
+
+      const read = await anonClient().from('articles').select('subtitle').eq('id', id).single()
+      await anonClient().from('articles').update({ subtitle: 'Anon' }).eq('id', id)
+      await user.client.from('articles').update({ subtitle: 'Comum' }).eq('id', id)
+
+      expect(read.data?.subtitle).toBe('Original')
+      expect(await subtitleOf(id)).toBe('Original')
+    })
+  })
+
   it('anon não executa a função', async () => {
     const id = newId()
     const { error } = await anonClient().rpc('save_article', pdfArticle(id, `anon-${id}`))

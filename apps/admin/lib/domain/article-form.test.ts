@@ -10,6 +10,7 @@ import {
 const VALID = {
   id: '4b4f7c5e-2d7a-4c1e-9d55-0a3f5c1e8b21',
   title: '  Cenário macro para o 4º trimestre  ',
+  subtitle: '',
   slug: 'cenario-macro-4t',
   summary: '',
   contentType: 'pdf',
@@ -22,11 +23,39 @@ function errorsFor(values: Record<string, string>) {
 }
 
 describe('articleFieldsSchema', () => {
-  it('aceita os campos válidos, com título aparado e resumo vazio como null', () => {
+  it('aceita os campos válidos, com título aparado e resumo e subtítulo vazios como null', () => {
     expect(articleFieldsSchema.parse(VALID)).toMatchObject({
       title: 'Cenário macro para o 4º trimestre',
+      subtitle: null,
       summary: null,
     })
+  })
+
+  it('apara o subtítulo e aceita até 160 caracteres', () => {
+    expect(
+      articleFieldsSchema.parse({ ...VALID, subtitle: '  21 a 25 de setembro  ' }).subtitle,
+    ).toBe('21 a 25 de setembro')
+    expect(
+      articleFieldsSchema.parse({ ...VALID, subtitle: 'x'.repeat(160) }).subtitle,
+    ).toHaveLength(160)
+  })
+
+  it('subtítulo só com espaços vira null', () => {
+    expect(articleFieldsSchema.parse({ ...VALID, subtitle: '   ' }).subtitle).toBeNull()
+  })
+
+  it('recusa subtítulo com mais de 160 caracteres', () => {
+    expect(errorsFor({ ...VALID, subtitle: 'x'.repeat(161) })).toEqual({
+      subtitle: ARTICLE_MESSAGES.subtitle,
+    })
+  })
+
+  it('formulário sem o campo subtítulo continua válido', () => {
+    const formData = new FormData()
+    for (const [name, value] of Object.entries(VALID))
+      if (name !== 'subtitle') formData.set(name, value)
+
+    expect(articleFieldsSchema.parse(articleFieldsFrom(formData)).subtitle).toBeNull()
   })
 
   it('devolve um erro por campo', () => {

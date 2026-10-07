@@ -12,7 +12,8 @@ supabase-js não abre transação pelo PostgREST.
 - Função `public.save_article(...)` em plpgsql, `security invoker`: upsert de `articles` e de
   `article_contents` por id; o histórico de slug continua no trigger `record_slug_change`.
   Roda com a sessão do admin, então a RLS decide quem escreve. `execute` revogado de `anon`.
-- Parâmetros que podem ser nulos (`summary`, `preview_json`, `preview_pdf_path`, `body_json`)
+- Parâmetros que podem ser nulos (`summary`, `preview_json`, `preview_pdf_path`, `body_json` e,
+  desde a [ADR 0046](0046-subtitulo-do-artigo.md), `subtitle`)
   vêm por último com `default null`, para os tipos gerados os marcarem como opcionais.
 - O id do artigo novo é gerado na página `/artigos/novo`, para os arquivos usarem
   `<article_id>/<uuid>.<ext>` (DATA-007) antes do primeiro salvamento.

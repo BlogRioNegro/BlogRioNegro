@@ -1,6 +1,7 @@
 import path from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
 import { executeLocalSql } from '../integration/support/local-supabase'
+import { signInAsAdmin } from './support/admin'
 import { webUrl } from './support/urls'
 
 // TB-001 · ADR 0045 · Todo título em Roboto Slab Black, na caixa digitada e sem espaçamento entre
@@ -154,6 +155,9 @@ test.describe('Visual · Títulos', () => {
   test.skip(!process.env.VISUAL, 'Gerado só com VISUAL=1')
 
   const OUT = path.join(import.meta.dirname, '__visual__')
+  // browser.newPage() não herda o baseURL do config.
+  const ADMIN_URL = 'http://localhost:3101'
+  const SEED_ARTICLE_WITH_SUBTITLE = '22222222-2222-4222-8222-222222222222'
   const SHOTS = [
     { file: 'home', url: webUrl('/') },
     { file: 'privacidade', url: webUrl('/privacidade') },
@@ -161,6 +165,7 @@ test.describe('Visual · Títulos', () => {
     { file: 'login-admin', url: '/login' },
     { file: 'titulo-longo', url: webUrl(`/artigos/${LONG_ARTICLE.slug}`) },
     { file: 'listagem', url: webUrl('/artigos') },
+    { file: 'artigo-com-subtitulo', url: webUrl('/artigos/carteira-recomendada-outubro') },
   ]
 
   for (const { viewport } of Object.values(SIZES)) {
@@ -176,5 +181,17 @@ test.describe('Visual · Títulos', () => {
         await page.close()
       })
     }
+
+    test(`formulário do admin a ${viewport.width} px`, async ({ browser }) => {
+      const page = await browser.newPage({ viewport, baseURL: ADMIN_URL })
+      await signInAsAdmin(page)
+      await page.goto(`/artigos/${SEED_ARTICLE_WITH_SUBTITLE}`, { waitUntil: 'networkidle' })
+      await page.evaluate(() => document.fonts.ready)
+      await page.screenshot({
+        path: path.join(OUT, `titulos-black-admin-formulario-${viewport.width}.png`),
+        fullPage: true,
+      })
+      await page.close()
+    })
   }
 })
