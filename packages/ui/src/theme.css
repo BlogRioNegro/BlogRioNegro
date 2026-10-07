@@ -43,7 +43,8 @@
   --color-focus-ring: var(--rn-navy-900);
   --color-overlay: rgba(29, 28, 27, 0.48);
 
-  --color-footer-bg: var(--rn-navy-900);
+  /* Preto do rodapé do site institucional, não o navy do guia (ADR 0043). */
+  --color-footer-bg: #000000;
   --color-footer-text: #ffffff;
   --color-footer-accent: var(--rn-gold-500);
   --color-footer-accent-hover: color-mix(

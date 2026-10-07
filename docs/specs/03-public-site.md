@@ -111,7 +111,7 @@ spec, vale a spec (divergências abaixo).
 - **Conteúdo**: coluna de leitura de `--layout-reading` (720 px), centralizada. Mobile: margem
   lateral de 16 px, sem rolagem horizontal.
 - **Rodapé** (`SiteFooter`, PUB-013, [ADR 0042](../adr/0042-rodape-igual-ao-institucional.md)):
-  fundo `--color-footer-bg` (`#101820`), ≈ 340 px de altura no desktop. Esquerda: logotipo branco, ícones sociais dourados
+  fundo `--color-footer-bg` (`#000000`), ≈ 340 px de altura no desktop. Esquerda: logotipo branco, ícones sociais dourados
   e copyright. Direita: telefone e Ouvidoria XP, links institucionais (serifada, caixa alta) e
   disclaimer (11 px). Mobile: tudo empilhado.
 - **Tipografia**: H1 `text-h1` (28 px mobile, 36 px ≥ 768 px), Roboto Slab Black

@@ -164,7 +164,7 @@ de 4 px (`p-4` = `--space-4`). A paleta padrão do Tailwind é desativada.
 | `--color-warning-border` | `var(--rn-amber-200)` | Borda de alerta de aviso |
 | `--color-focus-ring` | `var(--rn-navy-900)` | Anel de foco |
 | `--color-overlay` | `rgba(29, 28, 27, 0.48)` | Fundo do modal |
-| `--color-footer-bg` | `var(--rn-navy-900)` | Fundo do rodapé do site |
+| `--color-footer-bg` | `#000000` | Fundo do rodapé do site, igual ao do site institucional |
 | `--color-footer-text` | `#ffffff` | Texto e foco do rodapé |
 | `--color-footer-accent` | `var(--rn-gold-500)` | Ícones sociais e de telefone do rodapé |
 | `--color-footer-accent-hover` | `color-mix(in srgb, var(--color-footer-accent) 80%, var(--color-footer-text))` | Hover dos ícones sociais |
@@ -243,8 +243,8 @@ componente remove o `outline`.
 
 Divisórias em `--color-border` (`#dcd8d5`, 1,42:1) e em `--color-divider` (`#bc955c`, 2,77:1 sobre
 surface e 2,43:1 sobre bg) são decorativas: não identificam controle nem carregam texto. No rodapé
-(`--color-footer-bg` `#101820`): texto `#ffffff` 17,89:1 e acento `#bc955c` 6,47:1, com ícone
-`#101820` sobre o acento 6,47:1 (hover 8,12:1).
+(`--color-footer-bg` `#000000`): texto `#ffffff` 21:1 e acento `#bc955c` 7,59:1, com ícone
+`#000000` sobre o acento 7,59:1 (hover 9,53:1).
 
 ## Fora de escopo
 

@@ -19,7 +19,7 @@ O site continua claro. Nenhum elemento visual novo: só recoloração, tipografi
 
 | Cor do guia | Token | Papel |
 |---|---|---|
-| Principal `#101820` | `--rn-navy-900` | `--color-text`, `--color-action-primary`, `--color-focus-ring`, `--color-footer-bg` |
+| Principal `#101820` | `--rn-navy-900` | `--color-text`, `--color-action-primary`, `--color-focus-ring` |
 | Secundária `#bc955c` | `--rn-gold-500` | `--color-divider` (linha do header nos dois apps, separadores da página do artigo e do modal de lead, barra de citação) e `--color-footer-accent` (ícones do rodapé) |
 | Apoio `#ffcb05` | `--rn-yellow-500` | `--color-highlight`: só token. O selo de destaque não existe no site |
 | Degradê `#4c4c4c` → `#101820` | `--rn-gray-700`, `--gradient-brand` | Só token: não aplicado em nenhuma tela |
@@ -28,6 +28,10 @@ O site continua claro. Nenhum elemento visual novo: só recoloração, tipografi
   fundo claro dá 2,77:1 (2,43:1 sobre bg): por isso nunca é texto nem identifica controle, só
   divisória decorativa. No rodapé, dourado sobre `#101820` dá 6,47:1. Amarelo sob texto `#101820`: 11,76:1.
 - `--color-footer-accent-hover` é derivado: `color-mix` de 80% do dourado com o branco do rodapé.
+- Exceção ao guia (2026-10-07): o fundo do rodapé segue o site institucional, por decisão do
+  cliente. `--color-footer-bg` é `#000000`, medido no rodapé de rionegroinvestimentos.com.br, e não
+  o `#101820`. Sobre o preto: texto branco 21:1 e dourado 7,59:1 (AA). O `#101820` do resto do site
+  não muda.
 
 **Fontes** (via `next/font/google`, servidas pelo próprio app)
 - Roboto Slab Black (900): títulos (`h1`–`h3`, títulos de card e do modal).
