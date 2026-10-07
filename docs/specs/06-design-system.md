@@ -18,7 +18,7 @@ exato; Roboto Slab em títulos e subtítulos e Roboto no restante. Os tons que o
 (paleta `--rn-warm-*`, estados, sombras) ficam como no export.
 
 Títulos seguem o guia ([ADR 0045](../adr/0045-titulos-em-roboto-slab-black.md)): todo título (H1 de
-página, seção, card, modal e diálogo) em Roboto Slab Black (`font-black`, 900), na caixa em que foi
+página, seção, card, modal e diálogo) em Roboto Slab Bold (`font-black`, 700), na caixa em que foi
 digitado e sem espaçamento entre letras; subtítulos e linhas de apoio de título em Roboto Slab
 Regular (`font-regular`, 400). O H1 de toda página usa `text-h1` (28 px no celular, 36 px a partir
 de 768 px) e nenhum outro título chega a esse tamanho.
@@ -169,13 +169,13 @@ de 4 px (`p-4` = `--space-4`). A paleta padrão do Tailwind é desativada.
 | `--color-footer-accent` | `var(--rn-gold-500)` | Ícones sociais e de telefone do rodapé |
 | `--color-footer-accent-hover` | `color-mix(in srgb, var(--color-footer-accent) 80%, var(--color-footer-text))` | Hover dos ícones sociais |
 | `--font-sans` | `var(--font-roboto), system-ui, -apple-system, 'Segoe UI', sans-serif` | Apoio: corpo, interface, textos jurídicos (Roboto, via next/font) |
-| `--font-serif` | `var(--font-roboto-slab), Georgia, 'Times New Roman', serif` | Títulos (peso 900) e subtítulos (peso 400) (Roboto Slab, via next/font) |
+| `--font-serif` | `var(--font-roboto-slab), Georgia, 'Times New Roman', serif` | Títulos (peso 700) e subtítulos (peso 400) (Roboto Slab, via next/font) |
 | `--font-weight-light` | `300` | Texto corrido, menu e rodapé |
 | `--font-weight-regular` | `400` | Subtítulos e linhas de apoio de título; botão |
 | `--font-weight-medium` | `500` | Peso da fonte |
 | `--font-weight-semibold` | `600` | Peso da fonte |
 | `--font-weight-bold` | `700` | Peso da fonte |
-| `--font-weight-black` | `900` | Todos os títulos (Roboto Slab Black) |
+| `--font-weight-black` | `700` | Todos os títulos (Roboto Slab Bold; o nome do token vem da ADR 0045) |
 | `--radius-control` | `6px` | Botão, campo, badge |
 | `--radius-card` | `12px` | Card e modal |
 | `--shadow-card` | `0 1px 2px rgba(29, 28, 27, 0.06), 0 1px 3px rgba(29, 28, 27, 0.04)` | Card |

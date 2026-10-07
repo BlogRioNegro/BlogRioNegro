@@ -4,7 +4,7 @@ import { executeLocalSql } from '../integration/support/local-supabase'
 import { signInAsAdmin } from './support/admin'
 import { webUrl } from './support/urls'
 
-// TB-001 · ADR 0045 · Todo título em Roboto Slab Black, na caixa digitada e sem espaçamento entre
+// TB-001 · ADR 0045 · Todo título em Roboto Slab Bold, na caixa digitada e sem espaçamento entre
 // letras; H1 de 36 px (desktop) e 28 px (celular) e nenhum outro título desse tamanho.
 
 const SIZES = {
@@ -78,7 +78,7 @@ for (const [device, { viewport, h1 }] of Object.entries(SIZES)) {
     test.use({ viewport })
 
     for (const { name, url } of PAGES) {
-      test(`${name}: títulos em Black, sem maiúsculas forçadas e menores que o H1`, async ({
+      test(`${name}: títulos em Bold, sem maiúsculas forçadas e menores que o H1`, async ({
         page,
       }) => {
         await page.goto(url)
@@ -91,7 +91,7 @@ for (const [device, { viewport, h1 }] of Object.entries(SIZES)) {
 
         for (const title of titles) {
           expect(title).toMatchObject({
-            weight: '900',
+            weight: '700',
             transform: 'none',
             spacing: 'normal',
             serif: true,
@@ -101,7 +101,7 @@ for (const [device, { viewport, h1 }] of Object.entries(SIZES)) {
       })
     }
 
-    test('o peso 900 da Roboto Slab está carregado', async ({ page }) => {
+    test('o peso 700 da Roboto Slab está carregado', async ({ page }) => {
       await page.goto(webUrl('/'))
       await page.evaluate(() => document.fonts.ready)
 
@@ -110,11 +110,11 @@ for (const [device, { viewport, h1 }] of Object.entries(SIZES)) {
           .filter((font) => font.family.includes('Roboto Slab') && font.status === 'loaded')
           .map((font) => font.weight),
       )
-      const covers900 = ranges.some((range) => {
+      const covers700 = ranges.some((range) => {
         const [min = 0, max = min] = range.split(' ').map(Number)
-        return min <= 900 && max >= 900
+        return min <= 700 && max >= 700
       })
-      expect(covers900).toBe(true)
+      expect(covers700).toBe(true)
     })
 
     test('título longo não estoura a página, no artigo nem no card', async ({ page }) => {
@@ -141,14 +141,14 @@ for (const [device, { viewport, h1 }] of Object.entries(SIZES)) {
         expect((cover?.x ?? 0) + (cover?.width ?? 0)).toBeLessThanOrEqual(text?.x ?? 0)
     })
 
-    test('o título do diálogo de lead é Black e menor que o H1', async ({ page }) => {
+    test('o título do diálogo de lead é Bold e menor que o H1', async ({ page }) => {
       await page.goto(webUrl('/artigos/renda-fixa-em-2026'))
       await page.getByRole('button', { name: 'Baixar artigo completo' }).click()
 
       const title = page
         .getByRole('dialog', { name: 'Baixe o artigo completo' })
         .getByRole('heading', { name: 'Baixe o artigo completo' })
-      await expect(title).toHaveCSS('font-weight', '900')
+      await expect(title).toHaveCSS('font-weight', '700')
       await expect(title).toHaveCSS('text-transform', 'none')
       await expect(title).toHaveCSS('letter-spacing', 'normal')
       const size = await title.evaluate((element) =>

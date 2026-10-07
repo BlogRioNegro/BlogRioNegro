@@ -1,6 +1,6 @@
 # 0045 · Títulos em Roboto Slab Black
 
-- Status: accepted · Data: 2026-10-07
+- Status: accepted · Data: 2026-10-07 · Emenda em 2026-10-07: por decisão do cliente, o peso dos títulos passou a 700 (Bold)
 - Specs: [DS-003](../specs/06-design-system.md), [03 · UI](../specs/03-public-site.md)
 - Supersedes, em parte: [0044](0044-tipografia-e-favicon-do-site-institucional.md) (títulos e subtítulos)
 
@@ -54,3 +54,9 @@ maiúsculas e 1,4 px; entrelinha 1,5 do texto corrido; favicon. Famílias e core
 - `tailwind-merge` (`cn.ts`) conhece `text-h1` e `font-black`.
 - Os tokens foram alterados à mão no export em `design/design-system/tokens/`: reaplicar no Claude
   Design, ou o próximo export os apaga.
+
+## Emenda · peso 700 (2026-10-07)
+Por decisão do cliente, o peso dos títulos passou a 700 (Bold). Onde este documento diz 900 ou
+Black, vale 700: `--font-weight-black` passa a `700` nos três lugares dos tokens e os componentes
+seguem com `font-black`. O token mantém o nome para a mudança ficar só no valor; renomear é
+decisão à parte. Tamanho, caixa, espaçamento entre letras, entrelinha e subtítulos (400) não mudam.
