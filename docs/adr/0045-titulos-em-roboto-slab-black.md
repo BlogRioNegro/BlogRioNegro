@@ -46,9 +46,10 @@ maiúsculas e 1,4 px; entrelinha 1,5 do texto corrido; favicon. Famílias e core
 ## Consequências
 - O H1 do admin e o do login cresceram no desktop (30 → 36 e 24 → 36 px): a regra é uma só para
   todo `<h1>`.
-- O título do artigo mantém `hyphens-auto` + `wrap-break-word`; os títulos de card ganharam
-  `wrap-break-word`. Um título de 60 caracteres com uma palavra de 20 letras não estoura a 390 px
-  (`tests/e2e/titulos.spec.ts`).
+- O título do artigo mantém `hyphens-auto` + `wrap-break-word`; os títulos de card ganharam os
+  dois. No card de destaque a capa ganhou `max-w-full` a partir de 768 px: com título de muitas
+  linhas ela crescia além da própria coluna e invadia o texto. Um título de 60 caracteres com uma palavra de 20 letras não estoura a
+  390 px (`tests/e2e/titulos.spec.ts`).
 - A Roboto Slab do `next/font` é variável (100 a 900): nenhum peso a declarar em `fonts.ts`.
 - `tailwind-merge` (`cn.ts`) conhece `text-h1` e `font-black`.
 - Os tokens foram alterados à mão no export em `design/design-system/tokens/`: reaplicar no Claude

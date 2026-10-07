@@ -130,6 +130,15 @@ for (const [device, { viewport, h1 }] of Object.entries(SIZES)) {
         }))
         expect(overflow).toEqual({ title: 0, page: 0 })
       }
+
+      // No card de destaque a capa não invade o texto (lado a lado só a partir de 768 px).
+      const card = page.getByRole('link', { name: LONG_TITLE })
+      const [cover, text] = await Promise.all([
+        card.locator('img').boundingBox(),
+        card.getByRole('heading').boundingBox(),
+      ])
+      if (viewport.width >= 768)
+        expect((cover?.x ?? 0) + (cover?.width ?? 0)).toBeLessThanOrEqual(text?.x ?? 0)
     })
 
     test('o título do diálogo de lead é Black e menor que o H1', async ({ page }) => {
