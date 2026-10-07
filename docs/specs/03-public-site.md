@@ -112,7 +112,8 @@ spec, vale a spec (divergências abaixo).
   fundo `--color-footer-bg` (`#101820`), ≈ 340 px de altura no desktop. Esquerda: logotipo branco, ícones sociais dourados
   e copyright. Direita: telefone e Ouvidoria XP, links institucionais (serifada, caixa alta) e
   disclaimer (11 px). Mobile: tudo empilhado.
-- **Tipografia**: H1 `--font-size-h1` (36 px mobile, 48 px ≥ 768 px), peso 700; datas no formato
+- **Tipografia**: H1 `text-h1` (28 px mobile, 36 px ≥ 768 px), Roboto Slab Black
+  ([ADR 0045](../adr/0045-titulos-em-roboto-slab-black.md)); datas no formato
   "15 set. 2026" em `text-xs` e `--color-text-muted`.
 
 ### Home (`/`, PUB-001)

@@ -17,11 +17,16 @@ Cores, fontes e logo seguem o guia oficial da marca
 exato; Roboto Slab em títulos e subtítulos e Roboto no restante. Os tons que o guia não define
 (paleta `--rn-warm-*`, estados, sombras) ficam como no export.
 
-Peso, entrelinha, espaçamento entre letras e maiúsculas copiam o site institucional, no lugar do
-"Roboto Slab Black em títulos" do guia ([ADR 0044](../adr/0044-tipografia-e-favicon-do-site-institucional.md)):
-H1 em peso 300, maiúsculas e `--letter-spacing-title`; demais títulos em 400; subtítulos, texto
-corrido, menu e rodapé em 300; botão em 400, maiúsculas e `--letter-spacing-button`. O favicon
-(`app/icon.png` nos dois apps) é o do site institucional, sem alteração.
+Títulos seguem o guia ([ADR 0045](../adr/0045-titulos-em-roboto-slab-black.md)): todo título (H1 de
+página, seção, card, modal e diálogo) em Roboto Slab Black (`font-black`, 900), na caixa em que foi
+digitado e sem espaçamento entre letras; subtítulos e linhas de apoio de título em Roboto Slab
+Regular (`font-regular`, 400). O H1 de toda página usa `text-h1` (28 px no celular, 36 px a partir
+de 768 px) e nenhum outro título chega a esse tamanho.
+
+Texto corrido, menu, botão e rodapé copiam o site institucional
+([ADR 0044](../adr/0044-tipografia-e-favicon-do-site-institucional.md)): texto corrido, menu e
+rodapé em 300; botão em 400, maiúsculas e `--letter-spacing-button`. O favicon (`app/icon.png` nos
+dois apps) é o do site institucional, sem alteração.
 
 `packages/ui` é a verdade no código e esta spec é a verdade na documentação: os dois concordam
 (teste em `packages/ui/src/tokens.test.ts`).
@@ -62,8 +67,8 @@ Contraste AA, foco visível, modal com foco preso e fechamento por Esc, labels e
 
 Fonte: `packages/ui/src/tokens.css` e `packages/ui/src/theme.css`. Utilitários do Tailwind derivados
 dos tokens: `bg-*`/`text-*`/`border-*` (cores), `font-sans`/`font-serif`, `rounded-control`/`rounded-card`,
-`shadow-card`/`shadow-modal`, `text-xs`…`text-4xl` (com a entrelinha do nível),
-`tracking-title`/`tracking-button` e espaçamento em múltiplos
+`shadow-card`/`shadow-modal`, `text-xs`…`text-4xl` e `text-h1` (com a entrelinha do nível),
+`tracking-button` e espaçamento em múltiplos
 de 4 px (`p-4` = `--space-4`). A paleta padrão do Tailwind é desativada.
 
 | Token | Valor | Uso |
@@ -114,24 +119,24 @@ de 4 px (`p-4` = `--space-4`). A paleta padrão do Tailwind é desativada.
 | `--line-height-md` | `1.5` | Altura de linha |
 | `--font-size-lg` | `20px` | Corpo do artigo (desktop) |
 | `--line-height-lg` | `1.5` | Altura de linha |
-| `--font-size-xl` | `24px` | H3, título do modal |
-| `--line-height-xl` | `1.2` | Altura de linha |
-| `--font-size-2xl` | `30px` | H2, título do destaque |
-| `--line-height-2xl` | `1.2` | Altura de linha |
-| `--font-size-3xl` | `36px` | H1 mobile |
-| `--line-height-3xl` | `1` | Altura de linha |
-| `--font-size-4xl` | `48px` | H1 desktop |
-| `--line-height-4xl` | `1` | Altura de linha |
+| `--font-size-xl` | `24px` | H2 do artigo, título do modal |
+| `--line-height-xl` | `1.35` | Altura de linha |
+| `--font-size-2xl` | `30px` | Título do destaque (desktop) |
+| `--line-height-2xl` | `1.3` | Altura de linha |
+| `--font-size-3xl` | `36px` | H1 desktop |
+| `--line-height-3xl` | `1.2` | Altura de linha |
+| `--font-size-4xl` | `48px` | Sem uso: nenhum título passa do H1 |
+| `--line-height-4xl` | `1.15` | Altura de linha |
 | `--line-height-tight` | `1.2` | Altura de linha |
 | `--line-height-snug` | `1.35` | Altura de linha |
 | `--line-height-normal` | `1.5` | Altura de linha |
 | `--line-height-relaxed` | `1.7` | Altura de linha |
-| `--letter-spacing-title` | `5.2px` | H1, sempre em maiúsculas (`tracking-title uppercase`) |
 | `--letter-spacing-button` | `1.4px` | Botão, sempre em maiúsculas (`tracking-button uppercase`) |
 | `--font-size-article` | `var(--font-size-md)` | Corpo do artigo (≥768px: var(--font-size-lg)) |
 | `--line-height-article` | `var(--line-height-normal)` | Entrelinha do artigo |
 | `--measure-article` | `68ch` | Largura máxima do texto do artigo |
-| `--font-size-h1` | `var(--font-size-3xl)` | H1 (≥768px: var(--font-size-4xl)) |
+| `--font-size-h1` | `28px` | H1 de toda página, `text-h1` (≥768px: var(--font-size-3xl)) |
+| `--line-height-h1` | `var(--line-height-tight)` | Entrelinha do H1 |
 | `--gradient-brand` | `linear-gradient(90deg, var(--rn-gray-700), var(--rn-navy-900))` | Degradê da marca. Só token: não aplicado em nenhuma tela. |
 | `--color-bg` | `var(--rn-warm-50)` | Fundo da página |
 | `--color-surface` | `var(--rn-warm-0)` | Cards, modal, campos |
@@ -164,12 +169,13 @@ de 4 px (`p-4` = `--space-4`). A paleta padrão do Tailwind é desativada.
 | `--color-footer-accent` | `var(--rn-gold-500)` | Ícones sociais e de telefone do rodapé |
 | `--color-footer-accent-hover` | `color-mix(in srgb, var(--color-footer-accent) 80%, var(--color-footer-text))` | Hover dos ícones sociais |
 | `--font-sans` | `var(--font-roboto), system-ui, -apple-system, 'Segoe UI', sans-serif` | Apoio: corpo, interface, textos jurídicos (Roboto, via next/font) |
-| `--font-serif` | `var(--font-roboto-slab), Georgia, 'Times New Roman', serif` | Títulos (H1 peso 300, demais 400) e subtítulos (peso 300) (Roboto Slab, via next/font) |
-| `--font-weight-light` | `300` | H1, subtítulos, texto corrido, menu e rodapé |
-| `--font-weight-regular` | `400` | Peso da fonte |
+| `--font-serif` | `var(--font-roboto-slab), Georgia, 'Times New Roman', serif` | Títulos (peso 900) e subtítulos (peso 400) (Roboto Slab, via next/font) |
+| `--font-weight-light` | `300` | Texto corrido, menu e rodapé |
+| `--font-weight-regular` | `400` | Subtítulos e linhas de apoio de título; botão |
 | `--font-weight-medium` | `500` | Peso da fonte |
 | `--font-weight-semibold` | `600` | Peso da fonte |
 | `--font-weight-bold` | `700` | Peso da fonte |
+| `--font-weight-black` | `900` | Todos os títulos (Roboto Slab Black) |
 | `--radius-control` | `6px` | Botão, campo, badge |
 | `--radius-card` | `12px` | Card e modal |
 | `--shadow-card` | `0 1px 2px rgba(29, 28, 27, 0.06), 0 1px 3px rgba(29, 28, 27, 0.04)` | Card |

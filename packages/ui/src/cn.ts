@@ -2,13 +2,13 @@ import { clsx, type ClassValue } from 'clsx'
 import { extendTailwindMerge } from 'tailwind-merge'
 
 // Ensina ao tailwind-merge as escalas próprias do design system (theme.css), para que
-// text-md (tamanho) e text-text-muted (cor) não se anulem, nem font-light (peso) e font-serif (família).
+// text-md (tamanho) e text-text-muted (cor) não se anulem, nem font-black (peso) e font-serif (família).
 const twMerge = extendTailwindMerge({
   extend: {
     theme: {
-      text: ['xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl', '4xl'],
-      'font-weight': ['light', 'regular', 'medium', 'semibold', 'bold'],
-      tracking: ['title', 'button'],
+      text: ['xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl', '4xl', 'h1'],
+      'font-weight': ['light', 'regular', 'medium', 'semibold', 'bold', 'black'],
+      tracking: ['button'],
       radius: ['control', 'card'],
       shadow: ['card', 'modal'],
       color: [
