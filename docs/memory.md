@@ -11,7 +11,8 @@ _Sobrescrever inteiro ao fim de cada sessão. Máx. ~40 linhas. Sem histórico._
 - TB-002 `e3d31d6` (ADR 0046): `articles.subtitle` e `save_article` com `subtitle` opcional, na
   migration `20261007140000_article_subtitle.sql`; admin, site, metadata, RSS e PDF.
 - Rodapé `b0e75d7`: `--color-footer-bg` é `#000000`, medido no site institucional (ADR 0043).
-- Voltar `6d311ac` (ADR 0047): `BackButton` (`Button` `secondary` `sm`) na linha do H1 em `/artigos`
+- Voltar `6d311ac` (ADR 0047): `BackButton` (`Button` primário, sem ícone, como o "Ver artigos"
+  da home) na linha do H1 em `/artigos`
   (→ `/`) e na linha da data em `/artigos/[slug]` (→ `/artigos`). A data do artigo subiu para o topo
   e o link "Todos os artigos" saiu.
 - Gate completo verde em 2026-10-07 até a TB-002 (397 unitários, 100 integração, 95 e2e, a11y,

@@ -13,17 +13,20 @@ lista e na página do artigo, discreto e sempre na primeira linha do conteúdo.
 - **Artigo (`/artigos/[slug]`)**: a data de publicação sobe para a primeira linha, à esquerda, com
   "Voltar" à direita → `/artigos`; o título vem logo abaixo. O link "Todos os artigos" sai, para não
   haver dois caminhos de volta. Abaixo da capa fica só o `TypeBadge`.
-- **Aparência**: `Button` `secondary` `sm` (a variante de contorno que já existia), ícone
-  `ArrowLeft` e o texto "Voltar". Não é a ação principal: fica no peso de um controle secundário.
+- **Aparência**: `Button` primário de 44 px, igual ao "Ver artigos" da home, só com o texto
+  "Voltar", sem ícone. A primeira versão (contorno `secondary` `sm` com seta) foi trocada a pedido
+  do cliente no mesmo dia.
 - **Implementação**: `BackButton` em `apps/web/components`, um `next/link` com `Button asChild`.
   Sem `history.back()`: funciona sem JavaScript e o destino é sempre o mesmo.
 - **Acessibilidade**: `aria-label` "Voltar para a página inicial" / "Voltar para a lista de
-  artigos" (começa pelo texto visível); os 36 px do `sm` ganham área de toque de 44 px por um
-  pseudo-elemento; foco visível global; é o primeiro foco depois do cabeçalho.
+  artigos" (começa pelo texto visível); 44 px de altura; foco visível global; é o primeiro foco
+  depois do cabeçalho.
 - **Fora**: home, privacidade, 404, erro e admin.
 
 ## Consequências
 - A data deixou de ficar ao lado do `TypeBadge`, abaixo da capa: a página do artigo diverge do
   protótipo nesse ponto (ADR 0026).
+- O artigo passa a ter dois botões primários ("Voltar" no topo e "Baixar artigo completo" no fim),
+  o que foge da regra "uma ação primária por área" do `Button` na spec 06.
 - A 390 px o botão continua na mesma linha, com pelo menos 16 px de folga
   (`tests/e2e/public-site.spec.ts`).

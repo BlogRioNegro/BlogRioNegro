@@ -155,8 +155,7 @@ no mobile).
   [04-lead-capture](04-lead-capture.md). Nenhum CTA comercial no corpo.
 
 ### Botão "Voltar" (lista e artigo)
-`Button` `secondary` `sm` (contorno fino, 36 px de altura com área de toque de 44 px), ícone de seta
-à esquerda e o texto "Voltar". É um link (`next/link`), funciona sem JavaScript. Nome acessível:
+`Button` primário de 44 px, igual ao "Ver artigos" da home, só com o texto "Voltar" (sem ícone). É um link (`next/link`), funciona sem JavaScript. Nome acessível:
 "Voltar para a página inicial" na lista e "Voltar para a lista de artigos" no artigo. A 390 px
 continua na mesma linha do título ou da data. Não entra na home, na privacidade, no 404, no erro
 nem no admin.

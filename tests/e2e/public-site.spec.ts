@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 import { executeLocalSql, localSupabase } from '../integration/support/local-supabase'
 import { webUrl } from './support/urls'
 
@@ -508,15 +508,29 @@ test.describe('Botão Voltar', () => {
         // No artigo, o título vem logo abaixo da linha da data.
         if (left === 'time') expect(title.y).toBeGreaterThanOrEqual(button.y + button.height)
 
-        // Área de toque de 44 px: 4 px acima e abaixo do contorno ainda são o link.
-        const hit = (y: number) =>
-          page.evaluate(
-            ([x, pointY]) =>
-              document.elementFromPoint(x ?? 0, pointY ?? 0)?.closest('a')?.textContent,
-            [button.x + button.width / 2, y],
-          )
-        expect(await hit(button.y - 3)).toBe('Voltar')
-        expect(await hit(button.y + button.height + 3)).toBe('Voltar')
+        // Mesmo botão primário do "Ver artigos" da home, sem ícone e com 44 px de altura.
+        expect(button.height).toBeGreaterThanOrEqual(44)
+        await expect(back.locator('svg')).toHaveCount(0)
+        const look = (link: Locator) =>
+          link.evaluate((element) => {
+            const style = getComputedStyle(element)
+            return [
+              style.backgroundColor,
+              style.color,
+              style.height,
+              style.fontSize,
+              style.fontWeight,
+              style.letterSpacing,
+              style.textTransform,
+              style.borderRadius,
+            ]
+          })
+        const home = await browser.newPage({ viewport })
+        await home.goto(webUrl('/'))
+        expect(await look(back)).toEqual(
+          await look(home.getByRole('main').getByRole('link', { name: 'Ver artigos' })),
+        )
+        await home.close()
 
         // Primeiro foco do conteúdo, logo depois do cabeçalho, com contorno visível.
         await page.getByRole('banner').getByRole('link', { name: 'Artigos' }).focus()
