@@ -1,8 +1,7 @@
-import { Button, cn, TypeBadge } from '@rio-negro/ui'
-import { ArrowLeft } from '@rio-negro/ui/icons'
+import { cn, TypeBadge } from '@rio-negro/ui'
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { BackButton } from '@/components/back-button'
 import { CoverImage } from '@/components/cover-image'
 import { LeadDialog } from '@/components/lead-dialog'
 import { PdfPreview } from '@/components/pdf-preview'
@@ -50,13 +49,9 @@ export default async function ArticlePage({ params }: PageProps<'/artigos/[slug]
 
   return (
     <main className="mx-auto flex w-full max-w-(--layout-reading) flex-1 flex-col px-4 pt-6 pb-16 md:px-0 md:pt-12 md:pb-24">
-      <div>
-        <Button asChild variant="link">
-          <Link href="/artigos">
-            <ArrowLeft aria-hidden className="size-5" />
-            Todos os artigos
-          </Link>
-        </Button>
+      <div className="flex items-center justify-between gap-4 text-xs text-text-muted">
+        <time dateTime={article.published_at}>{formatPublishedDate(article.published_at)}</time>
+        <BackButton href="/artigos" label="Voltar para a lista de artigos" />
       </div>
       <h1
         className={cn(
@@ -72,9 +67,8 @@ export default async function ArticlePage({ params }: PageProps<'/artigos/[slug]
         </p>
       ) : null}
       <CoverImage src={coverUrl(article.cover_path)} eager className="rounded-card" />
-      <div className="mt-4 mb-3 flex items-center gap-2 text-xs text-text-muted md:mt-6 md:mb-4">
+      <div className="mt-4 mb-3 flex md:mt-6 md:mb-4">
         <TypeBadge type={article.content_type} />
-        <time dateTime={article.published_at}>{formatPublishedDate(article.published_at)}</time>
       </div>
       {article.summary ? (
         <p className="mb-6 font-serif text-lg leading-normal font-regular text-pretty text-text-muted md:mb-8 md:text-xl">

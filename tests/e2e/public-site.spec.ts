@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { expect, test, type Page } from '@playwright/test'
 import { executeLocalSql, localSupabase } from '../integration/support/local-supabase'
 import { webUrl } from './support/urls'
@@ -149,10 +150,7 @@ test.describe('PUB-005 · Página do artigo', () => {
       main.getByText('Esta é uma prévia. O artigo completo está disponível para download.'),
     ).toBeVisible()
     await expect(main.getByRole('button', { name: 'Baixar artigo completo' })).toBeVisible()
-    await expect(main.getByRole('link', { name: 'Todos os artigos' })).toHaveAttribute(
-      'href',
-      '/artigos',
-    )
+    await expect(main.getByRole('link', { name: 'Todos os artigos' })).toHaveCount(0)
   })
 
   test('slug inexistente responde 404', async ({ page }) => {
@@ -449,6 +447,118 @@ test.describe('PUB-015 · Páginas de erro', () => {
       await expect(main).not.toContainText(/permission|denied|articles|Falha/i)
     })
   })
+})
+
+// ADR 0047 · "Voltar" na mesma linha do título (lista) ou da data (artigo), à direita.
+test.describe('Botão Voltar', () => {
+  const SIZES = [
+    { width: 1440, height: 900 },
+    { width: 390, height: 844 },
+  ]
+  const CASES = [
+    {
+      file: 'lista',
+      path: '/artigos',
+      name: 'Voltar para a página inicial',
+      href: '/',
+      left: 'h1',
+    },
+    {
+      file: 'artigo',
+      path: '/artigos/carteira-recomendada-outubro',
+      name: 'Voltar para a lista de artigos',
+      href: '/artigos',
+      left: 'time',
+    },
+  ]
+
+  for (const viewport of SIZES) {
+    for (const { file, path: pagePath, name, href, left } of CASES) {
+      test(`${file} a ${viewport.width} px: mesma linha, à direita, sem estourar`, async ({
+        browser,
+      }) => {
+        const page = await browser.newPage({ viewport })
+        await page.goto(webUrl(pagePath))
+        const main = page.getByRole('main')
+        const back = main.getByRole('link', { name, exact: true })
+
+        await expect(back).toHaveAttribute('href', href)
+        await expect(back).toHaveText('Voltar')
+        await expect(main.getByRole('link', { name: /^Voltar/ })).toHaveCount(1)
+
+        const [button, beside, container, title] = await Promise.all([
+          back.boundingBox(),
+          main.locator(left).first().boundingBox(),
+          main.boundingBox(),
+          main.getByRole('heading', { level: 1 }).boundingBox(),
+        ])
+        if (!button || !beside || !container || !title) throw new Error('elemento sem caixa')
+        const padding = viewport.width < 768 ? 16 : 0
+        // Mesma linha: as caixas se sobrepõem na vertical e o botão fica depois, com folga.
+        expect(button.y).toBeLessThan(beside.y + beside.height)
+        expect(beside.y).toBeLessThan(button.y + button.height)
+        expect(button.x).toBeGreaterThanOrEqual(beside.x + beside.width + 16)
+        // À direita, dentro da coluna, e sem rolagem horizontal.
+        expect(Math.round(button.x + button.width)).toBe(
+          Math.round(container.x + container.width - padding),
+        )
+        expect(
+          await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth),
+        ).toBeLessThanOrEqual(0)
+        // No artigo, o título vem logo abaixo da linha da data.
+        if (left === 'time') expect(title.y).toBeGreaterThanOrEqual(button.y + button.height)
+
+        // Área de toque de 44 px: 4 px acima e abaixo do contorno ainda são o link.
+        const hit = (y: number) =>
+          page.evaluate(
+            ([x, pointY]) =>
+              document.elementFromPoint(x ?? 0, pointY ?? 0)?.closest('a')?.textContent,
+            [button.x + button.width / 2, y],
+          )
+        expect(await hit(button.y - 3)).toBe('Voltar')
+        expect(await hit(button.y + button.height + 3)).toBe('Voltar')
+
+        // Primeiro foco do conteúdo, logo depois do cabeçalho, com contorno visível.
+        await page.getByRole('banner').getByRole('link', { name: 'Artigos' }).focus()
+        await page.keyboard.press('Tab')
+        await expect(back).toBeFocused()
+        await expect(back).toHaveCSS('outline-style', 'solid')
+
+        if (process.env.VISUAL) {
+          await back.blur()
+          await page.screenshot({
+            path: path.join(
+              import.meta.dirname,
+              '__visual__',
+              `voltar-${file}-${viewport.width}.png`,
+            ),
+            fullPage: true,
+          })
+        }
+        await page.close()
+      })
+    }
+  }
+
+  test('é um link: funciona sem JavaScript', async ({ browser }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false })
+    const page = await context.newPage()
+
+    await page.goto(webUrl('/artigos/carteira-recomendada-outubro'))
+    await page.getByRole('link', { name: 'Voltar para a lista de artigos' }).click()
+    await expect(page).toHaveURL(webUrl('/artigos'))
+    await page.getByRole('link', { name: 'Voltar para a página inicial' }).click()
+    await expect(page).toHaveURL(webUrl('/'))
+    await context.close()
+  })
+
+  for (const pagePath of ['/', '/privacidade', '/nao-existe']) {
+    test(`não aparece em ${pagePath}`, async ({ page }) => {
+      await page.goto(webUrl(pagePath))
+
+      await expect(page.getByRole('link', { name: /^Voltar/ })).toHaveCount(0)
+    })
+  }
 })
 
 test.describe('PUB-013 · Rodapé em todas as páginas', () => {

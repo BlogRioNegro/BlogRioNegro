@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { ArticleCard } from '@/components/article-card'
+import { BackButton } from '@/components/back-button'
 import { FeaturedArticleCard } from '@/components/featured-article-card'
 import { LoadMoreButton } from '@/components/load-more-button'
 import { getFeaturedArticle } from '@/lib/domain/featured-article'
@@ -23,7 +24,10 @@ export default async function ArticlesPage({ searchParams }: PageProps<'/artigos
 
   return (
     <main className="mx-auto flex w-full max-w-(--layout-reading) flex-1 flex-col gap-6 px-4 pt-8 pb-16 md:gap-8 md:px-0 md:pt-16 md:pb-24">
-      <h1 className="font-serif text-h1 font-black">Artigos</h1>
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="font-serif text-h1 font-black">Artigos</h1>
+        <BackButton href="/" label="Voltar para a página inicial" />
+      </div>
       {featured ? (
         <>
           <FeaturedArticleCard article={toArticleCard(featured)} />

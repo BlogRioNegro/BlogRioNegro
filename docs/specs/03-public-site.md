@@ -125,7 +125,8 @@ subtítulo "Artigos e estudos para ajudar você a entender o mercado e decidir c
 no mobile).
 
 ### Listagem (`/artigos`, PUB-002 a PUB-004)
-- H1 "Artigos"; card de destaque no topo e, abaixo, os demais em **coluna única**.
+- H1 "Artigos" à esquerda e, na mesma linha, à direita, o botão "Voltar" → `/`
+  ([ADR 0047](../adr/0047-botao-voltar-na-lista-e-no-artigo.md)); card de destaque no topo e, abaixo, os demais em **coluna única**.
 - **Card de destaque**: superfície com `--radius-card` e `--shadow-card`; capa 16:9 e texto lado a
   lado a partir de 768 px (empilha no mobile, capa acima); título 24 px (mobile) / 30 px; data.
   Subtítulo, se houver, logo abaixo do título: 20 px (mobile) / 24 px.
@@ -138,10 +139,11 @@ no mobile).
 - **Vazio**: superfície branca com borda e o texto "Nenhum artigo publicado ainda".
 
 ### Artigo (`/artigos/[slug]`, PUB-005 a PUB-007)
-- `Button` link "Todos os artigos" (ícone seta à esquerda) → `/artigos`.
+- Data de publicação à esquerda e, na mesma linha, à direita, o botão "Voltar" → `/artigos`
+  ([ADR 0047](../adr/0047-botao-voltar-na-lista-e-no-artigo.md)).
 - H1 e, se houver, o subtítulo logo abaixo: um `<p>` (não é heading) em Roboto Slab Regular, um
   degrau abaixo do título (24 px no mobile, 30 px ≥ 768 px; [ADR 0046](../adr/0046-subtitulo-do-artigo.md)). Sem subtítulo, nada muda.
-- Capa 16:9, formato (`TypeBadge`) + data e resumo (Source Serif 4, `text-lg` no mobile e `text-xl` ≥ 768 px, `--color-text-muted`), nesta ordem, como no protótipo ([ADR 0026](../adr/0026-ordem-da-pagina-do-artigo.md)).
+- Capa 16:9, formato (`TypeBadge`) e resumo (Source Serif 4, `text-lg` no mobile e `text-xl` ≥ 768 px, `--color-text-muted`), nesta ordem, como no protótipo ([ADR 0026](../adr/0026-ordem-da-pagina-do-artigo.md)).
 - **Prévia `rich_text`**: texto em `--font-serif`, `--font-size-article` (18/1.7 mobile,
   20/1.7 ≥ 768 px), largura máxima `--measure-article`; H2/H3 em Inter 600; citações com borda
   esquerda de 2 px; imagens só com `alt`, sem legenda ([ADR 0031](../adr/0031-imagem-do-rich-text-so-com-alt.md)).
@@ -151,6 +153,13 @@ no mobile).
 - Abaixo da prévia: nota "Esta é uma prévia. O artigo completo está disponível para download." e
   `Button` primário "Baixar artigo completo" (100% no mobile), que abre o modal de
   [04-lead-capture](04-lead-capture.md). Nenhum CTA comercial no corpo.
+
+### Botão "Voltar" (lista e artigo)
+`Button` `secondary` `sm` (contorno fino, 36 px de altura com área de toque de 44 px), ícone de seta
+à esquerda e o texto "Voltar". É um link (`next/link`), funciona sem JavaScript. Nome acessível:
+"Voltar para a página inicial" na lista e "Voltar para a lista de artigos" no artigo. A 390 px
+continua na mesma linha do título ou da data. Não entra na home, na privacidade, no 404, no erro
+nem no admin.
 
 ### Privacidade (`/privacidade`, PUB-014)
 H1 "Aviso de privacidade", data de atualização em `text-xs`, seções com H2 e texto em
