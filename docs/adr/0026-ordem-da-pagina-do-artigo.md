@@ -1,7 +1,6 @@
 # 0026 · Cabeçalho da página do artigo segue o protótipo
 
-- Status: accepted · Data: 2026-09-25 · superseded em parte por
-  [0047](0047-botao-voltar-na-lista-e-no-artigo.md) (posição da data e link de voltar)
+- Status: accepted · Data: 2026-09-25
 - Specs: [PUB-005](../specs/03-public-site.md)
 
 ## Contexto

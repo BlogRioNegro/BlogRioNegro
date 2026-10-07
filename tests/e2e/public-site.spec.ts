@@ -53,10 +53,6 @@ test.describe('PUB-002 · PUB-003 · Listagem', () => {
       'Carteira recomendada de outubro',
       'Renda fixa em 2026: o que muda para o investidor',
     ])
-    await expect(page.getByRole('link', { name: 'Artigos' })).toHaveAttribute(
-      'aria-current',
-      'page',
-    )
   })
 
   test('o card leva à página do artigo', async ({ page }) => {
@@ -150,7 +146,10 @@ test.describe('PUB-005 · Página do artigo', () => {
       main.getByText('Esta é uma prévia. O artigo completo está disponível para download.'),
     ).toBeVisible()
     await expect(main.getByRole('button', { name: 'Baixar artigo completo' })).toBeVisible()
-    await expect(main.getByRole('link', { name: 'Todos os artigos' })).toHaveCount(0)
+    await expect(main.getByRole('link', { name: 'Todos os artigos' })).toHaveAttribute(
+      'href',
+      '/artigos',
+    )
   })
 
   test('slug inexistente responde 404', async ({ page }) => {
@@ -449,97 +448,149 @@ test.describe('PUB-015 · Páginas de erro', () => {
   })
 })
 
-// ADR 0047 · "Voltar" na mesma linha do título (lista) ou da data (artigo), à direita.
-test.describe('Botão Voltar', () => {
-  const SIZES = [
-    { width: 1440, height: 900 },
-    { width: 390, height: 844 },
-  ]
-  const CASES = [
-    {
-      file: 'lista',
-      path: '/artigos',
-      name: 'Voltar para a página inicial',
-      href: '/',
-      left: 'h1',
-    },
-    {
-      file: 'artigo',
-      path: '/artigos/carteira-recomendada-outubro',
-      name: 'Voltar para a lista de artigos',
-      href: '/artigos',
-      left: 'time',
-    },
-  ]
+// ADR 0047 · Menu do cabeçalho: "Artigos" na home e "Voltar" nas demais páginas.
+test.describe('Voltar no cabeçalho', () => {
+  const ARTICLE = '/artigos/carteira-recomendada-outubro'
+  const menu = (page: Page) => page.getByRole('navigation', { name: 'Principal' })
+  const back = (page: Page) =>
+    menu(page).getByRole('link', { name: 'Voltar para a página anterior', exact: true })
+  const look = (link: Locator) =>
+    link.evaluate((element) => {
+      const style = getComputedStyle(element)
+      return [
+        style.fontFamily,
+        style.fontSize,
+        style.fontWeight,
+        style.textTransform,
+        style.color,
+        style.backgroundColor,
+        style.borderTopWidth,
+      ]
+    })
 
-  for (const viewport of SIZES) {
-    for (const { file, path: pagePath, name, href, left } of CASES) {
-      test(`${file} a ${viewport.width} px: mesma linha, à direita, sem estourar`, async ({
-        browser,
-      }) => {
-        const page = await browser.newPage({ viewport })
-        await page.goto(webUrl(pagePath))
-        const main = page.getByRole('main')
-        const back = main.getByRole('link', { name, exact: true })
+  test('home mostra "Artigos", que leva à lista', async ({ page }) => {
+    await page.goto(webUrl('/'))
 
-        await expect(back).toHaveAttribute('href', href)
-        await expect(back).toHaveText('Voltar')
-        await expect(main.getByRole('link', { name: /^Voltar/ })).toHaveCount(1)
+    await expect(menu(page).getByRole('link')).toHaveText(['Artigos'])
+    await expect(menu(page).getByRole('link', { name: 'Artigos' })).toHaveAttribute(
+      'href',
+      '/artigos',
+    )
+  })
 
-        const [button, beside, container, title] = await Promise.all([
-          back.boundingBox(),
-          main.locator(left).first().boundingBox(),
-          main.boundingBox(),
-          main.getByRole('heading', { level: 1 }).boundingBox(),
-        ])
-        if (!button || !beside || !container || !title) throw new Error('elemento sem caixa')
-        const padding = viewport.width < 768 ? 16 : 0
-        // Mesma linha: as caixas se sobrepõem na vertical e o botão fica depois, com folga.
-        expect(button.y).toBeLessThan(beside.y + beside.height)
-        expect(beside.y).toBeLessThan(button.y + button.height)
-        expect(button.x).toBeGreaterThanOrEqual(beside.x + beside.width + 16)
-        // À direita, dentro da coluna, e sem rolagem horizontal.
-        expect(Math.round(button.x + button.width)).toBe(
-          Math.round(container.x + container.width - padding),
-        )
-        expect(
-          await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth),
-        ).toBeLessThanOrEqual(0)
-        // No artigo, o título vem logo abaixo da linha da data.
-        if (left === 'time') expect(title.y).toBeGreaterThanOrEqual(button.y + button.height)
+  for (const { name, path: pagePath, fallback } of [
+    { name: 'lista', path: '/artigos', fallback: '/' },
+    { name: 'artigo', path: ARTICLE, fallback: '/artigos' },
+    { name: 'privacidade', path: '/privacidade', fallback: '/' },
+    { name: '404', path: '/nao-existe', fallback: '/' },
+  ]) {
+    test(`${name} mostra só "Voltar", com o destino de reserva ${fallback}`, async ({ page }) => {
+      await page.goto(webUrl(pagePath))
 
-        // Mesmo botão primário do "Ver artigos" da home, sem ícone e com 44 px de altura.
-        expect(button.height).toBeGreaterThanOrEqual(44)
-        await expect(back.locator('svg')).toHaveCount(0)
-        const look = (link: Locator) =>
-          link.evaluate((element) => {
-            const style = getComputedStyle(element)
-            return [
-              style.backgroundColor,
-              style.color,
-              style.height,
-              style.fontSize,
-              style.fontWeight,
-              style.letterSpacing,
-              style.textTransform,
-              style.borderRadius,
-            ]
-          })
-        const home = await browser.newPage({ viewport })
-        await home.goto(webUrl('/'))
-        expect(await look(back)).toEqual(
-          await look(home.getByRole('main').getByRole('link', { name: 'Ver artigos' })),
-        )
-        await home.close()
+      await expect(menu(page).getByRole('link')).toHaveText(['Voltar'])
+      await expect(back(page)).toHaveAttribute('href', fallback)
+      await expect(back(page)).not.toHaveAttribute('aria-current')
+      await expect(back(page).locator('svg')).toHaveCount(0)
+      expect((await back(page).boundingBox())?.height).toBeGreaterThanOrEqual(44)
+    })
+  }
 
-        // Primeiro foco do conteúdo, logo depois do cabeçalho, com contorno visível.
-        await page.getByRole('banner').getByRole('link', { name: 'Artigos' }).focus()
-        await page.keyboard.press('Tab')
-        await expect(back).toBeFocused()
-        await expect(back).toHaveCSS('outline-style', 'solid')
+  test('"Voltar" tem o estilo de texto do item "Artigos" e foco visível', async ({ page }) => {
+    await page.goto(webUrl('/'))
+    const articles = await look(menu(page).getByRole('link', { name: 'Artigos' }))
 
-        if (process.env.VISUAL) {
-          await back.blur()
+    await page.goto(webUrl('/artigos'))
+    expect(await look(back(page))).toEqual(articles)
+    await back(page).focus()
+    await expect(back(page)).toHaveCSS('outline-style', 'solid')
+  })
+
+  test('home → lista → artigo → Voltar (lista) → Voltar (home)', async ({ page }) => {
+    await page.goto(webUrl('/'))
+    await menu(page).getByRole('link', { name: 'Artigos' }).click()
+    await expect(page).toHaveURL(webUrl('/artigos'))
+    await page.getByRole('link', { name: /Carteira recomendada de outubro/ }).click()
+    await expect(page).toHaveURL(webUrl(ARTICLE))
+
+    await back(page).click()
+    await expect(page).toHaveURL(webUrl('/artigos'))
+    await back(page).click()
+    await expect(page).toHaveURL(webUrl('/'))
+    await expect(menu(page).getByRole('link')).toHaveText(['Artigos'])
+  })
+
+  test('volta para a tela anterior, não para o nível acima', async ({ page }) => {
+    await page.goto(webUrl('/privacidade'))
+    await page.getByRole('link', { name: 'Rio Negro Investimentos, página inicial' }).click()
+    await expect(page).toHaveURL(webUrl('/'))
+    await menu(page).getByRole('link', { name: 'Artigos' }).click()
+    await expect(page).toHaveURL(webUrl('/artigos'))
+
+    await back(page).click()
+    await expect(page).toHaveURL(webUrl('/'))
+  })
+
+  test('artigo aberto direto pela URL: Voltar leva para /artigos e depois para a home', async ({
+    page,
+  }) => {
+    await page.goto(webUrl(ARTICLE))
+
+    await back(page).click()
+    await expect(page).toHaveURL(webUrl('/artigos'))
+    // A lista veio depois do artigo: agora há tela anterior e o Voltar retorna a ela.
+    await back(page).click()
+    await expect(page).toHaveURL(webUrl(ARTICLE))
+  })
+
+  test('Ctrl + clique abre o destino de reserva em outra aba', async ({ page, context }) => {
+    await page.goto(webUrl('/'))
+    await menu(page).getByRole('link', { name: 'Artigos' }).click()
+    await page.getByRole('link', { name: /Carteira recomendada de outubro/ }).click()
+    await expect(page).toHaveURL(webUrl(ARTICLE))
+
+    const [tab] = await Promise.all([
+      context.waitForEvent('page'),
+      back(page).click({ modifiers: ['ControlOrMeta'] }),
+    ])
+    await expect(tab).toHaveURL(webUrl('/artigos'))
+    await expect(page).toHaveURL(webUrl(ARTICLE))
+  })
+
+  test('sem JavaScript, é um link para o nível acima', async ({ browser }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false })
+    const page = await context.newPage()
+
+    await page.goto(webUrl(ARTICLE))
+    await back(page).click()
+    await expect(page).toHaveURL(webUrl('/artigos'))
+    await back(page).click()
+    await expect(page).toHaveURL(webUrl('/'))
+    await context.close()
+  })
+
+  test('não há mais botão Voltar no conteúdo', async ({ page }) => {
+    for (const pagePath of ['/artigos', ARTICLE]) {
+      await page.goto(webUrl(pagePath))
+
+      await expect(page.getByRole('main').getByRole('link', { name: /^Voltar/ })).toHaveCount(0)
+    }
+  })
+
+  test.describe('capturas', () => {
+    test.skip(!process.env.VISUAL, 'Gerado só com VISUAL=1')
+
+    for (const viewport of [
+      { width: 1440, height: 900 },
+      { width: 390, height: 844 },
+    ]) {
+      for (const { file, path: pagePath } of [
+        { file: 'home', path: '/' },
+        { file: 'lista', path: '/artigos' },
+        { file: 'artigo', path: ARTICLE },
+      ]) {
+        test(`${file} a ${viewport.width} px`, async ({ browser }) => {
+          const page = await browser.newPage({ viewport })
+          await page.goto(webUrl(pagePath), { waitUntil: 'networkidle' })
           await page.screenshot({
             path: path.join(
               import.meta.dirname,
@@ -548,31 +599,11 @@ test.describe('Botão Voltar', () => {
             ),
             fullPage: true,
           })
-        }
-        await page.close()
-      })
+          await page.close()
+        })
+      }
     }
-  }
-
-  test('é um link: funciona sem JavaScript', async ({ browser }) => {
-    const context = await browser.newContext({ javaScriptEnabled: false })
-    const page = await context.newPage()
-
-    await page.goto(webUrl('/artigos/carteira-recomendada-outubro'))
-    await page.getByRole('link', { name: 'Voltar para a lista de artigos' }).click()
-    await expect(page).toHaveURL(webUrl('/artigos'))
-    await page.getByRole('link', { name: 'Voltar para a página inicial' }).click()
-    await expect(page).toHaveURL(webUrl('/'))
-    await context.close()
   })
-
-  for (const pagePath of ['/', '/privacidade', '/nao-existe']) {
-    test(`não aparece em ${pagePath}`, async ({ page }) => {
-      await page.goto(webUrl(pagePath))
-
-      await expect(page.getByRole('link', { name: /^Voltar/ })).toHaveCount(0)
-    })
-  }
 })
 
 test.describe('PUB-013 · Rodapé em todas as páginas', () => {

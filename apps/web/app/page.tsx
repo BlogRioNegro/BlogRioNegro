@@ -7,7 +7,7 @@ import { SiteHeader } from '@/components/site-header'
 export default function HomePage() {
   return (
     <>
-      <SiteHeader />
+      <SiteHeader home />
       <main className="mx-auto flex w-full max-w-(--layout-admin) flex-1 flex-col justify-center px-4 py-16 md:px-6 md:py-24">
         <div className="flex max-w-[680px] flex-col items-start gap-6">
           <h1 className="font-serif text-h1 font-black text-balance">
