@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
+import path from 'node:path'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 import { executeLocalSql, localSupabase } from '../integration/support/local-supabase'
 import { webUrl } from './support/urls'
 
@@ -52,10 +53,6 @@ test.describe('PUB-002 · PUB-003 · Listagem', () => {
       'Carteira recomendada de outubro',
       'Renda fixa em 2026: o que muda para o investidor',
     ])
-    await expect(page.getByRole('link', { name: 'Artigos' })).toHaveAttribute(
-      'aria-current',
-      'page',
-    )
   })
 
   test('o card leva à página do artigo', async ({ page }) => {
@@ -279,10 +276,13 @@ test.describe('PUB-010 · Metadata e Open Graph', () => {
   const meta = (page: Page, attribute: 'name' | 'property', key: string) =>
     page.locator(`meta[${attribute}="${key}"]`)
 
+  // O artigo do seed tem subtítulo: título e og:title saem como "Título: Subtítulo" (ADR 0046).
   test('artigo pdf com resumo: título, descrição, canonical, og e twitter', async ({ page }) => {
     await page.goto(webUrl('/artigos/carteira-recomendada-outubro'))
 
-    await expect(page).toHaveTitle('Carteira recomendada de outubro · Rio Negro Investimentos')
+    await expect(page).toHaveTitle(
+      'Carteira recomendada de outubro: 1 a 31 de outubro · Rio Negro Investimentos',
+    )
     const description = 'Alocação sugerida por perfil de risco para o próximo mês.'
     await expect(meta(page, 'name', 'description')).toHaveAttribute('content', description)
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
@@ -292,7 +292,11 @@ test.describe('PUB-010 · Metadata e Open Graph', () => {
     await expect(meta(page, 'property', 'og:type')).toHaveAttribute('content', 'article')
     await expect(meta(page, 'property', 'og:title')).toHaveAttribute(
       'content',
-      'Carteira recomendada de outubro',
+      'Carteira recomendada de outubro: 1 a 31 de outubro',
+    )
+    await expect(meta(page, 'name', 'twitter:title')).toHaveAttribute(
+      'content',
+      'Carteira recomendada de outubro: 1 a 31 de outubro',
     )
     await expect(meta(page, 'property', 'og:description')).toHaveAttribute('content', description)
     await expect(meta(page, 'property', 'og:image')).toHaveAttribute(
@@ -381,6 +385,8 @@ test.describe('PUB-012 · RSS', () => {
     expect(xml).toContain('<rss version="2.0"')
     expect(xml.match(/<item>/g)).toHaveLength(3)
     expect(xml).toContain(`<link>${webUrl('/artigos/renda-fixa-em-2026')}</link>`)
+    expect(xml).toContain('<title>Carteira recomendada de outubro: 1 a 31 de outubro</title>')
+    expect(xml).toContain('<title>Renda fixa em 2026: o que muda para o investidor</title>')
     expect(xml).toContain(
       '<description>Um panorama dos títulos públicos e privados diante da nova trajetória de juros.</description>',
     )
@@ -439,6 +445,164 @@ test.describe('PUB-015 · Páginas de erro', () => {
       )
       await expect(main).not.toContainText(/permission|denied|articles|Falha/i)
     })
+  })
+})
+
+// ADR 0047 · Menu do cabeçalho: "Artigos" na home e "Voltar" nas demais páginas.
+test.describe('Voltar no cabeçalho', () => {
+  const ARTICLE = '/artigos/carteira-recomendada-outubro'
+  const menu = (page: Page) => page.getByRole('navigation', { name: 'Principal' })
+  const back = (page: Page) =>
+    menu(page).getByRole('link', { name: 'Voltar para a página anterior', exact: true })
+  const look = (link: Locator) =>
+    link.evaluate((element) => {
+      const style = getComputedStyle(element)
+      return [
+        style.fontFamily,
+        style.fontSize,
+        style.fontWeight,
+        style.textTransform,
+        style.color,
+        style.backgroundColor,
+        style.borderTopWidth,
+      ]
+    })
+
+  test('home mostra "Artigos", que leva à lista', async ({ page }) => {
+    await page.goto(webUrl('/'))
+
+    await expect(menu(page).getByRole('link')).toHaveText(['Artigos'])
+    await expect(menu(page).getByRole('link', { name: 'Artigos' })).toHaveAttribute(
+      'href',
+      '/artigos',
+    )
+  })
+
+  for (const { name, path: pagePath, fallback } of [
+    { name: 'lista', path: '/artigos', fallback: '/' },
+    { name: 'artigo', path: ARTICLE, fallback: '/artigos' },
+    { name: 'privacidade', path: '/privacidade', fallback: '/' },
+    { name: '404', path: '/nao-existe', fallback: '/' },
+  ]) {
+    test(`${name} mostra só "Voltar", com o destino de reserva ${fallback}`, async ({ page }) => {
+      await page.goto(webUrl(pagePath))
+
+      await expect(menu(page).getByRole('link')).toHaveText(['Voltar'])
+      await expect(back(page)).toHaveAttribute('href', fallback)
+      await expect(back(page)).not.toHaveAttribute('aria-current')
+      await expect(back(page).locator('svg')).toHaveCount(0)
+      expect((await back(page).boundingBox())?.height).toBeGreaterThanOrEqual(44)
+    })
+  }
+
+  test('"Voltar" tem o estilo de texto do item "Artigos" e foco visível', async ({ page }) => {
+    await page.goto(webUrl('/'))
+    const articles = await look(menu(page).getByRole('link', { name: 'Artigos' }))
+
+    await page.goto(webUrl('/artigos'))
+    expect(await look(back(page))).toEqual(articles)
+    await back(page).focus()
+    await expect(back(page)).toHaveCSS('outline-style', 'solid')
+  })
+
+  test('home → lista → artigo → Voltar (lista) → Voltar (home)', async ({ page }) => {
+    await page.goto(webUrl('/'))
+    await menu(page).getByRole('link', { name: 'Artigos' }).click()
+    await expect(page).toHaveURL(webUrl('/artigos'))
+    await page.getByRole('link', { name: /Carteira recomendada de outubro/ }).click()
+    await expect(page).toHaveURL(webUrl(ARTICLE))
+
+    await back(page).click()
+    await expect(page).toHaveURL(webUrl('/artigos'))
+    await back(page).click()
+    await expect(page).toHaveURL(webUrl('/'))
+    await expect(menu(page).getByRole('link')).toHaveText(['Artigos'])
+  })
+
+  test('volta para a tela anterior, não para o nível acima', async ({ page }) => {
+    await page.goto(webUrl('/privacidade'))
+    await page.getByRole('link', { name: 'Rio Negro Investimentos, página inicial' }).click()
+    await expect(page).toHaveURL(webUrl('/'))
+    await menu(page).getByRole('link', { name: 'Artigos' }).click()
+    await expect(page).toHaveURL(webUrl('/artigos'))
+
+    await back(page).click()
+    await expect(page).toHaveURL(webUrl('/'))
+  })
+
+  test('artigo aberto direto pela URL: Voltar leva para /artigos e depois para a home', async ({
+    page,
+  }) => {
+    await page.goto(webUrl(ARTICLE))
+
+    await back(page).click()
+    await expect(page).toHaveURL(webUrl('/artigos'))
+    // A lista veio depois do artigo: agora há tela anterior e o Voltar retorna a ela.
+    await back(page).click()
+    await expect(page).toHaveURL(webUrl(ARTICLE))
+  })
+
+  test('Ctrl + clique abre o destino de reserva em outra aba', async ({ page, context }) => {
+    await page.goto(webUrl('/'))
+    await menu(page).getByRole('link', { name: 'Artigos' }).click()
+    await page.getByRole('link', { name: /Carteira recomendada de outubro/ }).click()
+    await expect(page).toHaveURL(webUrl(ARTICLE))
+
+    const [tab] = await Promise.all([
+      context.waitForEvent('page'),
+      back(page).click({ modifiers: ['ControlOrMeta'] }),
+    ])
+    await expect(tab).toHaveURL(webUrl('/artigos'))
+    await expect(page).toHaveURL(webUrl(ARTICLE))
+  })
+
+  test('sem JavaScript, é um link para o nível acima', async ({ browser }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false })
+    const page = await context.newPage()
+
+    await page.goto(webUrl(ARTICLE))
+    await back(page).click()
+    await expect(page).toHaveURL(webUrl('/artigos'))
+    await back(page).click()
+    await expect(page).toHaveURL(webUrl('/'))
+    await context.close()
+  })
+
+  test('não há mais botão Voltar no conteúdo', async ({ page }) => {
+    for (const pagePath of ['/artigos', ARTICLE]) {
+      await page.goto(webUrl(pagePath))
+
+      await expect(page.getByRole('main').getByRole('link', { name: /^Voltar/ })).toHaveCount(0)
+    }
+  })
+
+  test.describe('capturas', () => {
+    test.skip(!process.env.VISUAL, 'Gerado só com VISUAL=1')
+
+    for (const viewport of [
+      { width: 1440, height: 900 },
+      { width: 390, height: 844 },
+    ]) {
+      for (const { file, path: pagePath } of [
+        { file: 'home', path: '/' },
+        { file: 'lista', path: '/artigos' },
+        { file: 'artigo', path: ARTICLE },
+      ]) {
+        test(`${file} a ${viewport.width} px`, async ({ browser }) => {
+          const page = await browser.newPage({ viewport })
+          await page.goto(webUrl(pagePath), { waitUntil: 'networkidle' })
+          await page.screenshot({
+            path: path.join(
+              import.meta.dirname,
+              '__visual__',
+              `voltar-${file}-${viewport.width}.png`,
+            ),
+            fullPage: true,
+          })
+          await page.close()
+        })
+      }
+    }
   })
 })
 

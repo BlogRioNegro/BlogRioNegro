@@ -61,7 +61,7 @@
 --color-overlay:rgba(29,28,27,.48);
 
 /* Rodapé (igual ao do site institucional) */
---color-footer-bg:var(--rn-navy-900);
+--color-footer-bg:#000000;
 --color-footer-text:#ffffff;
 --color-footer-accent:var(--rn-gold-500);
 --color-footer-accent-hover:color-mix(in srgb,var(--color-footer-accent) 80%,var(--color-footer-text));

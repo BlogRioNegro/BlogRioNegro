@@ -38,6 +38,7 @@ const EXISTING: ArticleForEdit = {
   id: ID,
   slug: 'carteira-de-outubro',
   title: 'Carteira de outubro',
+  subtitle: null,
   summary: null,
   cover_path: `${ID}/capa-antiga.png`,
   content_type: 'pdf',
@@ -137,6 +138,7 @@ describe('saveArticle', () => {
       article_id: ID,
       slug: 'carteira-de-outubro',
       title: 'Carteira recomendada de outubro',
+      subtitle: undefined,
       summary: undefined,
       cover_path: EXISTING.cover_path,
       content_type: 'pdf',
@@ -147,6 +149,26 @@ describe('saveArticle', () => {
       full_pdf_path: `${ID}/completo.pdf`,
     })
     expect(store.uploadFile).not.toHaveBeenCalled()
+  })
+
+  // ADR 0046 · O subtítulo é gravado aparado; o slug e o título não mudam por causa dele.
+  it('grava o subtítulo aparado, sem mexer no título nem no slug', async () => {
+    await expect(saveArticle(null, form({ subtitle: '  1 a 31 de outubro  ' }))).rejects.toThrow(
+      'NEXT_REDIRECT:/artigos',
+    )
+
+    expect(store.saveArticleRecord.mock.calls[0]?.[1]).toMatchObject({
+      title: 'Carteira recomendada de outubro',
+      subtitle: '1 a 31 de outubro',
+      slug: 'carteira-de-outubro',
+    })
+  })
+
+  it('subtítulo acima de 160 caracteres: erro no campo, sem consultar o banco', async () => {
+    const result = await saveArticle(null, form({ subtitle: 'x'.repeat(161) }))
+
+    expect(result?.fieldErrors).toEqual({ subtitle: ARTICLE_MESSAGES.subtitle })
+    expect(store.findArticleForEdit).not.toHaveBeenCalled()
   })
 
   it('troca a capa e remove a antiga depois de salvar', async () => {

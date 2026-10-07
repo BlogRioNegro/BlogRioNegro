@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { connection } from 'next/server'
 import type { ReactNode } from 'react'
+import { NavigationTrail } from '@/components/back-link'
 import { SiteFooter } from '@/components/site-footer'
 import { StyleNonce } from '@/components/style-nonce'
 import { BLOG_DESCRIPTION } from '@/lib/domain/article-description'
@@ -18,8 +19,8 @@ export const metadata: Metadata = {
   alternates: { types: { 'application/rss+xml': '/rss.xml' } },
 }
 
-// O SiteHeader fica em cada segmento, porque o link ativo muda com a rota e o layout raiz
-// não re-renderiza na navegação.
+// O SiteHeader fica em cada segmento, porque o item do menu muda com a rota e o layout raiz
+// não re-renderiza na navegação. Por isso a trilha do "Voltar" (NavigationTrail) fica aqui.
 export default async function RootLayout({ children }: { children: ReactNode }) {
   await connection()
   const nonce = (await headers()).get('x-nonce') ?? ''
@@ -28,6 +29,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     <html lang="pt-BR" className={fontVariables}>
       <body className="flex min-h-screen flex-col">
         <StyleNonce nonce={nonce} />
+        <NavigationTrail />
         {children}
         <SiteFooter />
       </body>

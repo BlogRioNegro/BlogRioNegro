@@ -1,6 +1,7 @@
 # 0044 · Tipografia e favicon do site institucional
 
-- Status: accepted · Data: 2026-10-05
+- Status: accepted · Data: 2026-10-05 · superseded em parte por
+  [0045](0045-titulos-em-roboto-slab-black.md) (títulos e subtítulos)
 - Specs: [DS-001, DS-003](../specs/06-design-system.md)
 - Supersedes, em parte: [0043](0043-marca-oficial-conforme-o-guia.md) (peso dos títulos e favicon)
 

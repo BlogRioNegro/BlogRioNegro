@@ -146,6 +146,7 @@ async function richTextContent(
 
   const pdf = await renderArticlePdf({
     title: fields.title,
+    subtitle: fields.subtitle,
     cover: cover ? await pdfImage(cover) : null,
     doc,
     images,
@@ -277,6 +278,7 @@ export async function saveArticle(
     article_id: fields.id,
     slug: fields.slug,
     title: fields.title,
+    subtitle: fields.subtitle ?? undefined,
     summary: fields.summary ?? undefined,
     cover_path: coverPath,
     content_type: fields.contentType,

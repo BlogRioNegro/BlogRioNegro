@@ -13,7 +13,8 @@ import type { JSONContent } from '@tiptap/core'
 import { fileTypeFromBuffer } from 'file-type'
 import type { ReactNode } from 'react'
 
-// ADM-008 · ADR 0008 · PDF completo do artigo rich_text: título, capa e todo o conteúdo. O JSON
+// ADM-008 · ADR 0008 · PDF completo do artigo rich_text: título, subtítulo (se houver), capa e
+// todo o conteúdo. O JSON
 // já passou por checkRichText (só nós e marcas aprovados). Fontes padrão do PDF (Helvetica e
 // Times), que cobrem os acentos do português. Sem cores: o texto sai no preto padrão do PDF.
 
@@ -22,6 +23,7 @@ export type PdfImage = { data: Buffer; format: 'png' | 'jpg' }
 
 type ArticlePdfInput = {
   title: string
+  subtitle: string | null
   cover: PdfImage | null
   doc: JSONContent
   /** Imagens do conteúdo por `src`; ausente = formato sem suporte, entra o texto alternativo. */
@@ -140,6 +142,7 @@ function renderBlock(
 
 export async function renderArticlePdf({
   title,
+  subtitle,
   cover,
   doc,
   images,
@@ -148,6 +151,7 @@ export async function renderArticlePdf({
     <Document title={title} language="pt-BR">
       <Page size="A4" style={styles.page}>
         <Text style={styles.title}>{title}</Text>
+        {subtitle ? <Text style={styles.h3}>{subtitle}</Text> : null}
         {cover ? <PdfPicture src={cover} style={styles.cover} /> : null}
         {(doc.content ?? []).map((node, index) => renderBlock(node, index, images))}
       </Page>

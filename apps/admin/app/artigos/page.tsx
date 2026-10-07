@@ -81,6 +81,9 @@ function ArticlesTable({ articles }: { articles: ArticleRow[] }) {
                 <span className="font-medium">{article.title}</span>
                 {index === 0 ? <FeaturedBadge /> : null}
               </div>
+              {article.subtitle ? (
+                <p className="text-xs text-text-muted">{article.subtitle}</p>
+              ) : null}
             </TableCell>
             <TableCell>
               <TypeBadge type={article.content_type} />
@@ -133,9 +136,12 @@ function ArticleCards({ articles }: { articles: ArticleRow[] }) {
             <TypeBadge type={article.content_type} />
             {index === 0 ? <FeaturedBadge /> : null}
           </div>
-          <span className="font-serif text-md leading-tight font-regular text-pretty">
+          <span className="font-serif text-md leading-snug font-black text-pretty">
             {article.title}
           </span>
+          {article.subtitle ? (
+            <p className="-mt-2 text-xs text-text-muted">{article.subtitle}</p>
+          ) : null}
           <div className="flex items-end justify-between gap-3">
             <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1 text-xs">
               <dt className="text-text-muted">Publicação</dt>
@@ -193,10 +199,8 @@ export default async function ArticlesPage() {
       <main className="mx-auto flex w-full max-w-(--layout-admin) flex-col gap-4 px-4 pt-6 pb-12 md:gap-6 md:px-6 md:pt-8 md:pb-16">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-col gap-1">
-            <h1 className="font-serif text-2xl leading-none font-light tracking-title uppercase">
-              Artigos
-            </h1>
-            <p className="font-serif text-xs font-light text-text-muted">
+            <h1 className="font-serif text-h1 font-black">Artigos</h1>
+            <p className="font-serif text-xs font-regular text-text-muted">
               {count} · o mais recente aparece em destaque no site
             </p>
           </div>

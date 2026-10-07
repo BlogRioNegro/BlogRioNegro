@@ -8,12 +8,14 @@ import { LeadDialog } from '@/components/lead-dialog'
 import { PdfPreview } from '@/components/pdf-preview'
 import { RichText } from '@/components/rich-text'
 import { articleDescription } from '@/lib/domain/article-description'
+import { articleFullTitle } from '@/lib/domain/article-title'
 import { formatPublishedDate } from '@/lib/domain/published-date'
 import { parseRichTextPreview } from '@/lib/domain/rich-text'
 import { env } from '@/lib/env'
 import { coverUrl, getArticleBySlug, previewPdfUrl } from '@/lib/services/articles'
 
-// PUB-010 · Descrição com fallback (articleDescription); capa como og:image absoluta.
+// PUB-010 · Título com o subtítulo (articleFullTitle), descrição com fallback
+// (articleDescription) e capa como og:image absoluta.
 export async function generateMetadata({
   params,
 }: PageProps<'/artigos/[slug]'>): Promise<Metadata> {
@@ -21,22 +23,23 @@ export async function generateMetadata({
   if (!article) return {}
 
   const url = `/artigos/${article.slug}`
+  const title = articleFullTitle(article)
   const description = articleDescription(article)
   const image = coverUrl(article.cover_path)
 
   return {
-    title: article.title,
+    title,
     description,
     alternates: { canonical: url },
     openGraph: {
       type: 'article',
       url,
-      title: article.title,
+      title,
       description,
       images: [image],
       publishedTime: article.published_at,
     },
-    twitter: { card: 'summary_large_image', title: article.title, description, images: [image] },
+    twitter: { card: 'summary_large_image', title, description, images: [image] },
   }
 }
 
@@ -55,16 +58,26 @@ export default async function ArticlePage({ params }: PageProps<'/artigos/[slug]
           </Link>
         </Button>
       </div>
-      <h1 className="my-6 font-serif text-3xl font-light tracking-title text-balance wrap-break-word uppercase hyphens-auto md:my-8 md:text-4xl">
+      <h1
+        className={cn(
+          'mt-6 font-serif text-h1 font-black text-balance wrap-break-word hyphens-auto md:mt-8',
+          article.subtitle ? 'mb-2' : 'mb-6 md:mb-8',
+        )}
+      >
         {article.title}
       </h1>
+      {article.subtitle ? (
+        <p className="mb-6 font-serif text-xl font-regular text-pretty wrap-break-word md:mb-8 md:text-2xl">
+          {article.subtitle}
+        </p>
+      ) : null}
       <CoverImage src={coverUrl(article.cover_path)} eager className="rounded-card" />
       <div className="mt-4 mb-3 flex items-center gap-2 text-xs text-text-muted md:mt-6 md:mb-4">
         <TypeBadge type={article.content_type} />
         <time dateTime={article.published_at}>{formatPublishedDate(article.published_at)}</time>
       </div>
       {article.summary ? (
-        <p className="mb-6 font-serif text-lg leading-normal font-light text-pretty text-text-muted md:mb-8 md:text-xl">
+        <p className="mb-6 font-serif text-lg leading-normal font-regular text-pretty text-text-muted md:mb-8 md:text-xl">
           {article.summary}
         </p>
       ) : null}
